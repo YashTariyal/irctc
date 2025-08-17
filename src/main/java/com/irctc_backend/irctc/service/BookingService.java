@@ -5,6 +5,9 @@ import com.irctc_backend.irctc.repository.BookingRepository;
 import com.irctc_backend.irctc.repository.CoachRepository;
 import com.irctc_backend.irctc.repository.SeatRepository;
 import com.irctc_backend.irctc.repository.TrainRepository;
+import com.irctc_backend.irctc.util.LoggingUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,8 @@ import java.util.Random;
 
 @Service
 public class BookingService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(BookingService.class);
     
     @Autowired
     private BookingRepository bookingRepository;
@@ -34,13 +39,20 @@ public class BookingService {
     private NotificationService notificationService;
     
     public Booking createBooking(Booking booking) {
-        // Validate train exists and is running
-        Train train = trainRepository.findById(booking.getTrain().getId())
-            .orElseThrow(() -> new RuntimeException("Train not found"));
+        long startTime = System.currentTimeMillis();
+        String requestId = LoggingUtil.generateRequestId();
         
-        if (!train.getIsRunning()) {
-            throw new RuntimeException("Train is not running");
-        }
+        try {
+            logger.info("Creating booking for train: {}, user: {}", 
+                       booking.getTrain().getId(), booking.getUser().getId());
+            
+            // Validate train exists and is running
+            Train train = trainRepository.findById(booking.getTrain().getId())
+                .orElseThrow(() -> new RuntimeException("Train not found"));
+            
+            if (!train.getIsRunning()) {
+                throw new RuntimeException("Train is not running");
+            }
         
         // Generate PNR number
         booking.setPnrNumber(generatePNR());
@@ -84,12 +96,27 @@ public class BookingService {
         // Publish booking confirmed event to Kafka for notifications
         try {
             notificationService.publishBookingConfirmedEvent(savedBooking);
+            LoggingUtil.logKafkaEvent("BOOKING_CONFIRMED", "booking-confirmed", requestId, "SUCCESS");
         } catch (Exception e) {
             // Log the error but don't fail the booking
-            System.err.println("Failed to publish booking event to Kafka: " + e.getMessage());
+            LoggingUtil.logError("KAFKA_PUBLISH", "BOOKING", savedBooking.getId().toString(), 
+                               "SYSTEM", "Failed to publish booking event to Kafka", e);
         }
         
+        // Log successful booking creation
+        LoggingUtil.logBusinessOperation("CREATE_BOOKING", "BOOKING", savedBooking.getId().toString(), 
+                                       booking.getUser().getId().toString(), 
+                                       "Booking created successfully with PNR: " + savedBooking.getPnrNumber());
+        
+        LoggingUtil.logDatabaseOperation("CREATE", "BOOKING", savedBooking.getId().toString(), 
+                                       requestId, startTime);
+        
         return savedBooking;
+        } catch (Exception e) {
+            LoggingUtil.logError("CREATE_BOOKING", "BOOKING", "N/A", 
+                               booking.getUser().getId().toString(), "Failed to create booking", e);
+            throw e;
+        }
     }
     
     public Optional<Booking> findByPnrNumber(String pnrNumber) {

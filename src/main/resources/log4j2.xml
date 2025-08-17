@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    
+    <!-- Properties for log file paths and patterns -->
+    <Properties>
+        <!-- Log directory -->
+        <Property name="LOG_DIR">logs</Property>
+        
+        <!-- Log file patterns -->
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+        <Property name="JSON_PATTERN">{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%-5level","logger":"%logger{36}","thread":"%t","message":"%msg%n"}</Property>
+        
+        <!-- File size and count for rotation -->
+        <Property name="MAX_FILE_SIZE">100MB</Property>
+        <Property name="MAX_FILES">30</Property>
+        
+        <!-- Archive pattern -->
+        <Property name="ARCHIVE_PATTERN">${LOG_DIR}/archive/irctc-%d{yyyy-MM-dd}-%i.log.gz</Property>
+    </Properties>
+    
+    <!-- Appenders -->
+    <Appenders>
+        
+        <!-- Console Appender -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+        
+        <!-- Application Log File Appender -->
+        <RollingFile name="ApplicationFile" 
+                     fileName="${LOG_DIR}/irctc-application.log"
+                     filePattern="${ARCHIVE_PATTERN}">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_FILES}">
+                <Delete basePath="${LOG_DIR}/archive" maxDepth="1">
+                    <IfFileName glob="irctc-*.log.gz"/>
+                    <IfLastModified age="30d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        
+        <!-- Error Log File Appender -->
+        <RollingFile name="ErrorFile" 
+                     fileName="${LOG_DIR}/irctc-error.log"
+                     filePattern="${LOG_DIR}/archive/irctc-error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_FILES}">
+                <Delete basePath="${LOG_DIR}/archive" maxDepth="1">
+                    <IfFileName glob="irctc-error-*.log.gz"/>
+                    <IfLastModified age="30d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        
+        <!-- Security Log File Appender -->
+        <RollingFile name="SecurityFile" 
+                     fileName="${LOG_DIR}/irctc-security.log"
+                     filePattern="${LOG_DIR}/archive/irctc-security-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_FILES}">
+                <Delete basePath="${LOG_DIR}/archive" maxDepth="1">
+                    <IfFileName glob="irctc-security-*.log.gz"/>
+                    <IfLastModified age="30d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        
+        <!-- Database Log File Appender -->
+        <RollingFile name="DatabaseFile" 
+                     fileName="${LOG_DIR}/irctc-database.log"
+                     filePattern="${LOG_DIR}/archive/irctc-database-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_FILES}">
+                <Delete basePath="${LOG_DIR}/archive" maxDepth="1">
+                    <IfFileName glob="irctc-database-*.log.gz"/>
+                    <IfLastModified age="30d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        
+        <!-- Kafka Log File Appender -->
+        <RollingFile name="KafkaFile" 
+                     fileName="${LOG_DIR}/irctc-kafka.log"
+                     filePattern="${LOG_DIR}/archive/irctc-kafka-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_FILES}">
+                <Delete basePath="${LOG_DIR}/archive" maxDepth="1">
+                    <IfFileName glob="irctc-kafka-*.log.gz"/>
+                    <IfLastModified age="30d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        
+        <!-- API Log File Appender -->
+        <RollingFile name="APIFile" 
+                     fileName="${LOG_DIR}/irctc-api.log"
+                     filePattern="${LOG_DIR}/archive/irctc-api-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_FILES}">
+                <Delete basePath="${LOG_DIR}/archive" maxDepth="1">
+                    <IfFileName glob="irctc-api-*.log.gz"/>
+                    <IfLastModified age="30d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        
+        <!-- JSON Log File Appender for structured logging -->
+        <RollingFile name="JSONFile" 
+                     fileName="${LOG_DIR}/irctc-json.log"
+                     filePattern="${LOG_DIR}/archive/irctc-json-%d{yyyy-MM-dd}-%i.log.gz">
+            <JsonLayout complete="false" compact="true" eventEol="true" objectMessageAsJsonObject="true"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_FILES}">
+                <Delete basePath="${LOG_DIR}/archive" maxDepth="1">
+                    <IfFileName glob="irctc-json-*.log.gz"/>
+                    <IfLastModified age="30d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        
+        <!-- Error Appender with Threshold Filter -->
+        <RollingFile name="ErrorRollingFile" 
+                     fileName="${LOG_DIR}/irctc-error.log"
+                     filePattern="${LOG_DIR}/archive/irctc-error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_FILES}">
+                <Delete basePath="${LOG_DIR}/archive" maxDepth="1">
+                    <IfFileName glob="irctc-error-*.log.gz"/>
+                    <IfLastModified age="30d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        
+    </Appenders>
+    
+    <!-- Loggers -->
+    <Loggers>
+        
+        <!-- Root Logger -->
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="ApplicationFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Root>
+        
+        <!-- Application specific loggers -->
+        <Logger name="com.irctc_backend.irctc" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="ApplicationFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <!-- Controller loggers -->
+        <Logger name="com.irctc_backend.irctc.controller" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="APIFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <!-- Service loggers -->
+        <Logger name="com.irctc_backend.irctc.service" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="ApplicationFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <!-- Repository loggers -->
+        <Logger name="com.irctc_backend.irctc.repository" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DatabaseFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <!-- Security loggers -->
+        <Logger name="com.irctc_backend.irctc.config.SecurityConfig" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="SecurityFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <!-- Kafka loggers -->
+        <Logger name="com.irctc_backend.irctc.service.NotificationService" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="KafkaFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <Logger name="com.irctc_backend.irctc.service.NotificationConsumerService" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="KafkaFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <!-- Hibernate/SQL loggers -->
+        <Logger name="org.hibernate.SQL" level="debug" additivity="false">
+            <AppenderRef ref="DatabaseFile"/>
+            <AppenderRef ref="JSONFile"/>
+        </Logger>
+        
+        <Logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="trace" additivity="false">
+            <AppenderRef ref="DatabaseFile"/>
+            <AppenderRef ref="JSONFile"/>
+        </Logger>
+        
+        <!-- Spring Security loggers -->
+        <Logger name="org.springframework.security" level="info" additivity="false">
+            <AppenderRef ref="SecurityFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <!-- Kafka loggers -->
+        <Logger name="org.apache.kafka" level="info" additivity="false">
+            <AppenderRef ref="KafkaFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <!-- Spring Framework loggers -->
+        <Logger name="org.springframework" level="info" additivity="false">
+            <AppenderRef ref="ApplicationFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <!-- Tomcat loggers -->
+        <Logger name="org.apache.tomcat" level="info" additivity="false">
+            <AppenderRef ref="ApplicationFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
+        
+        <!-- Reduce noise from other loggers -->
+        <Logger name="org.springframework.boot.autoconfigure" level="warn" additivity="false">
+            <AppenderRef ref="ApplicationFile"/>
+        </Logger>
+        
+        <Logger name="org.springframework.boot.actuate" level="info" additivity="false">
+            <AppenderRef ref="ApplicationFile"/>
+            <AppenderRef ref="JSONFile"/>
+        </Logger>
+        
+    </Loggers>
+    
+</Configuration> 
