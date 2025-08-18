@@ -1,5 +1,6 @@
 package com.irctc_backend.irctc.service;
 
+import com.irctc_backend.irctc.annotation.ExecutionTime;
 import com.irctc_backend.irctc.entity.*;
 import com.irctc_backend.irctc.repository.BookingRepository;
 import com.irctc_backend.irctc.repository.CoachRepository;
@@ -38,6 +39,7 @@ public class BookingService {
     @Autowired
     private NotificationService notificationService;
     
+    @ExecutionTime("Create Train Booking")
     public Booking createBooking(Booking booking) {
         long startTime = System.currentTimeMillis();
         String requestId = LoggingUtil.generateRequestId();
@@ -119,6 +121,7 @@ public class BookingService {
         }
     }
     
+    @ExecutionTime("Find Booking by PNR")
     public Optional<Booking> findByPnrNumber(String pnrNumber) {
         return bookingRepository.findByPnrNumber(pnrNumber);
     }
@@ -167,6 +170,7 @@ public class BookingService {
         return bookingRepository.findByPnrNumberContaining(pnr);
     }
     
+    @ExecutionTime("Update Booking Status")
     public Booking updateBookingStatus(Long bookingId, Booking.BookingStatus status) {
         Booking booking = bookingRepository.findById(bookingId)
             .orElseThrow(() -> new RuntimeException("Booking not found"));

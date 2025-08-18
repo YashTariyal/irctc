@@ -1,5 +1,6 @@
 package com.irctc_backend.irctc.service;
 
+import com.irctc_backend.irctc.annotation.ExecutionTime;
 import com.irctc_backend.irctc.entity.Station;
 import com.irctc_backend.irctc.entity.Train;
 import com.irctc_backend.irctc.repository.StationRepository;
@@ -20,6 +21,7 @@ public class TrainService {
     @Autowired
     private StationRepository stationRepository;
     
+    @ExecutionTime("Create Train")
     public Train createTrain(Train train) {
         // Validate source and destination stations
         if (train.getSourceStation().getId().equals(train.getDestinationStation().getId())) {
@@ -67,6 +69,7 @@ public class TrainService {
         return trainRepository.findByNameOrNumberContaining(searchTerm);
     }
     
+    @ExecutionTime("Search Trains Between Stations")
     public List<Train> getTrainsBetweenStations(String sourceStationCode, String destStationCode) {
         Station sourceStation = stationRepository.findByStationCode(sourceStationCode)
             .orElseThrow(() -> new RuntimeException("Source station not found"));
