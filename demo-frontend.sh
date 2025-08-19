@@ -1,0 +1,61 @@
+#!/bin/bash
+
+echo "🚀 IRCTC AOP Timing Dashboard Frontend Demo"
+echo "==========================================="
+echo ""
+
+echo "📋 Building the project..."
+./mvnw clean compile
+
+echo ""
+echo "✅ Frontend files created:"
+echo "   📄 src/main/resources/templates/dashboard.html - Main dashboard page"
+echo "   🎨 src/main/resources/static/css/dashboard.css - Styling"
+echo "   ⚡ src/main/resources/static/js/dashboard.js - Main functionality"
+echo "   📊 src/main/resources/static/js/charts.js - Charts and visualizations"
+echo "   🔌 src/main/resources/static/js/websocket.js - Real-time updates"
+echo ""
+
+echo "🔧 Backend components created:"
+echo "   🎮 src/main/java/com/irctc_backend/irctc/controller/DashboardController.java"
+echo "   📊 src/main/java/com/irctc_backend/irctc/service/DashboardService.java"
+echo "   🔌 src/main/java/com/irctc_backend/irctc/config/WebSocketConfig.java"
+echo ""
+
+echo "🌐 To access the dashboard:"
+echo "   1. Start the application: ./mvnw spring-boot:run"
+echo "   2. Open browser: http://localhost:8080/dashboard"
+echo ""
+
+echo "📊 Dashboard Features:"
+echo "   ✅ Real-time activity feed"
+echo "   📈 Response time charts"
+echo "   📊 Request volume visualization"
+echo "   📋 API performance table"
+echo "   ⚠️  Performance alerts"
+echo "   🔢 Quick statistics"
+echo "   🌟 Top performing APIs"
+echo "   📱 Responsive design"
+echo ""
+
+echo "🎯 What you'll see:"
+echo "   - Modern, glassmorphism UI design"
+echo "   - Real-time API timing data"
+echo "   - Interactive charts and graphs"
+echo "   - Performance monitoring alerts"
+echo "   - Search and filter functionality"
+echo "   - WebSocket real-time updates"
+echo ""
+
+echo "🔧 Additional endpoints:"
+echo "   - GET /dashboard/api/stats - Dashboard statistics"
+echo "   - GET /dashboard/api/activities - Recent activities"
+echo "   - GET /dashboard/api/alerts - Performance alerts"
+echo "   - GET /dashboard/api/chart-data - Chart data"
+echo "   - GET /dashboard/api/performance - API performance"
+echo "   - GET /dashboard/api/top-apis - Top APIs"
+echo ""
+
+echo "🎉 Frontend demo setup completed!"
+echo "   Run './mvnw spring-boot:run' to start the application"
+echo "   Then visit http://localhost:8080/dashboard"

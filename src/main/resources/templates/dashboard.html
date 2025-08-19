@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRCTC AOP Timing Dashboard</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body>
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="loading-indicator">
+        <div class="loading-spinner"></div>
+        <p>Loading Dashboard...</p>
+    </div>
+
+    <div class="dashboard-container" id="dashboardContainer" style="display: none;">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1><i class="fas fa-tachometer-alt"></i> IRCTC Performance Monitor</h1>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Active APIs</span>
+                        <span class="stat-value" id="activeApis">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Response Time</span>
+                        <span class="stat-value" id="avgResponseTime">0ms</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Requests</span>
+                        <span class="stat-value" id="totalRequests">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Real-time Activity Feed -->
+            <section class="activity-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-stream"></i> Real-time Activity Feed</h2>
+                    <div class="controls">
+                        <button id="clearLogs" class="btn btn-secondary">
+                            <i class="fas fa-trash"></i> Clear Logs
+                        </button>
+                        <button id="pauseLogs" class="btn btn-warning">
+                            <i class="fas fa-pause"></i> Pause
+                        </button>
+                    </div>
+                </div>
+                <div class="activity-feed" id="activityFeed">
+                    <div class="loading">Loading activity feed...</div>
+                </div>
+            </section>
+
+            <!-- Performance Charts -->
+            <section class="charts-section">
+                <div class="chart-row">
+                    <!-- Response Time Chart -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-line"></i> Response Time Trends</h3>
+                            <div class="chart-controls">
+                                <select id="timeRange">
+                                    <option value="5">Last 5 minutes</option>
+                                    <option value="15">Last 15 minutes</option>
+                                    <option value="30">Last 30 minutes</option>
+                                    <option value="60">Last hour</option>
+                                </select>
+                            </div>
+                        </div>
+                        <canvas id="responseTimeChart"></canvas>
+                    </div>
+
+                    <!-- Request Volume Chart -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-bar"></i> Request Volume</h3>
+                        </div>
+                        <canvas id="requestVolumeChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Performance Table -->
+            <section class="table-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-table"></i> API Performance Details</h2>
+                    <div class="table-controls">
+                        <input type="text" id="searchApi" placeholder="Search APIs..." class="search-input">
+                        <select id="sortBy">
+                            <option value="avgTime">Sort by Avg Time</option>
+                            <option value="totalRequests">Sort by Total Requests</option>
+                            <option value="name">Sort by Name</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="performance-table">
+                        <thead>
+                            <tr>
+                                <th>API Endpoint</th>
+                                <th>Method</th>
+                                <th>Total Requests</th>
+                                <th>Avg Response Time</th>
+                                <th>Min Time</th>
+                                <th>Max Time</th>
+                                <th>Success Rate</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="apiTableBody">
+                            <tr>
+                                <td colspan="8" class="loading">Loading API data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Slow Operations Alert -->
+            <section class="alerts-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Performance Alerts</h2>
+                </div>
+                <div class="alerts-container" id="alertsContainer">
+                    <div class="no-alerts">No performance alerts at the moment.</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar">
+            <!-- Quick Stats -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-chart-pie"></i> Quick Stats</h3>
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="successCount">0</span>
+                            <span class="stat-label">Successful</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="slowCount">0</span>
+                            <span class="stat-label">Slow (>2s)</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon error">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="errorCount">0</span>
+                            <span class="stat-label">Errors</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top APIs -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-star"></i> Top APIs</h3>
+                <div class="top-apis" id="topApis">
+                    <div class="loading">Loading top APIs...</div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                <div class="recent-activity" id="recentActivity">
+                    <div class="loading">Loading recent activity...</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- WebSocket Connection Status -->
+    <div class="connection-status" id="connectionStatus">
+        <i class="fas fa-wifi"></i>
+        <span>Connecting...</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/dashboard.js" defer></script>
+    <script src="/js/charts.js" defer></script>
+    <script src="/js/websocket.js" defer></script>
+</body>
+</html>
