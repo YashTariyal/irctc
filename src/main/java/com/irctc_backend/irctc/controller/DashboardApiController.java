@@ -3,6 +3,7 @@ package com.irctc_backend.irctc.controller;
 import com.irctc_backend.irctc.service.DashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.util.Map;
 @RequestMapping("/dashboard/api")
 @CrossOrigin(origins = "*")
 @Tag(name = "Dashboard API", description = "Dashboard data API endpoints")
+@Hidden
 public class DashboardApiController {
     
     @Autowired

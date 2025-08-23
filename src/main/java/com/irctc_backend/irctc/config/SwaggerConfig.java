@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -43,5 +44,18 @@ public class SwaggerConfig {
         return new OpenAPI()
             .info(info)
             .servers(List.of(devServer, prodServer));
+    }
+    
+    /**
+     * Configure Swagger to only include backend API controllers
+     * Excludes frontend controllers (Dashboard, Test) from Swagger documentation
+     */
+    @Bean
+    public GroupedOpenApi publicApi() {
+        return GroupedOpenApi.builder()
+                .group("irctc-backend-api")
+                .packagesToScan("com.irctc_backend.irctc.controller")
+                .pathsToMatch("/api/**")
+                .build();
     }
 } 

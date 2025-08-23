@@ -2,6 +2,7 @@ package com.irctc_backend.irctc.controller;
 
 import com.irctc_backend.irctc.dto.BookingEvent;
 import com.irctc_backend.irctc.service.NotificationService;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/api/test")
 @CrossOrigin(origins = "*")
+@Hidden
 public class TestController {
     
     @Autowired
