@@ -10,6 +10,8 @@ import com.irctc_backend.irctc.util.LoggingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -40,6 +42,7 @@ public class BookingService {
     private NotificationService notificationService;
     
     @ExecutionTime("Create Train Booking")
+    @CacheEvict(value = {"bookings", "train-schedules"}, allEntries = true)
     public Booking createBooking(Booking booking) {
         long startTime = System.currentTimeMillis();
         String requestId = LoggingUtil.generateRequestId();
@@ -122,55 +125,68 @@ public class BookingService {
     }
     
     @ExecutionTime("Find Booking by PNR")
+    @Cacheable(value = "bookings", key = "#pnrNumber")
     public Optional<Booking> findByPnrNumber(String pnrNumber) {
         return bookingRepository.findByPnrNumber(pnrNumber);
     }
     
+    @Cacheable(value = "bookings", key = "#id")
     public Optional<Booking> findById(Long id) {
         return bookingRepository.findById(id);
     }
     
+    @Cacheable(value = "bookings", key = "'all-bookings'")
     public List<Booking> getAllBookings() {
         return bookingRepository.findAll();
     }
     
+    @Cacheable(value = "bookings", key = "'user-' + #user.id")
     public List<Booking> getBookingsByUser(User user) {
         return bookingRepository.findByUser(user);
     }
     
+    @Cacheable(value = "bookings", key = "'train-' + #train.id")
     public List<Booking> getBookingsByTrain(Train train) {
         return bookingRepository.findByTrain(train);
     }
     
+    @Cacheable(value = "bookings", key = "'journey-date-' + #journeyDate")
     public List<Booking> getBookingsByJourneyDate(LocalDate journeyDate) {
         return bookingRepository.findByJourneyDate(journeyDate);
     }
     
+    @Cacheable(value = "bookings", key = "'status-' + #status")
     public List<Booking> getBookingsByStatus(Booking.BookingStatus status) {
         return bookingRepository.findByStatus(status);
     }
     
+    @Cacheable(value = "bookings", key = "'payment-status-' + #paymentStatus")
     public List<Booking> getBookingsByPaymentStatus(Booking.PaymentStatus paymentStatus) {
         return bookingRepository.findByPaymentStatus(paymentStatus);
     }
     
+    @Cacheable(value = "bookings", key = "'upcoming-user-' + #user.id")
     public List<Booking> getUpcomingBookingsByUser(User user) {
         return bookingRepository.findUpcomingBookingsByUser(user, LocalDate.now());
     }
     
+    @Cacheable(value = "bookings", key = "'past-user-' + #user.id")
     public List<Booking> getPastBookingsByUser(User user) {
         return bookingRepository.findPastBookingsByUser(user, LocalDate.now());
     }
     
+    @Cacheable(value = "bookings", key = "'confirmed-upcoming-user-' + #user.id")
     public List<Booking> getConfirmedUpcomingBookingsByUser(User user) {
         return bookingRepository.findConfirmedUpcomingBookingsByUser(user, LocalDate.now());
     }
     
+    @Cacheable(value = "bookings", key = "#pnr")
     public List<Booking> searchBookingsByPnr(String pnr) {
         return bookingRepository.findByPnrNumberContaining(pnr);
     }
     
     @ExecutionTime("Update Booking Status")
+    @CacheEvict(value = {"bookings", "train-schedules"}, allEntries = true)
     public Booking updateBookingStatus(Long bookingId, Booking.BookingStatus status) {
         Booking booking = bookingRepository.findById(bookingId)
             .orElseThrow(() -> new RuntimeException("Booking not found"));
@@ -215,6 +231,7 @@ public class BookingService {
         return updatedBooking;
     }
     
+    @CacheEvict(value = {"bookings", "train-schedules"}, allEntries = true)
     public Booking updatePaymentStatus(Long bookingId, Booking.PaymentStatus paymentStatus) {
         Booking booking = bookingRepository.findById(bookingId)
             .orElseThrow(() -> new RuntimeException("Booking not found"));
@@ -235,10 +252,12 @@ public class BookingService {
         return updatedBooking;
     }
     
+    @CacheEvict(value = {"bookings", "train-schedules"}, allEntries = true)
     public Booking cancelBooking(Long bookingId) {
         return updateBookingStatus(bookingId, Booking.BookingStatus.CANCELLED);
     }
     
+    @Cacheable(value = "bookings", key = "'count-train-' + #train.id + '-date-' + #journeyDate")
     public Long getConfirmedBookingsCountByTrainAndDate(Train train, LocalDate journeyDate) {
         return bookingRepository.countConfirmedBookingsByTrainAndDate(train, journeyDate);
     }

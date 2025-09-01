@@ -3,6 +3,8 @@ package com.irctc_backend.irctc.service;
 import com.irctc_backend.irctc.entity.User;
 import com.irctc_backend.irctc.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
+    @CacheEvict(value = {"user-sessions", "stations"}, allEntries = true)
     public User registerUser(User user) {
         // Check if username already exists
         if (userRepository.existsByUsername(user.getUsername())) {
@@ -48,42 +51,52 @@ public class UserService {
         return userRepository.save(user);
     }
     
+    @Cacheable(value = "user-sessions", key = "#username")
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
     
+    @Cacheable(value = "user-sessions", key = "#email")
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
     
+    @Cacheable(value = "user-sessions", key = "#id")
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
     
+    @Cacheable(value = "user-sessions", key = "'all-users'")
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
     
+    @Cacheable(value = "user-sessions", key = "'active-users'")
     public List<User> getActiveUsers() {
         return userRepository.findByIsActive(true);
     }
     
+    @Cacheable(value = "user-sessions", key = "#role")
     public List<User> getUsersByRole(User.UserRole role) {
         return userRepository.findByRole(role);
     }
     
+    @Cacheable(value = "user-sessions", key = "'active-verified-users'")
     public List<User> getActiveVerifiedUsers() {
         return userRepository.findActiveVerifiedUsers();
     }
     
+    @Cacheable(value = "user-sessions", key = "#name")
     public List<User> searchUsersByName(String name) {
         return userRepository.findByNameContaining(name);
     }
     
+    @Cacheable(value = "user-sessions", key = "#email")
     public List<User> searchUsersByEmail(String email) {
         return userRepository.findByEmailContaining(email);
     }
     
+    @CacheEvict(value = "user-sessions", allEntries = true)
     public User updateUser(User user) {
         User existingUser = userRepository.findById(user.getId())
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -101,6 +114,7 @@ public class UserService {
         return userRepository.save(existingUser);
     }
     
+    @CacheEvict(value = "user-sessions", allEntries = true)
     public User updateUserRole(Long userId, User.UserRole role) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -111,6 +125,7 @@ public class UserService {
         return userRepository.save(user);
     }
     
+    @CacheEvict(value = "user-sessions", allEntries = true)
     public User verifyUser(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -121,6 +136,7 @@ public class UserService {
         return userRepository.save(user);
     }
     
+    @CacheEvict(value = "user-sessions", allEntries = true)
     public User deactivateUser(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -131,6 +147,7 @@ public class UserService {
         return userRepository.save(user);
     }
     
+    @CacheEvict(value = "user-sessions", allEntries = true)
     public User activateUser(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -150,6 +167,7 @@ public class UserService {
         return false;
     }
     
+    @CacheEvict(value = "user-sessions", allEntries = true)
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
     }

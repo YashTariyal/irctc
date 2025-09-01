@@ -5,6 +5,8 @@ import com.irctc_backend.irctc.entity.User;
 import com.irctc_backend.irctc.repository.PassengerRepository;
 import com.irctc_backend.irctc.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,6 +22,7 @@ public class PassengerService {
     @Autowired
     private UserRepository userRepository;
     
+    @CacheEvict(value = {"passengers", "user-sessions"}, allEntries = true)
     public Passenger createPassenger(Passenger passenger) {
         // Validate user exists
         User user = userRepository.findById(passenger.getUser().getId())
@@ -32,20 +35,24 @@ public class PassengerService {
         return passengerRepository.save(passenger);
     }
     
+    @Cacheable(value = "passengers", key = "#id")
     public Optional<Passenger> findById(Long id) {
         return passengerRepository.findById(id);
     }
     
+    @Cacheable(value = "passengers", key = "'all-passengers'")
     public List<Passenger> getAllPassengers() {
         return passengerRepository.findAll();
     }
     
+    @Cacheable(value = "passengers", key = "'user-' + #userId")
     public List<Passenger> getPassengersByUserId(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
         return passengerRepository.findByUser(user);
     }
     
+    @CacheEvict(value = {"passengers", "user-sessions"}, allEntries = true)
     public Passenger updatePassenger(Passenger passenger) {
         Passenger existingPassenger = passengerRepository.findById(passenger.getId())
             .orElseThrow(() -> new RuntimeException("Passenger not found"));
@@ -66,6 +73,7 @@ public class PassengerService {
         return passengerRepository.save(existingPassenger);
     }
     
+    @CacheEvict(value = {"passengers", "user-sessions"}, allEntries = true)
     public void deletePassenger(Long id) {
         passengerRepository.deleteById(id);
     }

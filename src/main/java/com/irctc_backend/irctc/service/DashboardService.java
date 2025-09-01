@@ -1,5 +1,6 @@
 package com.irctc_backend.irctc.service;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ public class DashboardService {
     /**
      * Get dashboard statistics.
      */
+    @Cacheable(value = "dashboard", key = "'stats'", unless = "#result == null")
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalRequests", 1250);
@@ -44,6 +46,7 @@ public class DashboardService {
     /**
      * Get recent activities.
      */
+    @Cacheable(value = "dashboard", key = "'activities'", unless = "#result == null")
     public List<Map<String, Object>> getRecentActivities() {
         synchronized (activities) {
             return new ArrayList<>(activities);
@@ -53,6 +56,7 @@ public class DashboardService {
     /**
      * Get performance alerts.
      */
+    @Cacheable(value = "dashboard", key = "'alerts'", unless = "#result == null")
     public List<Map<String, Object>> getPerformanceAlerts() {
         synchronized (alerts) {
             return new ArrayList<>(alerts);
@@ -62,6 +66,7 @@ public class DashboardService {
     /**
      * Get chart data for the specified time range.
      */
+    @Cacheable(value = "dashboard", key = "'chart-data-' + #timeRange", unless = "#result == null")
     public Map<String, Object> getChartData(int timeRange) {
         Map<String, Object> chartData = new HashMap<>();
         
@@ -83,6 +88,7 @@ public class DashboardService {
     /**
      * Get API performance details.
      */
+    @Cacheable(value = "dashboard", key = "'api-performance'", unless = "#result == null")
     public List<Map<String, Object>> getApiPerformance() {
         return Arrays.asList(
             createApiPerformanceEntry("GET /api/bookings/{id}", "GET", 156, 45, 12, 890, 98.5, "success"),
@@ -99,6 +105,7 @@ public class DashboardService {
     /**
      * Get top performing APIs.
      */
+    @Cacheable(value = "dashboard", key = "'top-apis'", unless = "#result == null")
     public List<Map<String, Object>> getTopApis() {
         return Arrays.asList(
             createTopApiEntry("GET /api/stations", 56),

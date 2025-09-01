@@ -6,6 +6,8 @@ import com.irctc_backend.irctc.entity.Train;
 import com.irctc_backend.irctc.repository.StationRepository;
 import com.irctc_backend.irctc.repository.TrainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -22,6 +24,7 @@ public class TrainService {
     private StationRepository stationRepository;
     
     @ExecutionTime("Create Train")
+    @CacheEvict(value = {"train-schedules", "stations"}, allEntries = true)
     public Train createTrain(Train train) {
         // Validate source and destination stations
         if (train.getSourceStation().getId().equals(train.getDestinationStation().getId())) {
@@ -41,35 +44,43 @@ public class TrainService {
         return trainRepository.save(train);
     }
     
+    @Cacheable(value = "train-schedules", key = "#trainNumber")
     public Optional<Train> findByTrainNumber(String trainNumber) {
         return trainRepository.findByTrainNumber(trainNumber);
     }
     
+    @Cacheable(value = "train-schedules", key = "#id")
     public Optional<Train> findById(Long id) {
         return trainRepository.findById(id);
     }
     
+    @Cacheable(value = "train-schedules", key = "'all-trains'")
     public List<Train> getAllTrains() {
         return trainRepository.findAll();
     }
     
+    @Cacheable(value = "train-schedules", key = "'active-trains'")
     public List<Train> getActiveTrains() {
         return trainRepository.findByIsRunning(true);
     }
     
+    @Cacheable(value = "train-schedules", key = "#trainType")
     public List<Train> getTrainsByType(Train.TrainType trainType) {
         return trainRepository.findByTrainType(trainType);
     }
     
+    @Cacheable(value = "train-schedules", key = "#status")
     public List<Train> getTrainsByStatus(Train.TrainStatus status) {
         return trainRepository.findByStatus(status);
     }
     
+    @Cacheable(value = "train-schedules", key = "#searchTerm")
     public List<Train> searchTrainsByNameOrNumber(String searchTerm) {
         return trainRepository.findByNameOrNumberContaining(searchTerm);
     }
     
     @ExecutionTime("Search Trains Between Stations")
+    @Cacheable(value = "train-schedules", key = "'stations-' + #sourceStationCode + '-' + #destStationCode")
     public List<Train> getTrainsBetweenStations(String sourceStationCode, String destStationCode) {
         Station sourceStation = stationRepository.findByStationCode(sourceStationCode)
             .orElseThrow(() -> new RuntimeException("Source station not found"));
@@ -80,6 +91,7 @@ public class TrainService {
         return trainRepository.findActiveTrainsBetweenStations(sourceStation, destStation);
     }
     
+    @Cacheable(value = "train-schedules", key = "'time-range-' + #sourceStationCode + '-' + #destStationCode + '-' + #startTime + '-' + #endTime")
     public List<Train> getTrainsBetweenStationsInTimeRange(String sourceStationCode, String destStationCode, 
                                                           LocalTime startTime, LocalTime endTime) {
         Station sourceStation = stationRepository.findByStationCode(sourceStationCode)
@@ -91,10 +103,12 @@ public class TrainService {
         return trainRepository.findTrainsBetweenStationsInTimeRange(sourceStation, destStation, startTime, endTime);
     }
     
+    @Cacheable(value = "train-schedules", key = "'cities-' + #sourceCity + '-' + #destCity")
     public List<Train> getTrainsBetweenCities(String sourceCity, String destCity) {
         return trainRepository.findActiveTrainsBetweenCities(sourceCity, destCity);
     }
     
+    @Cacheable(value = "train-schedules", key = "'states-' + #sourceState + '-' + #destState")
     public List<Train> getTrainsBetweenStates(String sourceState, String destState) {
         return trainRepository.findActiveTrainsBetweenStates(sourceState, destState);
     }
