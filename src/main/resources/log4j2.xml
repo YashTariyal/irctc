@@ -3,8 +3,8 @@
     
     <!-- Properties for log file paths and patterns -->
     <Properties>
-        <!-- Log directory -->
-        <Property name="LOG_DIR">logs</Property>
+        <!-- Log directory - use absolute path to ensure it works -->
+        <Property name="LOG_DIR">${sys:user.dir}/logs</Property>
         
         <!-- Log file patterns -->
         <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
@@ -173,6 +173,14 @@
             <AppenderRef ref="ApplicationFile"/>
             <AppenderRef ref="ErrorRollingFile" level="error"/>
         </Root>
+        
+        <!-- Ensure application startup logs are written -->
+        <Logger name="com.irctc_backend.irctc.IrctcApplication" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="ApplicationFile"/>
+            <AppenderRef ref="JSONFile"/>
+            <AppenderRef ref="ErrorRollingFile" level="error"/>
+        </Logger>
         
         <!-- Application specific loggers -->
         <Logger name="com.irctc_backend.irctc" level="info" additivity="false">
