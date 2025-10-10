@@ -1,0 +1,2 @@
+2025-10-10 22:05:57.064 [restartedMain] DEBUG org.hibernate.SQL - 
+    set client_min_messages = WARNING
