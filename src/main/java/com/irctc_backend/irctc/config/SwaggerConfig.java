@@ -17,7 +17,7 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI irctcOpenAPI() {
         Server devServer = new Server();
-        devServer.setUrl("http://localhost:8080");
+        devServer.setUrl("http://localhost:8082");
         devServer.setDescription("Development server");
         
         Server prodServer = new Server();
