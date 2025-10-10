@@ -1,0 +1,11 @@
+  ___ _____ _____ _____ _____   _____ _   _ _   _  _____ 
+ |_ _|_   _|_   _|_   _|_   _| |_   _| \ | | | | |/ ____|
+  | |  | |   | |   | |   | |     | | |  \| | | | | |     
+  | |  | |   | |   | |   | |     | | | . ` | | | | |     
+ _| |_ | |  _| |_  | |  _| |_   _| |_| |\  | |_| | |____ 
+|_____|_| |_____| |_| |_____| |_____|_| \_|\___/ \_____|
+                                                        
+🚂 Indian Railway Catering and Tourism Corporation
+📱 Backend Microservice v1.0.0
+🌐 Port: ${server.port:8082}
+📅 Started: ${spring.application.startup-date}
