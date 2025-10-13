@@ -82,6 +82,20 @@ A comprehensive Spring Boot application for Indian Railway Catering and Tourism 
    - **H2 Console**: http://localhost:8082/h2-console
    - **Actuator Health**: http://localhost:8082/actuator/health
 
+5. **Quick Test**
+   ```bash
+   # Test the enhanced Swagger UI
+   open http://localhost:8082/swagger-ui/index.html
+   
+   # Test API health
+   curl http://localhost:8082/actuator/health
+   
+   # Test event producer (create a booking)
+   curl -X POST http://localhost:8082/api/bookings \
+     -H "Content-Type: application/json" \
+     -d '{"user":{"id":1},"train":{"id":1},"passenger":{"id":1},"coach":{"id":1},"seat":{"id":1},"pnrNumber":"TEST123","journeyDate":"2025-10-15","totalFare":5000.00,"status":"CONFIRMED"}'
+   ```
+
 ## 📚 API Documentation
 
 ### 🔗 **Enhanced Swagger UI**
@@ -290,6 +304,51 @@ docker-compose up -d
 ./mvnw test -Dtest=BookingServiceTest
 ```
 
+### 🚀 **API Testing Examples**
+
+**Test User Registration:**
+```bash
+curl -X POST http://localhost:8082/api/users/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "username": "johndoe",
+    "password": "securePassword123",
+    "phoneNumber": "9876543210",
+    "dateOfBirth": "1990-01-01T00:00:00",
+    "gender": "MALE",
+    "address": "123 Main Street, Mumbai, Maharashtra"
+  }'
+```
+
+**Test Booking Creation:**
+```bash
+curl -X POST http://localhost:8082/api/bookings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user": {"id": 1},
+    "train": {"id": 1},
+    "passenger": {"id": 1},
+    "coach": {"id": 1},
+    "seat": {"id": 1},
+    "pnrNumber": "PNR123456",
+    "journeyDate": "2025-10-15",
+    "bookingDate": "2025-10-13T17:00:00",
+    "totalFare": 5000.00,
+    "baseFare": 4500.00,
+    "convenienceFee": 90.00,
+    "gstAmount": 225.00,
+    "status": "CONFIRMED",
+    "paymentStatus": "PENDING",
+    "quotaType": "GENERAL",
+    "isTatkal": false,
+    "isCancelled": false,
+    "bookingSource": "WEB"
+  }'
+```
+
 ## 📦 **Dependencies**
 
 ### 🏗️ **Core Dependencies**
@@ -358,6 +417,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - **v1.1.0** - Added event-driven architecture
 - **v1.2.0** - Enhanced observability and monitoring
 - **v1.3.0** - Security improvements and API documentation
+- **v1.4.0** - Enhanced Swagger documentation with comprehensive examples
+- **v1.5.0** - Event producer system with Kafka integration
 
 ---
 
