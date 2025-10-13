@@ -35,6 +35,14 @@ A comprehensive Spring Boot application for Indian Railway Catering and Tourism 
 - **Real-time Notifications** for booking confirmations
 - **Event Sourcing** for audit trails
 - **Message Queuing** for async processing
+- **Event Publishing** with comprehensive error handling
+
+### 📚 **API Documentation**
+- **Enhanced Swagger UI** with rich documentation
+- **Interactive API Testing** with pre-filled examples
+- **Organized API Groups** for easy navigation
+- **Comprehensive Examples** for all endpoints
+- **Security Documentation** with JWT authentication
 
 ## 🚀 Quick Start
 
@@ -69,14 +77,22 @@ A comprehensive Spring Boot application for Indian Railway Catering and Tourism 
 
 4. **Access the application**
    - **API Base URL**: http://localhost:8082
-   - **Swagger UI**: http://localhost:8082/swagger-ui.html
+   - **Enhanced Swagger UI**: http://localhost:8082/swagger-ui/index.html
+   - **API Groups**: 6 organized groups for different functionalities
    - **H2 Console**: http://localhost:8082/h2-console
    - **Actuator Health**: http://localhost:8082/actuator/health
 
 ## 📚 API Documentation
 
-### 🔗 **Swagger UI**
-Access the interactive API documentation at: http://localhost:8082/swagger-ui.html
+### 🔗 **Enhanced Swagger UI**
+Access the comprehensive interactive API documentation at: http://localhost:8082/swagger-ui/index.html
+
+**🎯 Key Features:**
+- **6 Organized API Groups**: User Management, Train Management, Booking Management, Passenger Management, Dashboard, System & Monitoring
+- **Rich Documentation**: Detailed descriptions, examples, and validation rules
+- **Interactive Testing**: "Try it out" functionality with pre-filled examples
+- **Security Integration**: JWT authentication with clear examples
+- **Comprehensive Examples**: Success and error response examples for all endpoints
 
 ### 📋 **Available Endpoints**
 
@@ -118,6 +134,36 @@ Access the interactive API documentation at: http://localhost:8082/swagger-ui.ht
 - `GET /actuator/metrics` - Application metrics
 - `GET /actuator/prometheus` - Prometheus metrics
 - `GET /actuator/info` - Application information
+
+## 🎯 **Event-Driven Architecture**
+
+### 📡 **Kafka Integration**
+The application features a comprehensive event-driven architecture with Apache Kafka:
+
+**Event Types:**
+- **Booking Events**: `booking-confirmed`, `booking-cancelled`
+- **Payment Events**: `payment-confirmed`, `payment-failed`
+- **User Events**: `user-registered`, `user-login`
+
+**Event Flow:**
+1. **Business Operation** (e.g., booking creation)
+2. **Event Generation** (BookingEvent DTO)
+3. **Kafka Publishing** (NotificationService)
+4. **Event Consumption** (Downstream services)
+
+**Example Event Structure:**
+```json
+{
+  "eventType": "BOOKING_CONFIRMED",
+  "bookingId": 123,
+  "userId": 1,
+  "trainNumber": "12345",
+  "pnrNumber": "PNR123456",
+  "journeyDate": "2025-10-15",
+  "totalFare": 5000.00,
+  "timestamp": "2025-10-13T22:30:00Z"
+}
+```
 
 ## 🏗️ **Architecture Overview**
 
