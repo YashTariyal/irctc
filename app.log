@@ -20825,3 +20825,396 @@ java.io.EOFException: null
 	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
 2025-10-10 22:19:31.536 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=10/10, idle=10/10, active=0, waiting=0)
 2025-10-10 22:19:31.537 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2025-10-10 22:20:01.539 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=10/10, idle=10/10, active=0, waiting=0)
+2025-10-10 22:20:01.540 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2025-10-10 22:20:09.435 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn8: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:20:13.414 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn5: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:20:14.793 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn0: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:20:21.839 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn3: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:20:26.865 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn1: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:20:27.170 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn2: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:20:27.314 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn6: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:20:27.876 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn7: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:20:29.601 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn9: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:20:30.394 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn4: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:20:31.544 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=10/10, idle=10/10, active=0, waiting=0)
+2025-10-10 22:20:31.544 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2025-10-10 22:21:01.550 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=10/10, idle=10/10, active=0, waiting=0)
+2025-10-10 22:21:01.552 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2025-10-10 22:21:31.556 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=10/10, idle=10/10, active=0, waiting=0)
+2025-10-10 22:21:31.557 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2025-10-10 22:21:47.100 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn8: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:21:54.083 [http-nio-8082-exec-7] DEBUG org.springdoc.api.AbstractOpenApiResource - Fetching openApi document from cache
+2025-10-10 22:21:55.159 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn5: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:21:55.373 [http-nio-8082-exec-8] DEBUG org.apache.coyote.http11.Http11Processor - Error parsing HTTP request header
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1331) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1219) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:781) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:345) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+2025-10-10 22:21:55.373 [http-nio-8082-exec-2] DEBUG org.apache.coyote.http11.Http11Processor - Error parsing HTTP request header
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1331) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1219) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:781) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:345) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+2025-10-10 22:21:55.373 [http-nio-8082-exec-6] DEBUG org.apache.coyote.http11.Http11Processor - Error parsing HTTP request header
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1331) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1219) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:781) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:345) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+2025-10-10 22:21:55.373 [http-nio-8082-exec-1] DEBUG org.apache.coyote.http11.Http11Processor - Error parsing HTTP request header
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1331) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1219) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:781) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:345) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+2025-10-10 22:21:55.373 [http-nio-8082-exec-4] DEBUG org.apache.coyote.http11.Http11Processor - Error parsing HTTP request header
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1331) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1219) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:781) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:345) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+2025-10-10 22:21:55.375 [http-nio-8082-exec-8] DEBUG org.apache.coyote.http11.Http11Processor - Error state [CLOSE_CONNECTION_NOW] reported while processing request
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1331) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1219) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:781) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:345) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+2025-10-10 22:21:55.375 [http-nio-8082-exec-2] DEBUG org.apache.coyote.http11.Http11Processor - Error state [CLOSE_CONNECTION_NOW] reported while processing request
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1331) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1219) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:781) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:345) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+2025-10-10 22:21:55.375 [http-nio-8082-exec-1] DEBUG org.apache.coyote.http11.Http11Processor - Error state [CLOSE_CONNECTION_NOW] reported while processing request
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1331) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1219) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:781) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:345) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+2025-10-10 22:21:55.375 [http-nio-8082-exec-4] DEBUG org.apache.coyote.http11.Http11Processor - Error state [CLOSE_CONNECTION_NOW] reported while processing request
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1331) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1219) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:781) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:345) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+2025-10-10 22:21:55.376 [http-nio-8082-exec-6] DEBUG org.apache.coyote.http11.Http11Processor - Error state [CLOSE_CONNECTION_NOW] reported while processing request
+java.io.EOFException: null
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.fillReadBuffer(NioEndpoint.java:1331) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$NioSocketWrapper.read(NioEndpoint.java:1219) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.fill(Http11InputBuffer.java:781) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:345) ~[tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) [tomcat-embed-core-10.1.43.jar!/:?]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) [tomcat-embed-core-10.1.43.jar!/:?]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+2025-10-10 22:21:58.166 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - keepalive: connection conn0: url=jdbc:h2:mem:irctc_dev user=SA is alive
+2025-10-10 22:22:01.562 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Pool stats (total=10/10, idle=10/10, active=0, waiting=0)
+2025-10-10 22:22:01.562 [HikariPool-1:housekeeper] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Fill pool skipped, pool has sufficient level or currently being filled.
+2025-10-10T16:52:07.648871Z SpringApplicationShutdownHook ERROR com.fasterxml.jackson.databind.exc.InvalidDefinitionException: No serializer found for class org.springframework.messaging.simp.broker.AbstractBrokerMessageHandler$UnsentDisconnectChannelInterceptor and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS) (through reference chain: org.apache.logging.log4j.core.impl.Log4jLogEvent["message"]->org.springframework.messaging.simp.broker.BrokerAvailabilityEvent["source"]->org.springframework.messaging.simp.broker.SimpleBrokerMessageHandler["clientInboundChannel"]->org.springframework.messaging.support.ExecutorSubscribableChannel["interceptors"]->java.util.Collections$UnmodifiableRandomAccessList[0]) com.fasterxml.jackson.databind.exc.InvalidDefinitionException: No serializer found for class org.springframework.messaging.simp.broker.AbstractBrokerMessageHandler$UnsentDisconnectChannelInterceptor and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS) (through reference chain: org.apache.logging.log4j.core.impl.Log4jLogEvent["message"]->org.springframework.messaging.simp.broker.BrokerAvailabilityEvent["source"]->org.springframework.messaging.simp.broker.SimpleBrokerMessageHandler["clientInboundChannel"]->org.springframework.messaging.support.ExecutorSubscribableChannel["interceptors"]->java.util.Collections$UnmodifiableRandomAccessList[0])
+	at com.fasterxml.jackson.databind.exc.InvalidDefinitionException.from(InvalidDefinitionException.java:77)
+	at com.fasterxml.jackson.databind.SerializerProvider.reportBadDefinition(SerializerProvider.java:1359)
+	at com.fasterxml.jackson.databind.DatabindContext.reportBadDefinition(DatabindContext.java:415)
+	at com.fasterxml.jackson.databind.ser.impl.UnknownSerializer.failForEmpty(UnknownSerializer.java:52)
+	at com.fasterxml.jackson.databind.ser.impl.UnknownSerializer.serialize(UnknownSerializer.java:29)
+	at com.fasterxml.jackson.databind.ser.impl.IndexedListSerializer.serializeContents(IndexedListSerializer.java:119)
+	at com.fasterxml.jackson.databind.ser.impl.IndexedListSerializer.serialize(IndexedListSerializer.java:79)
+	at com.fasterxml.jackson.databind.ser.impl.IndexedListSerializer.serialize(IndexedListSerializer.java:18)
+	at com.fasterxml.jackson.databind.ser.BeanPropertyWriter.serializeAsField(BeanPropertyWriter.java:732)
+	at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:760)
+	at com.fasterxml.jackson.databind.ser.BeanSerializer.serialize(BeanSerializer.java:183)
+	at com.fasterxml.jackson.databind.ser.BeanPropertyWriter.serializeAsField(BeanPropertyWriter.java:732)
+	at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:760)
+	at com.fasterxml.jackson.databind.ser.BeanSerializer.serialize(BeanSerializer.java:183)
+	at com.fasterxml.jackson.databind.ser.BeanPropertyWriter.serializeAsField(BeanPropertyWriter.java:732)
+	at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:760)
+	at com.fasterxml.jackson.databind.ser.BeanSerializer.serialize(BeanSerializer.java:183)
+	at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider._serialize(DefaultSerializerProvider.java:503)
+	at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider.serializeValue(DefaultSerializerProvider.java:342)
+	at com.fasterxml.jackson.databind.ObjectMapper.writeValue(ObjectMapper.java:3384)
+	at com.fasterxml.jackson.core.base.GeneratorBase.writeObject(GeneratorBase.java:422)
+	at org.apache.logging.log4j.core.jackson.ObjectMessageSerializer.serialize(ObjectMessageSerializer.java:42)
+	at org.apache.logging.log4j.core.jackson.ObjectMessageSerializer.serialize(ObjectMessageSerializer.java:31)
+	at com.fasterxml.jackson.databind.ser.BeanPropertyWriter.serializeAsField(BeanPropertyWriter.java:732)
+	at com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter.serializeAsField(SimpleBeanPropertyFilter.java:218)
+	at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFieldsFiltered(BeanSerializerBase.java:808)
+	at com.fasterxml.jackson.databind.ser.BeanSerializer.serialize(BeanSerializer.java:181)
+	at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider._serialize(DefaultSerializerProvider.java:503)
+	at com.fasterxml.jackson.databind.ser.DefaultSerializerProvider.serializeValue(DefaultSerializerProvider.java:342)
+	at com.fasterxml.jackson.databind.ObjectWriter$Prefetch.serialize(ObjectWriter.java:1587)
+	at com.fasterxml.jackson.databind.ObjectWriter._writeValueAndClose(ObjectWriter.java:1289)
+	at com.fasterxml.jackson.databind.ObjectWriter.writeValue(ObjectWriter.java:1114)
+	at org.apache.logging.log4j.core.layout.AbstractJacksonLayout.toSerializable(AbstractJacksonLayout.java:379)
+	at org.apache.logging.log4j.core.layout.JsonLayout.toSerializable(JsonLayout.java:390)
+	at org.apache.logging.log4j.core.layout.AbstractJacksonLayout.toSerializable(AbstractJacksonLayout.java:327)
+	at org.apache.logging.log4j.core.layout.JsonLayout.toSerializable(JsonLayout.java:69)
+	at org.apache.logging.log4j.core.layout.AbstractJacksonLayout.toSerializable(AbstractJacksonLayout.java:50)
+	at org.apache.logging.log4j.core.layout.AbstractStringLayout.toByteArray(AbstractStringLayout.java:295)
+	at org.apache.logging.log4j.core.layout.AbstractLayout.encode(AbstractLayout.java:207)
+	at org.apache.logging.log4j.core.layout.AbstractLayout.encode(AbstractLayout.java:36)
+	at org.apache.logging.log4j.core.appender.AbstractOutputStreamAppender.directEncodeEvent(AbstractOutputStreamAppender.java:227)
+	at org.apache.logging.log4j.core.appender.AbstractOutputStreamAppender.tryAppend(AbstractOutputStreamAppender.java:220)
+	at org.apache.logging.log4j.core.appender.AbstractOutputStreamAppender.append(AbstractOutputStreamAppender.java:211)
+	at org.apache.logging.log4j.core.appender.RollingFileAppender.append(RollingFileAppender.java:337)
+	at org.apache.logging.log4j.core.config.AppenderControl.tryCallAppender(AppenderControl.java:160)
+	at org.apache.logging.log4j.core.config.AppenderControl.callAppender0(AppenderControl.java:133)
+	at org.apache.logging.log4j.core.config.AppenderControl.callAppenderPreventRecursion(AppenderControl.java:124)
+	at org.apache.logging.log4j.core.config.AppenderControl.callAppender(AppenderControl.java:88)
+	at org.apache.logging.log4j.core.config.LoggerConfig.callAppenders(LoggerConfig.java:714)
+	at org.apache.logging.log4j.core.config.LoggerConfig.processLogEvent(LoggerConfig.java:672)
+	at org.apache.logging.log4j.core.config.LoggerConfig.log(LoggerConfig.java:648)
+	at org.apache.logging.log4j.core.config.LoggerConfig.log(LoggerConfig.java:584)
+	at org.apache.logging.log4j.core.config.AwaitCompletionReliabilityStrategy.log(AwaitCompletionReliabilityStrategy.java:92)
+	at org.apache.logging.log4j.core.Logger.log(Logger.java:187)
+	at org.apache.logging.log4j.spi.AbstractLogger.tryLogMessage(AbstractLogger.java:2904)
+	at org.apache.logging.log4j.spi.AbstractLogger.logMessageTrackRecursion(AbstractLogger.java:2857)
+	at org.apache.logging.log4j.spi.AbstractLogger.logMessageSafely(AbstractLogger.java:2839)
+	at org.apache.logging.log4j.spi.AbstractLogger.logMessage(AbstractLogger.java:2584)
+	at org.apache.logging.log4j.spi.AbstractLogger.logIfEnabled(AbstractLogger.java:2339)
+	at org.apache.commons.logging.LogAdapter$Log4jLog.log(LogAdapter.java:264)
+	at org.apache.commons.logging.LogAdapter$Log4jLog.info(LogAdapter.java:224)
+	at org.springframework.core.log.CompositeLog.info(CompositeLog.java:117)
+	at org.springframework.messaging.simp.broker.AbstractBrokerMessageHandler.publishBrokerUnavailableEvent(AbstractBrokerMessageHandler.java:351)
+	at org.springframework.messaging.simp.broker.SimpleBrokerMessageHandler.stopInternal(SimpleBrokerMessageHandler.java:295)
+	at org.springframework.messaging.simp.broker.AbstractBrokerMessageHandler.stop(AbstractBrokerMessageHandler.java:241)
+	at org.springframework.messaging.simp.broker.AbstractBrokerMessageHandler.stop(AbstractBrokerMessageHandler.java:258)
+	at org.springframework.context.support.DefaultLifecycleProcessor.doStop(DefaultLifecycleProcessor.java:463)
+	at org.springframework.context.support.DefaultLifecycleProcessor$LifecycleGroup.stop(DefaultLifecycleProcessor.java:618)
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.context.support.DefaultLifecycleProcessor.stopBeans(DefaultLifecycleProcessor.java:432)
+	at org.springframework.context.support.DefaultLifecycleProcessor.onClose(DefaultLifecycleProcessor.java:323)
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1172)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:179)
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1126)
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:147)
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:116)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+
+2025-10-10 22:22:07.667 [SpringApplicationShutdownHook] INFO  com.irctc_backend.irctc.config.ApplicationShutdownConfig$ShutdownHook - 🛑 IRCTC Application is shutting down gracefully...
+2025-10-10 22:22:07.667 [SpringApplicationShutdownHook] INFO  com.irctc_backend.irctc.config.ApplicationShutdownConfig$ShutdownHook - 📊 Finalizing active bookings and transactions...
+2025-10-10 22:22:07.671 [SpringApplicationShutdownHook] INFO  com.irctc_backend.irctc.config.ApplicationShutdownConfig$ShutdownHook - 🔌 Closing database connections...
+2025-10-10 22:22:07.671 [SpringApplicationShutdownHook] INFO  com.irctc_backend.irctc.config.ApplicationShutdownConfig$ShutdownHook - 📡 Stopping Kafka consumers...
+2025-10-10 22:22:07.671 [SpringApplicationShutdownHook] INFO  com.irctc_backend.irctc.config.ApplicationShutdownConfig$ShutdownHook - ✅ IRCTC Application shutdown completed successfully
+2025-10-10 22:22:07.673 [SpringApplicationShutdownHook] DEBUG org.hibernate.internal.SessionFactoryImpl - HHH000031: Closing
+2025-10-10 22:22:07.674 [SpringApplicationShutdownHook] DEBUG org.hibernate.tool.schema.internal.SchemaDropperImpl$DelayedDropActionImpl - HHH000477: Starting delayed evictData of schema as part of SessionFactory shut-down'
+Hibernate: 
+    set client_min_messages = WARNING
+2025-10-10 22:22:07.675 [SpringApplicationShutdownHook] ERROR org.hibernate.tool.schema.internal.SchemaDropperImpl$DelayedDropActionImpl - HHH000478: Unsuccessful: 
+    set client_min_messages = WARNING
+2025-10-10 22:22:07.676 [SpringApplicationShutdownHook] DEBUG org.hibernate.tool.schema.internal.SchemaDropperImpl$DelayedDropActionImpl - Error performing delayed DROP command [
+    set client_min_messages = WARNING]
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "
+    set client_min_messages = WARNING" via JDBC [Syntax error in SQL statement "\000a    set [*]client_min_messages = WARNING"; expected "@, AUTOCOMMIT, EXCLUSIVE, IGNORECASE, PASSWORD, SALT, MODE, DATABASE, COLLATION, CLUSTER, DATABASE_EVENT_LISTENER, ALLOW_LITERALS, DEFAULT_TABLE_TYPE, SCHEMA, CATALOG, SCHEMA_SEARCH_PATH, JAVA_OBJECT_SERIALIZER, IGNORE_CATALOGS, SESSION, TRANSACTION, TIME, NON_KEYWORDS, DEFAULT_NULL_ORDERING";]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:94) ~[hibernate-core-6.6.22.Final.jar!/:6.6.22.Final]
+	at org.hibernate.tool.schema.internal.SchemaDropperImpl$DelayedDropActionImpl.perform(SchemaDropperImpl.java:628) ~[hibernate-core-6.6.22.Final.jar!/:6.6.22.Final]
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryClosing(SessionFactoryObserverForSchemaExport.java:48) ~[hibernate-core-6.6.22.Final.jar!/:6.6.22.Final]
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryClosing(SessionFactoryObserverChain.java:48) ~[hibernate-core-6.6.22.Final.jar!/:6.6.22.Final]
+	at org.hibernate.internal.SessionFactoryImpl.close(SessionFactoryImpl.java:928) ~[hibernate-core-6.6.22.Final.jar!/:6.6.22.Final]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569) ~[?:?]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.invokeProxyMethod(AbstractEntityManagerFactoryBean.java:529) ~[spring-orm-6.2.9.jar!/:6.2.9]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean$ManagedEntityManagerFactoryInvocationHandler.invoke(AbstractEntityManagerFactoryBean.java:750) ~[spring-orm-6.2.9.jar!/:6.2.9]
+	at jdk.proxy2/jdk.proxy2.$Proxy189.close(Unknown Source) ~[?:?]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.destroy(AbstractEntityManagerFactoryBean.java:662) ~[spring-orm-6.2.9.jar!/:6.2.9]
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:211) ~[spring-beans-6.2.9.jar!/:6.2.9]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroyBean(DefaultSingletonBeanRegistry.java:798) ~[spring-beans-6.2.9.jar!/:6.2.9]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingleton(DefaultSingletonBeanRegistry.java:748) ~[spring-beans-6.2.9.jar!/:6.2.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingleton(DefaultListableBeanFactory.java:1474) ~[spring-beans-6.2.9.jar!/:6.2.9]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingletons(DefaultSingletonBeanRegistry.java:707) ~[spring-beans-6.2.9.jar!/:6.2.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingletons(DefaultListableBeanFactory.java:1467) ~[spring-beans-6.2.9.jar!/:6.2.9]
+	at org.springframework.context.support.AbstractApplicationContext.destroyBeans(AbstractApplicationContext.java:1219) ~[spring-context-6.2.9.jar!/:6.2.9]
+	at org.springframework.context.support.AbstractApplicationContext.doClose(AbstractApplicationContext.java:1180) ~[spring-context-6.2.9.jar!/:6.2.9]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.doClose(ServletWebServerApplicationContext.java:179) ~[spring-boot-3.5.4.jar!/:3.5.4]
+	at org.springframework.context.support.AbstractApplicationContext.close(AbstractApplicationContext.java:1126) ~[spring-context-6.2.9.jar!/:6.2.9]
+	at org.springframework.boot.SpringApplicationShutdownHook.closeAndWait(SpringApplicationShutdownHook.java:147) ~[spring-boot-3.5.4.jar!/:3.5.4]
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75) [?:?]
+	at org.springframework.boot.SpringApplicationShutdownHook.run(SpringApplicationShutdownHook.java:116) [spring-boot-3.5.4.jar!/:3.5.4]
+	at java.base/java.lang.Thread.run(Thread.java:840) [?:?]
+Caused by: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "\000a    set [*]client_min_messages = WARNING"; expected "@, AUTOCOMMIT, EXCLUSIVE, IGNORECASE, PASSWORD, SALT, MODE, DATABASE, COLLATION, CLUSTER, DATABASE_EVENT_LISTENER, ALLOW_LITERALS, DEFAULT_TABLE_TYPE, SCHEMA, CATALOG, SCHEMA_SEARCH_PATH, JAVA_OBJECT_SERIALIZER, IGNORE_CATALOGS, SESSION, TRANSACTION, TIME, NON_KEYWORDS, DEFAULT_NULL_ORDERING"; SQL statement:
+
+    set client_min_messages = WARNING [42001-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514) ~[h2-2.3.232.jar!/:?]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489) ~[h2-2.3.232.jar!/:?]
+	at org.h2.message.DbException.getSyntaxError(DbException.java:261) ~[h2-2.3.232.jar!/:?]
+	at org.h2.command.ParserBase.getSyntaxError(ParserBase.java:762) ~[h2-2.3.232.jar!/:?]
+	at org.h2.command.Parser.parseSet(Parser.java:7592) ~[h2-2.3.232.jar!/:?]
+	at org.h2.command.Parser.parsePrepared(Parser.java:614) ~[h2-2.3.232.jar!/:?]
+	at org.h2.command.Parser.parse(Parser.java:581) ~[h2-2.3.232.jar!/:?]
+	at org.h2.command.Parser.parse(Parser.java:561) ~[h2-2.3.232.jar!/:?]
+	at org.h2.command.Parser.prepareCommand(Parser.java:484) ~[h2-2.3.232.jar!/:?]
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:645) ~[h2-2.3.232.jar!/:?]
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:561) ~[h2-2.3.232.jar!/:?]
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1164) ~[h2-2.3.232.jar!/:?]
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245) ~[h2-2.3.232.jar!/:?]
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231) ~[h2-2.3.232.jar!/:?]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-6.3.1.jar!/:?]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-6.3.1.jar!/:?]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:80) ~[hibernate-core-6.6.22.Final.jar!/:6.6.22.Final]
+	... 26 more
+Hibernate: 
+    alter table if exists bookings 
+       drop constraint if exists FKlqmthn45on23tdkcvrmwfy47e
+Hibernate: 
+    alter table if exists bookings 
+       drop constraint if exists FKdrfy7gcwhtaubn8vgbc4jv989
+Hibernate: 
+    alter table if exists bookings 
+       drop constraint if exists FKhmf8yyefriw5ski3jibaua6n
+Hibernate: 
+    alter table if exists bookings 
+       drop constraint if exists FKnvav969din6sdwdejvq0g5a7s
+Hibernate: 
+    alter table if exists bookings 
+       drop constraint if exists FKeyog2oic85xg7hsu2je2lx3s6
+Hibernate: 
+    alter table if exists coaches 
+       drop constraint if exists FKn5ep63duidmu608a8dryi3vr1
+Hibernate: 
+    alter table if exists passengers 
+       drop constraint if exists FKk6i9bj5temsus004aaaagqwmd
+Hibernate: 
+    alter table if exists payments 
+       drop constraint if exists FKc52o2b1jkxttngufqp3t7jr3h
+Hibernate: 
+    alter table if exists seats 
+       drop constraint if exists FKbojr5ye39r8xyoolriorvf7jy
+Hibernate: 
+    alter table if exists train_schedule_days 
+       drop constraint if exists FKay8s246gwhidiw6cbgouv3pig
+Hibernate: 
+    alter table if exists train_schedules 
+       drop constraint if exists FKar01u24pjqq6jpf08rqsk6ec3
+Hibernate: 
+    alter table if exists trains 
+       drop constraint if exists FKblibbuoiigmcn7itc7b9pvq89
+Hibernate: 
+    alter table if exists trains 
+       drop constraint if exists FKqkipp9776vgttfkic1c9f94rs
+Hibernate: 
+    drop table if exists bookings cascade
+Hibernate: 
+    drop table if exists coaches cascade
+Hibernate: 
+    drop table if exists passengers cascade
+Hibernate: 
+    drop table if exists payments cascade
+Hibernate: 
+    drop table if exists seats cascade
+Hibernate: 
+    drop table if exists stations cascade
+Hibernate: 
+    drop table if exists train_schedule_days cascade
+Hibernate: 
+    drop table if exists train_schedules cascade
+Hibernate: 
+    drop table if exists trains cascade
+Hibernate: 
+    drop table if exists users cascade
+2025-10-10 22:22:07.683 [SpringApplicationShutdownHook] DEBUG org.hibernate.type.spi.TypeConfiguration$Scope - Un-scoping TypeConfiguration [org.hibernate.type.spi.TypeConfiguration$Scope@4d553e49] from SessionFactory [org.hibernate.internal.SessionFactoryImpl@7f3616d2]
+2025-10-10 22:22:07.683 [SpringApplicationShutdownHook] DEBUG org.hibernate.service.internal.AbstractServiceRegistryImpl - Implicitly destroying ServiceRegistry on de-registration of all child ServiceRegistries
+2025-10-10 22:22:07.684 [SpringApplicationShutdownHook] DEBUG org.hibernate.boot.registry.internal.BootstrapServiceRegistryImpl - Implicitly destroying Boot-strap registry on de-registration of all child ServiceRegistries
+2025-10-10 22:22:07.685 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-10-10 22:22:07.685 [SpringApplicationShutdownHook] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Before shutdown stats (total=10/10, idle=10/10, active=0, waiting=0)
+2025-10-10 22:22:07.686 [HikariPool-1:connection-closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection conn0: url=jdbc:h2:mem:irctc_dev user=SA: (connection evicted)
+2025-10-10 22:22:07.686 [HikariPool-1:connection-closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection conn1: url=jdbc:h2:mem:irctc_dev user=SA: (connection evicted)
+2025-10-10 22:22:07.686 [HikariPool-1:connection-closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection conn2: url=jdbc:h2:mem:irctc_dev user=SA: (connection evicted)
+2025-10-10 22:22:07.686 [HikariPool-1:connection-closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection conn3: url=jdbc:h2:mem:irctc_dev user=SA: (connection evicted)
+2025-10-10 22:22:07.686 [HikariPool-1:connection-closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection conn4: url=jdbc:h2:mem:irctc_dev user=SA: (connection evicted)
+2025-10-10 22:22:07.686 [HikariPool-1:connection-closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection conn5: url=jdbc:h2:mem:irctc_dev user=SA: (connection evicted)
+2025-10-10 22:22:07.686 [HikariPool-1:connection-closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection conn6: url=jdbc:h2:mem:irctc_dev user=SA: (connection evicted)
+2025-10-10 22:22:07.686 [HikariPool-1:connection-closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection conn7: url=jdbc:h2:mem:irctc_dev user=SA: (connection evicted)
+2025-10-10 22:22:07.686 [HikariPool-1:connection-closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection conn8: url=jdbc:h2:mem:irctc_dev user=SA: (connection evicted)
+2025-10-10 22:22:07.686 [HikariPool-1:connection-closer] DEBUG com.zaxxer.hikari.pool.PoolBase - HikariPool-1 - Closing connection conn9: url=jdbc:h2:mem:irctc_dev user=SA: (connection evicted)
+2025-10-10 22:22:07.688 [SpringApplicationShutdownHook] DEBUG com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - After  shutdown stats (total=0/10, idle=0/10, active=0, waiting=0)
+2025-10-10 22:22:07.688 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

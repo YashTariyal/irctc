@@ -128,18 +128,18 @@ public class NotificationService {
         event.setTrainId(train.getId());
         event.setTrainNumber(train.getTrainNumber());
         event.setTrainName(train.getTrainName());
-        event.setSourceStation(train.getSourceStation().getStationName());
-        event.setDestinationStation(train.getDestinationStation().getStationName());
+        event.setSourceStation(train.getSourceStation() != null ? train.getSourceStation().getStationName() : "Unknown");
+        event.setDestinationStation(train.getDestinationStation() != null ? train.getDestinationStation().getStationName() : "Unknown");
         
         // Journey details
         event.setJourneyDate(booking.getJourneyDate());
-        event.setDepartureTime(train.getDepartureTime().toString());
-        event.setArrivalTime(train.getArrivalTime().toString());
+        event.setDepartureTime(train.getDepartureTime() != null ? train.getDepartureTime().toString() : "Unknown");
+        event.setArrivalTime(train.getArrivalTime() != null ? train.getArrivalTime().toString() : "Unknown");
         
         // Passenger details
         event.setPassengerName(passenger.getFirstName() + " " + passenger.getLastName());
         event.setPassengerAge(passenger.getAge());
-        event.setPassengerGender(passenger.getGender().toString());
+        event.setPassengerGender(passenger.getGender() != null ? passenger.getGender().toString() : "Unknown");
         
         // Seat and coach details
         if (booking.getSeat() != null) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN" monitorInterval="30">
+<Configuration status="WARN" monitorInterval="30" packages="org.apache.logging.log4j.core">
     
     <!-- Properties for log file paths and patterns -->
     <Properties>
@@ -18,7 +18,7 @@
         <Property name="ARCHIVE_PATTERN">${LOG_DIR}/archive/irctc-%d{yyyy-MM-dd}-%i.log.gz</Property>
     </Properties>
     
-    <!-- Appenders -->
+    <!-- Appenders (Async for performance) -->
     <Appenders>
         
         <!-- Console Appender -->
@@ -132,7 +132,7 @@
         <RollingFile name="JSONFile" 
                      fileName="${LOG_DIR}/irctc-json.log"
                      filePattern="${LOG_DIR}/archive/irctc-json-%d{yyyy-MM-dd}-%i.log.gz">
-            <JsonLayout complete="false" compact="true" eventEol="true" objectMessageAsJsonObject="true"/>
+            <JsonLayout complete="false" compact="true" eventEol="true" objectMessageAsJsonObject="true" stacktraceAsString="true"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
                 <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
@@ -164,15 +164,15 @@
         
     </Appenders>
     
-    <!-- Loggers -->
+    <!-- Loggers (AsyncRoot + Async Logger wrappers) -->
     <Loggers>
         
         <!-- Root Logger -->
-        <Root level="info">
+        <AsyncRoot level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="ApplicationFile"/>
             <AppenderRef ref="ErrorRollingFile" level="error"/>
-        </Root>
+        </AsyncRoot>
         
         <!-- Ensure application startup logs are written -->
         <Logger name="com.irctc_backend.irctc.IrctcApplication" level="info" additivity="false">
