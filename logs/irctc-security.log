@@ -180,3 +180,211 @@
 2025-10-18 12:11:40.196 [main] DEBUG org.springframework.security.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
 2025-10-18 12:14:37.973 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name authenticationService
 2025-10-18 12:14:38.044 [main] DEBUG org.springframework.security.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-10-18 12:16:39.691 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name authenticationService
+2025-10-18 12:16:39.775 [main] DEBUG org.springframework.security.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-10-18 12:16:59.729 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /actuator/health
+2025-10-18 12:16:59.741 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:16:59.750 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /actuator/health
+2025-10-18 12:17:04.272 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/trains
+2025-10-18 12:17:04.360 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:17:04.366 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.authentication.Http403ForbiddenEntryPoint - Pre-authenticated entry point called. Rejecting access
+2025-10-18 12:17:04.374 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /error
+2025-10-18 12:17:04.376 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /error
+2025-10-18 12:17:04.384 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:17:07.983 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 12:17:07.984 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:17:07.984 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 12:17:08.226 [http-nio-8082-exec-4] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Failed to find user 'admin'
+2025-10-18 12:17:08.227 [http-nio-8082-exec-4] DEBUG org.springframework.security.authentication.ProviderManager - Authentication failed with provider DaoAuthenticationProvider since Bad credentials
+2025-10-18 12:17:11.102 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 12:17:11.103 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:17:11.104 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 12:17:11.221 [http-nio-8082-exec-5] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Failed to find user 'admin'
+2025-10-18 12:17:11.222 [http-nio-8082-exec-5] DEBUG org.springframework.security.authentication.ProviderManager - Authentication failed with provider DaoAuthenticationProvider since Bad credentials
+2025-10-18 12:17:14.879 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 12:17:14.881 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:17:14.882 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 12:17:15.005 [http-nio-8082-exec-6] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Authenticated user
+2025-10-18 12:17:20.023 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/trains
+2025-10-18 12:17:20.046 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/trains
+2025-10-18 12:17:24.831 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/users
+2025-10-18 12:17:24.857 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/users
+2025-10-18 12:17:28.681 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/stations
+2025-10-18 12:17:28.688 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/stations
+2025-10-18 12:17:28.700 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /error
+2025-10-18 12:17:28.700 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /error
+2025-10-18 12:17:28.701 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:17:33.025 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/payments/config
+2025-10-18 12:17:33.064 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/payments/config
+2025-10-18 12:18:16.536 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/passengers
+2025-10-18 12:18:16.555 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:16.567 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.authentication.Http403ForbiddenEntryPoint - Pre-authenticated entry point called. Rejecting access
+2025-10-18 12:18:16.568 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /error
+2025-10-18 12:18:16.569 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /error
+2025-10-18 12:18:16.576 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:19.769 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/index.html?urls.primaryName=IRCTC%20Backend%20API
+2025-10-18 12:18:19.770 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:19.770 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/index.html?urls.primaryName=IRCTC%20Backend%20API
+2025-10-18 12:18:19.925 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui.css
+2025-10-18 12:18:19.925 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:19.926 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui.css
+2025-10-18 12:18:19.972 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:18:19.979 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:19.987 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:18:20.015 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:18:20.015 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/index.css
+2025-10-18 12:18:20.016 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:20.016 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:20.016 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/index.css
+2025-10-18 12:18:20.023 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:18:20.025 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:18:20.027 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:20.027 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:18:20.073 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:18:20.078 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:20.081 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:18:20.107 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:18:20.109 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:18:20.110 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:20.112 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:20.112 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:18:20.114 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:18:21.533 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api-docs/swagger-config
+2025-10-18 12:18:21.533 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/favicon-32x32.png
+2025-10-18 12:18:21.534 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:21.534 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:21.540 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/favicon-32x32.png
+2025-10-18 12:18:21.540 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api-docs/swagger-config
+2025-10-18 12:18:21.659 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:18:21.659 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:21.662 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:18:23.660 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:18:23.660 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:23.661 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:18:31.639 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/passengers
+2025-10-18 12:18:31.641 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:31.644 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.authentication.Http403ForbiddenEntryPoint - Pre-authenticated entry point called. Rejecting access
+2025-10-18 12:18:31.646 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /error
+2025-10-18 12:18:31.646 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /error
+2025-10-18 12:18:31.652 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:55.931 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/users/login?username=admin&password=admin123
+2025-10-18 12:18:55.932 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:18:55.934 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/users/login?username=admin&password=admin123
+2025-10-18 12:19:23.115 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/index.html?urls.primaryName=IRCTC%20Backend%20API
+2025-10-18 12:19:23.118 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.119 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/index.html?urls.primaryName=IRCTC%20Backend%20API
+2025-10-18 12:19:23.195 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/index.css
+2025-10-18 12:19:23.195 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.197 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui.css
+2025-10-18 12:19:23.197 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:19:23.197 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.197 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.197 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/index.css
+2025-10-18 12:19:23.197 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:19:23.199 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui.css
+2025-10-18 12:19:23.200 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:19:23.200 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.200 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:19:23.200 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.201 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:19:23.201 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:19:23.301 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:19:23.301 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.302 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:19:23.305 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:19:23.305 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.307 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:19:23.311 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:19:23.312 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.313 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:19:23.711 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api-docs/swagger-config
+2025-10-18 12:19:23.712 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/favicon-32x32.png
+2025-10-18 12:19:23.712 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.714 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.716 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/favicon-32x32.png
+2025-10-18 12:19:23.717 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api-docs/swagger-config
+2025-10-18 12:19:23.771 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:19:23.771 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:23.772 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:19:30.982 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:19:30.985 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:30.987 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:19:41.866 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/users/login?username=admin&password=admin123
+2025-10-18 12:19:41.867 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:41.874 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/users/login?username=admin&password=admin123
+2025-10-18 12:19:59.061 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 12:19:59.062 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:19:59.063 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 12:19:59.173 [http-nio-8082-exec-6] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Authenticated user
+2025-10-18 12:20:26.680 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/users?page=0&size=20&sort=createdAt&order=desc
+2025-10-18 12:20:26.697 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/users?page=0&size=20&sort=createdAt&order=desc
+2025-10-18 12:21:17.636 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/bookings
+2025-10-18 12:21:17.668 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/bookings
+2025-10-18 12:21:31.280 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/trains
+2025-10-18 12:21:31.296 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/trains
+2025-10-18 12:21:38.394 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/index.html?urls.primaryName=IRCTC%20Backend%20API
+2025-10-18 12:21:38.395 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:38.395 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/index.html?urls.primaryName=IRCTC%20Backend%20API
+2025-10-18 12:21:38.545 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui.css
+2025-10-18 12:21:38.545 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:38.546 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/index.css
+2025-10-18 12:21:38.546 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui.css
+2025-10-18 12:21:38.546 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:38.546 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:21:38.546 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:38.546 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:21:38.546 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/index.css
+2025-10-18 12:21:38.546 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:38.547 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:21:38.547 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:21:38.548 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:21:38.549 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:38.549 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:21:38.559 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:21:38.559 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:38.562 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-initializer.js
+2025-10-18 12:21:38.583 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:21:38.583 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:21:38.583 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:38.583 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:38.584 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-standalone-preset.js
+2025-10-18 12:21:38.584 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/swagger-ui-bundle.js
+2025-10-18 12:21:39.211 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api-docs/swagger-config
+2025-10-18 12:21:39.211 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:39.213 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api-docs/swagger-config
+2025-10-18 12:21:39.228 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /swagger-ui/favicon-32x32.png
+2025-10-18 12:21:39.228 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:39.231 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /swagger-ui/favicon-32x32.png
+2025-10-18 12:21:39.306 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:21:39.306 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:39.307 [http-nio-8082-exec-3] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:21:40.969 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:21:40.969 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:21:40.971 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 12:22:19.735 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/trains
+2025-10-18 12:22:19.744 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/trains
+2025-10-18 12:22:24.223 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/users
+2025-10-18 12:22:24.230 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/users
+2025-10-18 12:22:28.730 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/payments/config
+2025-10-18 12:22:28.732 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/payments/config
+2025-10-18 12:22:33.824 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/auth/me
+2025-10-18 12:22:33.827 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/auth/me
+2025-10-18 12:22:38.169 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/bookings
+2025-10-18 12:22:38.183 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/bookings
+2025-10-18 12:22:44.649 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/passengers
+2025-10-18 12:22:44.652 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/passengers
+2025-10-18 12:22:50.595 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/payments/initiate
+2025-10-18 12:22:50.605 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/payments/initiate
+2025-10-18 12:22:50.636 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /error
+2025-10-18 12:22:50.637 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /error
+2025-10-18 12:22:50.638 [http-nio-8082-exec-5] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:22:58.017 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /actuator/health
+2025-10-18 12:22:58.017 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:22:58.018 [http-nio-8082-exec-7] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /actuator/health
+2025-10-18 12:23:02.011 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 12:23:02.011 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:23:02.012 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 12:23:02.105 [http-nio-8082-exec-9] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Authenticated user
+2025-10-18 12:23:06.494 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Securing HEAD /swagger-ui/index.html
+2025-10-18 12:23:06.495 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 12:23:06.495 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Secured HEAD /swagger-ui/index.html
