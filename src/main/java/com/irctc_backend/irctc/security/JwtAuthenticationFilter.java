@@ -7,13 +7,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -33,10 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     
-    @Autowired
     private JwtUtil jwtUtil;
-    
-    @Autowired
     private UserDetailsService userDetailsService;
     
     private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -48,25 +46,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                   FilterChain filterChain) throws ServletException, IOException {
         
         try {
-            String jwt = getJwtFromRequest(request);
+            // Lazy initialization of dependencies
+            if (jwtUtil == null || userDetailsService == null) {
+                ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
+                if (context != null) {
+                    jwtUtil = context.getBean(JwtUtil.class);
+                    userDetailsService = context.getBean(UserDetailsService.class);
+                }
+            }
             
-            if (jwt != null && jwtUtil.validateToken(jwt)) {
-                String username = jwtUtil.extractUsername(jwt);
+            if (jwtUtil != null && userDetailsService != null) {
+                String jwt = getJwtFromRequest(request);
                 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                
-                if (userDetails != null) {
-                    UsernamePasswordAuthenticationToken authentication = 
-                        new UsernamePasswordAuthenticationToken(
-                            userDetails, 
-                            null, 
-                            userDetails.getAuthorities()
-                        );
+                if (jwt != null && jwtUtil.validateToken(jwt)) {
+                    String username = jwtUtil.extractUsername(jwt);
                     
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     
-                    logger.debug("User '{}' authenticated successfully", username);
+                    if (userDetails != null) {
+                        UsernamePasswordAuthenticationToken authentication = 
+                            new UsernamePasswordAuthenticationToken(
+                                userDetails, 
+                                null, 
+                                userDetails.getAuthorities()
+                            );
+                        
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        
+                        logger.debug("User '{}' authenticated successfully", username);
+                    }
                 }
             }
         } catch (Exception e) {
