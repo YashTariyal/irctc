@@ -11,10 +11,12 @@ import com.irctc_backend.irctc.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -43,8 +45,9 @@ public class AuthenticationService implements UserDetailsService {
     @Autowired
     private JwtUtil jwtUtil;
     
-    
     @Autowired
+    private ApplicationContext applicationContext;
+    
     private AuthenticationManager authenticationManager;
     
     /**
@@ -57,6 +60,11 @@ public class AuthenticationService implements UserDetailsService {
     public LoginResponse authenticate(LoginRequest loginRequest) {
         try {
             logger.info("Authenticating user: {}", loginRequest.getUsername());
+            
+            // Get AuthenticationManager lazily to avoid circular dependency
+            if (authenticationManager == null) {
+                authenticationManager = applicationContext.getBean(AuthenticationManager.class);
+            }
             
             // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
