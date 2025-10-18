@@ -426,3 +426,211 @@ java.lang.RuntimeException: Invalid username or password
 2025-10-18 12:23:02.014 [http-nio-8082-exec-9] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
 2025-10-18 12:23:02.108 [http-nio-8082-exec-9] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 94ms
 2025-10-18 12:23:02.108 [http-nio-8082-exec-9] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 94ms
+2025-10-18 17:18:46.850 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:18:46.892 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:18:47.182 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 290ms
+2025-10-18 17:18:47.182 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 334ms
+2025-10-18 17:18:47.229 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: GET /health - healthCheck in class: SeatSelectionController
+2025-10-18 17:18:47.229 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: GET /health - healthCheck in class: SeatSelectionController - Execution time: 0ms
+2025-10-18 17:18:50.709 [http-nio-8082-exec-6] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:18:50.710 [http-nio-8082-exec-6] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:18:50.806 [http-nio-8082-exec-6] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 96ms
+2025-10-18 17:18:50.806 [http-nio-8082-exec-6] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 97ms
+2025-10-18 17:18:50.846 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: GET /trains/{trainId}/coaches/{coachId}/seats - getAvailableSeats in class: SeatSelectionController
+2025-10-18 17:18:50.846 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.controller.SeatSelectionController - Getting available seats for train: 1, coach: 1, date: 2025-10-20
+2025-10-18 17:18:50.866 [http-nio-8082-exec-8] ERROR com.irctc_backend.irctc.controller.SeatSelectionController - Error getting available seats: Failed to get available seats: Coach not found with ID: 1
+java.lang.RuntimeException: Failed to get available seats: Coach not found with ID: 1
+	at com.irctc_backend.irctc.service.SeatSelectionService.getAvailableSeats(SeatSelectionService.java:105) ~[classes/:?]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:360) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:380) ~[spring-tx-6.2.11.jar:6.2.11]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.2.11.jar:6.2.11]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:728) ~[spring-aop-6.2.11.jar:6.2.11]
+	at com.irctc_backend.irctc.service.SeatSelectionService$$SpringCGLIB$$0.getAvailableSeats(<generated>) ~[classes/:?]
+	at com.irctc_backend.irctc.controller.SeatSelectionController.getAvailableSeats(SeatSelectionController.java:61) ~[classes/:?]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:360) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed(MethodInvocationProceedingJoinPoint.java:89) ~[spring-aop-6.2.11.jar:6.2.11]
+	at com.irctc_backend.irctc.aspect.ExecutionTimeAspect.measureControllerExecutionTime(ExecutionTimeAspect.java:142) ~[classes/:?]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethodWithGivenArgs(AbstractAspectJAdvice.java:649) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.aspectj.AbstractAspectJAdvice.invokeAdviceMethod(AbstractAspectJAdvice.java:631) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.aspectj.AspectJAroundAdvice.invoke(AspectJAroundAdvice.java:71) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.11.jar:6.2.11]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:728) ~[spring-aop-6.2.11.jar:6.2.11]
+	at com.irctc_backend.irctc.controller.SeatSelectionController$$SpringCGLIB$$0.getAvailableSeats(<generated>) ~[classes/:?]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:191) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.2.11.jar:6.2.11]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991) ~[spring-webmvc-6.2.11.jar:6.2.11]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896) ~[spring-webmvc-6.2.11.jar:6.2.11]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.2.11.jar:6.2.11]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.2.11.jar:6.2.11]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.2.11.jar:6.2.11]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.2.11.jar:6.2.11]
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903) ~[spring-webmvc-6.2.11.jar:6.2.11]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564) ~[tomcat-embed-core-10.1.46.jar:6.0]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.2.11.jar:6.2.11]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.46.jar:6.0]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at com.irctc_backend.irctc.security.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:85) ~[classes/:?]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:490) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:351) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:83) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:129) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:125) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:119) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at com.irctc_backend.irctc.security.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:85) ~[classes/:?]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:241) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:334) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:225) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:138) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.5.5.jar:6.5.5]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:319) ~[spring-security-config-6.5.5.jar:6.5.5]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$4(HandlerMappingIntrospector.java:267) ~[spring-webmvc-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:240) ~[spring-security-config-6.5.5.jar:6.5.5]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:110) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.11.jar:6.2.11]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1776) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:975) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:493) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.46.jar:10.1.46]
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?]
+2025-10-18 17:18:50.866 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: GET /trains/{trainId}/coaches/{coachId}/seats - getAvailableSeats in class: SeatSelectionController - Execution time: 20ms
+2025-10-18 17:18:53.530 [http-nio-8082-exec-9] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:18:53.530 [http-nio-8082-exec-9] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:18:53.623 [http-nio-8082-exec-9] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 93ms
+2025-10-18 17:18:53.623 [http-nio-8082-exec-9] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 93ms
+2025-10-18 17:18:53.643 [http-nio-8082-exec-1] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: GET  - getAllTrains in class: TrainController
+2025-10-18 17:18:53.657 [http-nio-8082-exec-1] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: GET  - getAllTrains in class: TrainController - Execution time: 14ms
+2025-10-18 17:19:52.134 [http-nio-8082-exec-1] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:19:52.136 [http-nio-8082-exec-1] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:19:52.356 [http-nio-8082-exec-1] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 220ms
+2025-10-18 17:19:52.357 [http-nio-8082-exec-1] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 224ms
+2025-10-18 17:19:52.406 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: GET /trains/{trainId}/coaches/{coachId}/seats - getAvailableSeats in class: SeatSelectionController
+2025-10-18 17:19:52.406 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.controller.SeatSelectionController - Getting available seats for train: 1, coach: 1, date: 2025-10-20
+2025-10-18 17:19:52.425 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: GET /trains/{trainId}/coaches/{coachId}/seats - getAvailableSeats in class: SeatSelectionController - Execution time: 19ms
+2025-10-18 17:19:56.912 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:19:56.913 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:19:57.007 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 94ms
+2025-10-18 17:19:57.007 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 95ms
+2025-10-18 17:19:57.030 [http-nio-8082-exec-6] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /select - selectSeats in class: SeatSelectionController
+2025-10-18 17:19:57.030 [http-nio-8082-exec-6] INFO  com.irctc_backend.irctc.controller.SeatSelectionController - Selecting seats for request: com.irctc_backend.irctc.dto.SeatSelectionRequest@df8a0ff
+2025-10-18 17:19:57.036 [http-nio-8082-exec-6] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /select - selectSeats in class: SeatSelectionController - Execution time: 6ms
+2025-10-18 17:20:00.261 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:20:00.261 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:20:00.350 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 89ms
+2025-10-18 17:20:00.351 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 89ms
+2025-10-18 17:20:00.367 [http-nio-8082-exec-10] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: GET /coaches/{coachId}/layout - getCoachLayout in class: SeatSelectionController
+2025-10-18 17:20:00.367 [http-nio-8082-exec-10] INFO  com.irctc_backend.irctc.controller.SeatSelectionController - Getting coach layout for coach: 1
+2025-10-18 17:20:00.374 [http-nio-8082-exec-10] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: GET /coaches/{coachId}/layout - getCoachLayout in class: SeatSelectionController - Execution time: 7ms

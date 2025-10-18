@@ -46,6 +46,12 @@ public class SimpleDataInitializer implements CommandLineRunner {
     private PaymentRepository paymentRepository;
     
     @Autowired
+    private CoachRepository coachRepository;
+    
+    @Autowired
+    private SeatRepository seatRepository;
+    
+    @Autowired
     private PasswordEncoder passwordEncoder;
     
     @Override
@@ -67,6 +73,9 @@ public class SimpleDataInitializer implements CommandLineRunner {
         
         // Create additional trains
         createTrains();
+        
+        // Create coaches and seats for trains
+        createCoachesAndSeats();
         
         // Create additional users
         createUsers();
@@ -179,6 +188,98 @@ public class SimpleDataInitializer implements CommandLineRunner {
         
         trainRepository.saveAll(trains);
         logger.info("🚂 Created {} trains", trains.size());
+    }
+    
+    private void createCoachesAndSeats() {
+        List<Train> trains = trainRepository.findAll();
+        if (trains.isEmpty()) {
+            logger.warn("⚠️ No trains found, skipping coach and seat creation");
+            return;
+        }
+        
+        List<Coach> coaches = new ArrayList<>();
+        List<Seat> seats = new ArrayList<>();
+        
+        for (Train train : trains) {
+            // Create different types of coaches for each train
+            Coach acCoach = createCoach(train, "A1", Coach.CoachType.AC_2_TIER, 48, BigDecimal.valueOf(2500));
+            Coach sleeperCoach = createCoach(train, "S1", Coach.CoachType.SLEEPER_CLASS, 72, BigDecimal.valueOf(800));
+            Coach chairCoach = createCoach(train, "CC1", Coach.CoachType.AC_CHAIR_CAR, 78, BigDecimal.valueOf(1200));
+            
+            coaches.add(acCoach);
+            coaches.add(sleeperCoach);
+            coaches.add(chairCoach);
+            
+            // Create seats for each coach
+            seats.addAll(createSeatsForCoach(acCoach, 48, Coach.CoachType.AC_2_TIER));
+            seats.addAll(createSeatsForCoach(sleeperCoach, 72, Coach.CoachType.SLEEPER_CLASS));
+            seats.addAll(createSeatsForCoach(chairCoach, 78, Coach.CoachType.AC_CHAIR_CAR));
+        }
+        
+        coachRepository.saveAll(coaches);
+        seatRepository.saveAll(seats);
+        logger.info("🚇 Created {} coaches and {} seats", coaches.size(), seats.size());
+    }
+    
+    private Coach createCoach(Train train, String coachNumber, Coach.CoachType coachType, int totalSeats, BigDecimal baseFare) {
+        Coach coach = new Coach();
+        coach.setTrain(train);
+        coach.setCoachNumber(coachNumber);
+        coach.setCoachType(coachType);
+        coach.setTotalSeats(totalSeats);
+        coach.setAvailableSeats(totalSeats);
+        coach.setBaseFare(baseFare);
+        coach.setAcFare(baseFare.multiply(BigDecimal.valueOf(1.2)));
+        coach.setSleeperFare(baseFare.multiply(BigDecimal.valueOf(0.8)));
+        coach.setTatkalFare(baseFare.multiply(BigDecimal.valueOf(1.5)));
+        coach.setLadiesQuota(totalSeats / 10); // 10% ladies quota
+        coach.setSeniorCitizenQuota(totalSeats / 20); // 5% senior citizen quota
+        coach.setIsActive(true);
+        return coach;
+    }
+    
+    private List<Seat> createSeatsForCoach(Coach coach, int totalSeats, Coach.CoachType coachType) {
+        List<Seat> seats = new ArrayList<>();
+        
+        for (int i = 1; i <= totalSeats; i++) {
+            Seat seat = new Seat();
+            seat.setCoach(coach);
+            seat.setSeatNumber(String.valueOf(i));
+            seat.setBerthNumber(String.valueOf(i));
+            
+            // Assign seat type based on position
+            if (i % 6 == 1 || i % 6 == 6) {
+                seat.setSeatType(Seat.SeatType.WINDOW);
+            } else if (i % 6 == 2 || i % 6 == 5) {
+                seat.setSeatType(Seat.SeatType.MIDDLE);
+            } else {
+                seat.setSeatType(Seat.SeatType.AISLE);
+            }
+            
+            // Assign berth type based on position
+            if (i % 6 == 1) {
+                seat.setBerthType(Seat.BerthType.LOWER);
+            } else if (i % 6 == 2) {
+                seat.setBerthType(Seat.BerthType.MIDDLE);
+            } else if (i % 6 == 3) {
+                seat.setBerthType(Seat.BerthType.UPPER);
+            } else if (i % 6 == 4) {
+                seat.setBerthType(Seat.BerthType.SIDE_LOWER);
+            } else if (i % 6 == 5) {
+                seat.setBerthType(Seat.BerthType.SIDE_UPPER);
+            } else {
+                seat.setBerthType(Seat.BerthType.LOWER);
+            }
+            
+            seat.setStatus(Seat.SeatStatus.AVAILABLE);
+            seat.setIsLadiesQuota(i % 10 == 0); // Every 10th seat is ladies quota
+            seat.setIsSeniorCitizenQuota(i % 20 == 0); // Every 20th seat is senior citizen quota
+            seat.setIsHandicappedFriendly(i % 15 == 0); // Every 15th seat is handicapped friendly
+            
+            seats.add(seat);
+        }
+        
+        return seats;
     }
     
     private void createUsers() {

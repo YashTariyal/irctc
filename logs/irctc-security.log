@@ -466,3 +466,49 @@
 2025-10-18 12:25:49.526 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api-docs/🚀 IRCTC Backend API
 2025-10-18 12:25:49.527 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
 2025-10-18 12:25:49.527 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api-docs/🚀 IRCTC Backend API
+2025-10-18 17:18:26.320 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name authenticationService
+2025-10-18 17:18:26.396 [main] DEBUG org.springframework.security.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-10-18 17:18:35.260 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/seat-selection/health
+2025-10-18 17:18:35.267 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 17:18:35.275 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.authentication.Http403ForbiddenEntryPoint - Pre-authenticated entry point called. Rejecting access
+2025-10-18 17:18:35.282 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /error
+2025-10-18 17:18:35.284 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /error
+2025-10-18 17:18:35.304 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 17:18:46.735 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 17:18:46.739 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 17:18:46.743 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 17:18:47.137 [http-nio-8082-exec-2] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Authenticated user
+2025-10-18 17:18:47.201 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/seat-selection/health
+2025-10-18 17:18:47.226 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/seat-selection/health
+2025-10-18 17:18:50.698 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 17:18:50.698 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 17:18:50.700 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 17:18:50.803 [http-nio-8082-exec-6] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Authenticated user
+2025-10-18 17:18:50.820 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/seat-selection/trains/1/coaches/1/seats?journeyDate=2025-10-20
+2025-10-18 17:18:50.828 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/seat-selection/trains/1/coaches/1/seats?journeyDate=2025-10-20
+2025-10-18 17:18:53.526 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 17:18:53.527 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 17:18:53.528 [http-nio-8082-exec-9] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 17:18:53.621 [http-nio-8082-exec-9] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Authenticated user
+2025-10-18 17:18:53.637 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/trains
+2025-10-18 17:18:53.640 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/trains
+2025-10-18 17:19:39.618 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name authenticationService
+2025-10-18 17:19:39.683 [main] DEBUG org.springframework.security.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2025-10-18 17:19:52.065 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 17:19:52.078 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 17:19:52.086 [http-nio-8082-exec-1] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 17:19:52.314 [http-nio-8082-exec-1] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Authenticated user
+2025-10-18 17:19:52.377 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/seat-selection/trains/1/coaches/1/seats?journeyDate=2025-10-20
+2025-10-18 17:19:52.400 [http-nio-8082-exec-2] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/seat-selection/trains/1/coaches/1/seats?journeyDate=2025-10-20
+2025-10-18 17:19:56.910 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 17:19:56.910 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 17:19:56.911 [http-nio-8082-exec-4] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 17:19:57.005 [http-nio-8082-exec-4] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Authenticated user
+2025-10-18 17:19:57.019 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/seat-selection/select
+2025-10-18 17:19:57.022 [http-nio-8082-exec-6] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/seat-selection/select
+2025-10-18 17:20:00.257 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /api/auth/login
+2025-10-18 17:20:00.257 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.authentication.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-18 17:20:00.259 [http-nio-8082-exec-8] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /api/auth/login
+2025-10-18 17:20:00.349 [http-nio-8082-exec-8] DEBUG org.springframework.security.authentication.dao.DaoAuthenticationProvider - Authenticated user
+2025-10-18 17:20:00.362 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /api/seat-selection/coaches/1/layout
+2025-10-18 17:20:00.365 [http-nio-8082-exec-10] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /api/seat-selection/coaches/1/layout
