@@ -634,3 +634,34 @@ java.lang.RuntimeException: Failed to get available seats: Coach not found with 
 2025-10-18 17:20:00.367 [http-nio-8082-exec-10] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: GET /coaches/{coachId}/layout - getCoachLayout in class: SeatSelectionController
 2025-10-18 17:20:00.367 [http-nio-8082-exec-10] INFO  com.irctc_backend.irctc.controller.SeatSelectionController - Getting coach layout for coach: 1
 2025-10-18 17:20:00.374 [http-nio-8082-exec-10] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: GET /coaches/{coachId}/layout - getCoachLayout in class: SeatSelectionController - Execution time: 7ms
+2025-10-18 17:24:51.190 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:24:51.190 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:24:51.283 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 93ms
+2025-10-18 17:24:51.283 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 93ms
+2025-10-18 17:25:22.775 [http-nio-8082-exec-1] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:25:22.778 [http-nio-8082-exec-1] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:25:23.001 [http-nio-8082-exec-1] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 223ms
+2025-10-18 17:25:23.002 [http-nio-8082-exec-1] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 228ms
+2025-10-18 17:25:23.050 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: GET /health - healthCheck in class: WaitlistRacController
+2025-10-18 17:25:23.050 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: GET /health - healthCheck in class: WaitlistRacController - Execution time: 0ms
+2025-10-18 17:25:28.551 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:25:28.551 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:25:28.651 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 100ms
+2025-10-18 17:25:28.651 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 100ms
+2025-10-18 17:25:28.706 [http-nio-8082-exec-6] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /waitlist - addToWaitlist in class: WaitlistRacController
+2025-10-18 17:25:28.706 [http-nio-8082-exec-6] INFO  com.irctc_backend.irctc.controller.WaitlistRacController - Adding user to waitlist for train: 1, coach: 1
+2025-10-18 17:25:28.747 [http-nio-8082-exec-6] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /waitlist - addToWaitlist in class: WaitlistRacController - Execution time: 41ms
+2025-10-18 17:25:34.175 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:25:34.175 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:25:34.265 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 90ms
+2025-10-18 17:25:34.265 [http-nio-8082-exec-8] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 90ms
+2025-10-18 17:25:34.281 [http-nio-8082-exec-10] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: GET /waitlist - getUserWaitlistEntries in class: WaitlistRacController
+2025-10-18 17:25:34.281 [http-nio-8082-exec-10] INFO  com.irctc_backend.irctc.controller.WaitlistRacController - Getting waitlist entries for current user
+2025-10-18 17:25:34.291 [http-nio-8082-exec-10] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: GET /waitlist - getUserWaitlistEntries in class: WaitlistRacController - Execution time: 10ms
+2025-10-18 17:25:38.119 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: POST /login - login in class: AuthenticationController
+2025-10-18 17:25:38.120 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🚀 Starting execution of: User Authentication in class: AuthenticationService
+2025-10-18 17:25:38.209 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ Completed: User Authentication in class: AuthenticationService - Execution time: 89ms
+2025-10-18 17:25:38.209 [http-nio-8082-exec-2] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: POST /login - login in class: AuthenticationController - Execution time: 90ms
+2025-10-18 17:25:38.225 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - 🌐 API Request: GET /quota-types - getQuotaTypes in class: WaitlistRacController
+2025-10-18 17:25:38.225 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.controller.WaitlistRacController - Getting quota types
+2025-10-18 17:25:38.225 [http-nio-8082-exec-4] INFO  com.irctc_backend.irctc.aspect.ExecutionTimeAspect - ✅ API Response: GET /quota-types - getQuotaTypes in class: WaitlistRacController - Execution time: 0ms

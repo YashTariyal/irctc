@@ -2,6 +2,8 @@ package com.irctc_backend.irctc.repository;
 
 import com.irctc_backend.irctc.entity.Station;
 import com.irctc_backend.irctc.entity.Train;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -49,4 +51,7 @@ public interface TrainRepository extends JpaRepository<Train, Long> {
     
     @Query("SELECT t FROM Train t WHERE t.sourceStation.state = :sourceState AND t.destinationStation.state = :destState AND t.isRunning = true")
     List<Train> findActiveTrainsBetweenStates(@Param("sourceState") String sourceState, @Param("destState") String destState);
+    
+    Page<Train> findByTrainNumberContainingIgnoreCaseOrTrainNameContainingIgnoreCase(
+        String trainNumber, String trainName, Pageable pageable);
 } 
