@@ -36,6 +36,11 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private StationRepository stationRepository;
     
+    @Autowired
+    private CoachRepository coachRepository;
+    
+    @Autowired
+    private SeatRepository seatRepository;
     
     @Autowired
     private BookingRepository bookingRepository;
@@ -254,12 +259,52 @@ public class DataInitializer implements CommandLineRunner {
         List<Passenger> passengers = List.of(passenger1, passenger2);
         passengerRepository.saveAll(passengers);
         
+        // Create dummy coaches for the bookings
+        Coach coach1 = new Coach();
+        coach1.setTrain(train1);
+        coach1.setCoachNumber("B1");
+        coach1.setCoachType(Coach.CoachType.AC_2_TIER);
+        coach1.setTotalSeats(48);
+        coach1.setAvailableSeats(46);
+        coach1.setIsActive(true);
+        
+        Coach coach2 = new Coach();
+        coach2.setTrain(train2);
+        coach2.setCoachNumber("S1");
+        coach2.setCoachType(Coach.CoachType.SLEEPER_CLASS);
+        coach2.setTotalSeats(72);
+        coach2.setAvailableSeats(71);
+        coach2.setIsActive(true);
+        
+        List<Coach> coaches = List.of(coach1, coach2);
+        coachRepository.saveAll(coaches);
+        
+        // Create dummy seats
+        Seat seat1 = new Seat();
+        seat1.setCoach(coach1);
+        seat1.setSeatNumber("12");
+        seat1.setBerthType(Seat.BerthType.LOWER);
+        seat1.setSeatType(Seat.SeatType.WINDOW);
+        seat1.setStatus(Seat.SeatStatus.BOOKED);
+        
+        Seat seat2 = new Seat();
+        seat2.setCoach(coach2);
+        seat2.setSeatNumber("25");
+        seat2.setBerthType(Seat.BerthType.LOWER);
+        seat2.setSeatType(Seat.SeatType.WINDOW);
+        seat2.setStatus(Seat.SeatStatus.BOOKED);
+        
+        List<Seat> seats = List.of(seat1, seat2);
+        seatRepository.saveAll(seats);
+        
         // Create bookings
         Booking booking1 = new Booking();
         booking1.setPnrNumber("PNR123456");
         booking1.setUser(user1);
         booking1.setTrain(train1);
         booking1.setPassenger(passenger1);
+        booking1.setCoach(coach1);
+        booking1.setSeat(seat1);
         booking1.setJourneyDate(LocalDate.now().plusDays(7));
         booking1.setBookingDate(LocalDateTime.now());
         booking1.setTotalFare(new BigDecimal("2500.00"));
@@ -278,6 +323,8 @@ public class DataInitializer implements CommandLineRunner {
         booking2.setUser(user2);
         booking2.setTrain(train2);
         booking2.setPassenger(passenger2);
+        booking2.setCoach(coach2);
+        booking2.setSeat(seat2);
         booking2.setJourneyDate(LocalDate.now().plusDays(10));
         booking2.setBookingDate(LocalDateTime.now().minusHours(2));
         booking2.setTotalFare(new BigDecimal("1800.00"));
