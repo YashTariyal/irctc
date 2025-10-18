@@ -4,6 +4,7 @@ import com.irctc_backend.irctc.dto.LoginRequest;
 import com.irctc_backend.irctc.dto.LoginResponse;
 import com.irctc_backend.irctc.dto.RefreshTokenRequest;
 import com.irctc_backend.irctc.dto.TokenResponse;
+import com.irctc_backend.irctc.entity.User;
 import com.irctc_backend.irctc.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -175,10 +176,7 @@ public class AuthenticationController {
             @RequestParam String token) {
         try {
             boolean isValid = authenticationService.validateToken(token);
-            return ResponseEntity.ok(new Object() {
-                public final boolean valid = isValid;
-                public final String message = isValid ? "Token is valid" : "Token is invalid or expired";
-            });
+            return ResponseEntity.ok(new TokenValidationResponse(isValid));
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                 .body("Token validation failed: " + e.getMessage());
@@ -221,16 +219,7 @@ public class AuthenticationController {
     public ResponseEntity<?> getCurrentUser() {
         try {
             return authenticationService.getCurrentUser()
-                .map(user -> ResponseEntity.ok(new Object() {
-                    public final Long id = user.getId();
-                    public final String username = user.getUsername();
-                    public final String email = user.getEmail();
-                    public final String firstName = user.getFirstName();
-                    public final String lastName = user.getLastName();
-                    public final String role = user.getRole().name();
-                    public final boolean isActive = user.getIsActive();
-                    public final boolean isVerified = user.getIsVerified();
-                }))
+                .map(user -> ResponseEntity.ok(new UserInfoResponse(user)))
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("User not found or not authenticated"));
         } catch (Exception e) {
@@ -277,14 +266,57 @@ public class AuthenticationController {
             // Clear security context
             org.springframework.security.core.context.SecurityContextHolder.clearContext();
             
-            return ResponseEntity.ok(new Object() {
-                public final boolean success = true;
-                public final String message = "Logout successful";
-                public final String timestamp = java.time.LocalDateTime.now().toString();
-            });
+            return ResponseEntity.ok(new LogoutResponse());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Logout failed: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Token validation response class
+     */
+    private static class TokenValidationResponse {
+        public final boolean valid;
+        public final String message;
+        
+        public TokenValidationResponse(boolean valid) {
+            this.valid = valid;
+            this.message = valid ? "Token is valid" : "Token is invalid or expired";
+        }
+    }
+    
+    /**
+     * User info response class
+     */
+    private static class UserInfoResponse {
+        public final Long id;
+        public final String username;
+        public final String email;
+        public final String firstName;
+        public final String lastName;
+        public final String role;
+        public final boolean isActive;
+        public final boolean isVerified;
+        
+        public UserInfoResponse(User user) {
+            this.id = user.getId();
+            this.username = user.getUsername();
+            this.email = user.getEmail();
+            this.firstName = user.getFirstName();
+            this.lastName = user.getLastName();
+            this.role = user.getRole().name();
+            this.isActive = user.getIsActive();
+            this.isVerified = user.getIsVerified();
+        }
+    }
+    
+    /**
+     * Logout response class
+     */
+    private static class LogoutResponse {
+        public final boolean success = true;
+        public final String message = "Logout successful";
+        public final String timestamp = java.time.LocalDateTime.now().toString();
     }
 }

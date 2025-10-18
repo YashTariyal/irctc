@@ -43,8 +43,6 @@ public class AuthenticationService implements UserDetailsService {
     @Autowired
     private JwtUtil jwtUtil;
     
-    @Autowired
-    private PasswordEncoder passwordEncoder;
     
     @Autowired
     private AuthenticationManager authenticationManager;

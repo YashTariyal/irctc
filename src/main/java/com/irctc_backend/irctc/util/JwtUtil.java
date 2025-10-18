@@ -2,7 +2,6 @@ package com.irctc_backend.irctc.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,7 +188,7 @@ public class JwtUtil {
                 .subject(subject)
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .signWith(getSigningKey())
                 .compact();
     }
     
