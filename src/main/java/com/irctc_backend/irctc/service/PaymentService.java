@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -79,8 +78,6 @@ public class PaymentService {
     @ExecutionTime("Initiate Payment")
     @CacheEvict(value = {"bookings", "payments"}, allEntries = true)
     public PaymentResponse initiatePayment(PaymentRequest paymentRequest) {
-        long startTime = System.currentTimeMillis();
-        String requestId = LoggingUtil.generateRequestId();
         
         try {
             logger.info("Initiating payment for booking ID: {}, amount: {}", 
@@ -147,8 +144,6 @@ public class PaymentService {
     @ExecutionTime("Process Payment Callback")
     @CacheEvict(value = {"bookings", "payments"}, allEntries = true)
     public PaymentResponse processPaymentCallback(PaymentCallbackRequest callbackRequest) {
-        long startTime = System.currentTimeMillis();
-        String requestId = LoggingUtil.generateRequestId();
         
         try {
             logger.info("Processing payment callback for order ID: {}", callbackRequest.getOrderId());
@@ -288,7 +283,7 @@ public class PaymentService {
                 refundRequest.put("amount", refundAmount.multiply(new BigDecimal("100")).intValue()); // Convert to paise
                 refundRequest.put("notes", refundReason);
                 
-                com.razorpay.Refund refund = razorpayClient.payments.refund(payment.getGatewayPaymentId(), refundRequest);
+                razorpayClient.payments.refund(payment.getGatewayPaymentId(), refundRequest);
                 
                 // Update payment with refund details
                 payment.setRefundAmount(refundAmount);

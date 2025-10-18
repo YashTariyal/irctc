@@ -345,15 +345,20 @@ public class PaymentController {
     public ResponseEntity<?> getPaymentConfig() {
         try {
             // Return payment gateway configuration for frontend
-            return ResponseEntity.ok(new Object() {
-                public final String razorpayKeyId = "rzp_test_1234567890"; // This should come from config
-                public final String[] supportedMethods = {"card", "netbanking", "upi", "wallet"};
-                public final String[] supportedCurrencies = {"INR"};
-                public final String defaultCurrency = "INR";
-            });
+            return ResponseEntity.ok(new PaymentConfigResponse());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Error retrieving payment configuration");
         }
+    }
+    
+    /**
+     * Payment configuration response class
+     */
+    private static class PaymentConfigResponse {
+        public final String razorpayKeyId = "rzp_test_1234567890"; // This should come from config
+        public final String[] supportedMethods = {"card", "netbanking", "upi", "wallet"};
+        public final String[] supportedCurrencies = {"INR"};
+        public final String defaultCurrency = "INR";
     }
 }
