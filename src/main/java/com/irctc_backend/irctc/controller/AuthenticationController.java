@@ -219,7 +219,7 @@ public class AuthenticationController {
     public ResponseEntity<?> getCurrentUser() {
         try {
             return authenticationService.getCurrentUser()
-                .map(user -> ResponseEntity.ok(new UserInfoResponse(user)))
+                .map(user -> ResponseEntity.<Object>ok(new UserInfoResponse(user)))
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("User not found or not authenticated"));
         } catch (Exception e) {
