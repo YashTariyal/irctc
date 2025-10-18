@@ -2,192 +2,343 @@ package com.irctc_backend.irctc.config;
 
 import com.irctc_backend.irctc.entity.*;
 import com.irctc_backend.irctc.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Initializer for creating dummy data for testing
+ * 
+ * @author IRCTC Development Team
+ * @version 1.0.0
+ */
 @Component
 public class DataInitializer implements CommandLineRunner {
+    
+    private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
     
     @Autowired
     private UserRepository userRepository;
     
     @Autowired
-    private StationRepository stationRepository;
-    
-    @Autowired
     private TrainRepository trainRepository;
     
     @Autowired
-    private CoachRepository coachRepository;
+    private StationRepository stationRepository;
+    
     
     @Autowired
-    private SeatRepository seatRepository;
+    private BookingRepository bookingRepository;
+    
+    @Autowired
+    private PassengerRepository passengerRepository;
+    
+    @Autowired
+    private PaymentRepository paymentRepository;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
     
     @Override
     public void run(String... args) throws Exception {
-        // Only initialize if no data exists
-        if (userRepository.count() == 0) {
-            initializeData();
+        logger.info("🚀 Initializing dummy data for testing...");
+        
+        // Only create dummy data if no bookings exist
+        if (bookingRepository.count() == 0) {
+            createDummyData();
+            logger.info("✅ Dummy data created successfully!");
+        } else {
+            logger.info("📊 Dummy data already exists, skipping initialization");
         }
     }
     
-    private void initializeData() {
-        // Create Stations
-        Station newDelhi = createStation("NDLS", "New Delhi", Station.StationType.JUNCTION, "Delhi", "Delhi", "Northern");
-        Station mumbai = createStation("BCT", "Mumbai Central", Station.StationType.TERMINAL, "Mumbai", "Maharashtra", "Western");
-        Station bangalore = createStation("SBC", "Bangalore City", Station.StationType.JUNCTION, "Bangalore", "Karnataka", "South Western");
-        Station chennai = createStation("MAS", "Chennai Central", Station.StationType.TERMINAL, "Chennai", "Tamil Nadu", "Southern");
-        Station kolkata = createStation("HWH", "Howrah Junction", Station.StationType.JUNCTION, "Kolkata", "West Bengal", "Eastern");
+    private void createDummyData() {
+        // Create additional stations
+        createStations();
         
-        // Create Users
-        User admin = createUser("admin", "admin@irctc.com", "admin123", "Admin", "User", "9876543210", User.UserRole.ADMIN);
-        User user1 = createUser("john_doe", "john@example.com", "password123", "John", "Doe", "9876543211", User.UserRole.USER);
-        User user2 = createUser("jane_smith", "jane@example.com", "password123", "Jane", "Smith", "9876543212", User.UserRole.USER);
+        // Create additional trains
+        createTrains();
         
-        // Create Trains
-        Train rajdhani = createTrain("12345", "Rajdhani Express", newDelhi, mumbai, 
-            LocalTime.of(16, 0), LocalTime.of(8, 30), Train.TrainType.RAJDHANI);
+        // Create additional users
+        createUsers();
         
-        Train shatabdi = createTrain("12019", "Shatabdi Express", newDelhi, bangalore, 
-            LocalTime.of(6, 0), LocalTime.of(23, 0), Train.TrainType.SHATABDI);
+        // Create bookings with passengers
+        createBookings();
         
-        Train duronto = createTrain("12213", "Duronto Express", mumbai, chennai, 
-            LocalTime.of(23, 0), LocalTime.of(20, 0), Train.TrainType.DURONTO);
-        
-        // Create Coaches for Rajdhani
-        Coach ac1 = createCoach(rajdhani, "A1", Coach.CoachType.AC_FIRST_CLASS, 20, 20, 
-            new BigDecimal("5000"), new BigDecimal("5000"), new BigDecimal("5000"), new BigDecimal("1000"));
-        
-        Coach ac2 = createCoach(rajdhani, "B1", Coach.CoachType.AC_2_TIER, 50, 50, 
-            new BigDecimal("2500"), new BigDecimal("2500"), new BigDecimal("2500"), new BigDecimal("500"));
-        
-        Coach sleeper = createCoach(rajdhani, "S1", Coach.CoachType.SLEEPER_CLASS, 72, 72, 
-            new BigDecimal("800"), new BigDecimal("800"), new BigDecimal("800"), new BigDecimal("200"));
-        
-        // Create Seats for AC1
-        createSeatsForCoach(ac1, 20, Seat.SeatType.WINDOW, Seat.BerthType.LOWER);
-        
-        // Create Seats for AC2
-        createSeatsForCoach(ac2, 50, Seat.SeatType.WINDOW, Seat.BerthType.LOWER);
-        
-        // Create Seats for Sleeper
-        createSeatsForCoach(sleeper, 72, Seat.SeatType.WINDOW, Seat.BerthType.LOWER);
-        
-        System.out.println("Sample data initialized successfully!");
+        // Create payments
+        createPayments();
     }
     
-    private Station createStation(String code, String name, Station.StationType type, String city, String state, String zone) {
-        Station station = new Station();
-        station.setStationCode(code);
-        station.setStationName(name);
-        station.setStationType(type);
-        station.setCity(city);
-        station.setState(state);
-        station.setZone(zone);
-        station.setPlatformCount(10);
-        station.setIsActive(true);
-        station.setCreatedAt(LocalDateTime.now());
-        station.setUpdatedAt(LocalDateTime.now());
-        return stationRepository.save(station);
-    }
-    
-    private User createUser(String username, String email, String password, String firstName, String lastName, 
-                           String phoneNumber, User.UserRole role) {
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setPhoneNumber(phoneNumber);
-        user.setGender(User.Gender.MALE);
-        user.setIdProofType(User.IdProofType.AADHAR);
-        user.setIdProofNumber("123456789012");
-        user.setIsVerified(true);
-        user.setIsActive(true);
-        user.setRole(role);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
-        return userRepository.save(user);
-    }
-    
-    private Train createTrain(String trainNumber, String trainName, Station source, Station destination, 
-                             LocalTime departure, LocalTime arrival, Train.TrainType type) {
-        Train train = new Train();
-        train.setTrainNumber(trainNumber);
-        train.setTrainName(trainName);
-        train.setSourceStation(source);
-        train.setDestinationStation(destination);
-        train.setDepartureTime(departure);
-        train.setArrivalTime(arrival);
-        train.setJourneyDuration(calculateDuration(departure, arrival));
-        train.setTotalDistance(1500.0); // Approximate distance
-        train.setTrainType(type);
-        train.setStatus(Train.TrainStatus.ACTIVE);
-        train.setIsRunning(true);
-        train.setCreatedAt(LocalDateTime.now());
-        train.setUpdatedAt(LocalDateTime.now());
-        return trainRepository.save(train);
-    }
-    
-    private Coach createCoach(Train train, String coachNumber, Coach.CoachType type, int totalSeats, int availableSeats,
-                             BigDecimal baseFare, BigDecimal acFare, BigDecimal sleeperFare, BigDecimal tatkalFare) {
-        Coach coach = new Coach();
-        coach.setTrain(train);
-        coach.setCoachNumber(coachNumber);
-        coach.setCoachType(type);
-        coach.setTotalSeats(totalSeats);
-        coach.setAvailableSeats(availableSeats);
-        coach.setBaseFare(baseFare);
-        coach.setAcFare(acFare);
-        coach.setSleeperFare(sleeperFare);
-        coach.setTatkalFare(tatkalFare);
-        coach.setLadiesQuota(5);
-        coach.setSeniorCitizenQuota(3);
-        coach.setIsActive(true);
-        coach.setCreatedAt(LocalDateTime.now());
-        coach.setUpdatedAt(LocalDateTime.now());
-        return coachRepository.save(coach);
-    }
-    
-    private void createSeatsForCoach(Coach coach, int seatCount, Seat.SeatType seatType, Seat.BerthType berthType) {
-        for (int i = 1; i <= seatCount; i++) {
-            Seat seat = new Seat();
-            seat.setCoach(coach);
-            seat.setSeatNumber(String.valueOf(i));
-            seat.setBerthNumber(String.valueOf(i));
-            seat.setSeatType(seatType);
-            seat.setBerthType(berthType);
-            seat.setStatus(Seat.SeatStatus.AVAILABLE);
-            seat.setIsLadiesQuota(false);
-            seat.setIsSeniorCitizenQuota(false);
-            seat.setIsHandicappedFriendly(false);
-            seat.setCreatedAt(LocalDateTime.now());
-            seat.setUpdatedAt(LocalDateTime.now());
-            seatRepository.save(seat);
-        }
-    }
-    
-    private Integer calculateDuration(LocalTime departure, LocalTime arrival) {
-        int departureMinutes = departure.getHour() * 60 + departure.getMinute();
-        int arrivalMinutes = arrival.getHour() * 60 + arrival.getMinute();
+    private void createStations() {
+        List<Station> stations = new ArrayList<>();
         
-        int duration = arrivalMinutes - departureMinutes;
-        if (duration < 0) {
-            duration += 24 * 60; // Add 24 hours if arrival is next day
+        Station station1 = new Station();
+        station1.setStationCode("NDLS");
+        station1.setStationName("New Delhi");
+        station1.setCity("Delhi");
+        station1.setState("Delhi");
+        station1.setZone("North");
+        station1.setStationType(Station.StationType.TERMINAL);
+        station1.setIsActive(true);
+        stations.add(station1);
+        
+        Station station2 = new Station();
+        station2.setStationCode("MUMB");
+        station2.setStationName("Mumbai Central");
+        station2.setCity("Mumbai");
+        station2.setState("Maharashtra");
+        station2.setZone("West");
+        station2.setStationType(Station.StationType.TERMINAL);
+        station2.setIsActive(true);
+        stations.add(station2);
+        
+        Station station3 = new Station();
+        station3.setStationCode("CHEN");
+        station3.setStationName("Chennai Central");
+        station3.setCity("Chennai");
+        station3.setState("Tamil Nadu");
+        station3.setZone("South");
+        station3.setStationType(Station.StationType.TERMINAL);
+        station3.setIsActive(true);
+        stations.add(station3);
+        
+        Station station4 = new Station();
+        station4.setStationCode("KOLK");
+        station4.setStationName("Howrah");
+        station4.setCity("Kolkata");
+        station4.setState("West Bengal");
+        station4.setZone("East");
+        station4.setStationType(Station.StationType.TERMINAL);
+        station4.setIsActive(true);
+        stations.add(station4);
+        
+        stationRepository.saveAll(stations);
+        logger.info("📍 Created {} stations", stations.size());
+    }
+    
+    private void createTrains() {
+        // Get existing stations
+        Station delhi = stationRepository.findByStationCode("NDLS").orElse(null);
+        Station mumbai = stationRepository.findByStationCode("MUMB").orElse(null);
+        Station chennai = stationRepository.findByStationCode("CHEN").orElse(null);
+        Station kolkata = stationRepository.findByStationCode("KOLK").orElse(null);
+        
+        if (delhi == null || mumbai == null || chennai == null || kolkata == null) {
+            logger.warn("⚠️ Some stations not found, skipping train creation");
+            return;
         }
         
-        return duration;
+        List<Train> trains = new ArrayList<>();
+        
+        Train train1 = new Train();
+        train1.setTrainNumber("12951");
+        train1.setTrainName("Mumbai Rajdhani");
+        train1.setSourceStation(delhi);
+        train1.setDestinationStation(mumbai);
+        train1.setDepartureTime(LocalTime.of(16, 35));
+        train1.setArrivalTime(LocalTime.of(8, 30));
+        train1.setJourneyDuration(990);
+        train1.setTotalDistance(1384.0);
+        train1.setTrainType(Train.TrainType.RAJDHANI);
+        train1.setStatus(Train.TrainStatus.ACTIVE);
+        train1.setIsRunning(true);
+        trains.add(train1);
+        
+        Train train2 = new Train();
+        train2.setTrainNumber("12801");
+        train2.setTrainName("Puri Howrah Express");
+        train2.setSourceStation(kolkata);
+        train2.setDestinationStation(chennai);
+        train2.setDepartureTime(LocalTime.of(22, 20));
+        train2.setArrivalTime(LocalTime.of(6, 0));
+        train2.setJourneyDuration(460);
+        train2.setTotalDistance(500.0);
+        train2.setTrainType(Train.TrainType.EXPRESS);
+        train2.setStatus(Train.TrainStatus.ACTIVE);
+        train2.setIsRunning(true);
+        trains.add(train2);
+        
+        trainRepository.saveAll(trains);
+        logger.info("🚂 Created {} trains", trains.size());
     }
-} 
+    
+    private void createUsers() {
+        List<User> users = new ArrayList<>();
+        
+        User user1 = new User();
+        user1.setUsername("rajesh_kumar");
+        user1.setEmail("rajesh@example.com");
+        user1.setPassword(passwordEncoder.encode("password123"));
+        user1.setFirstName("Rajesh");
+        user1.setLastName("Kumar");
+        user1.setPhoneNumber("9876543213");
+        user1.setDateOfBirth(LocalDateTime.of(1985, 5, 15, 0, 0));
+        user1.setGender(User.Gender.MALE);
+        user1.setIdProofType(User.IdProofType.AADHAR);
+        user1.setIdProofNumber("123456789013");
+        user1.setIsActive(true);
+        user1.setIsVerified(true);
+        user1.setRole(User.UserRole.USER);
+        users.add(user1);
+        
+        User user2 = new User();
+        user2.setUsername("priya_sharma");
+        user2.setEmail("priya@example.com");
+        user2.setPassword(passwordEncoder.encode("password123"));
+        user2.setFirstName("Priya");
+        user2.setLastName("Sharma");
+        user2.setPhoneNumber("9876543214");
+        user2.setDateOfBirth(LocalDateTime.of(1990, 8, 22, 0, 0));
+        user2.setGender(User.Gender.FEMALE);
+        user2.setIdProofType(User.IdProofType.PAN);
+        user2.setIdProofNumber("ABCDE1234F");
+        user2.setIsActive(true);
+        user2.setIsVerified(true);
+        user2.setRole(User.UserRole.USER);
+        users.add(user2);
+        
+        userRepository.saveAll(users);
+        logger.info("👥 Created {} users", users.size());
+    }
+    
+    private void createBookings() {
+        // Get users and trains
+        User user1 = userRepository.findByUsername("rajesh_kumar").orElse(null);
+        User user2 = userRepository.findByUsername("priya_sharma").orElse(null);
+        
+        Train train1 = trainRepository.findByTrainNumber("12951").orElse(null);
+        Train train2 = trainRepository.findByTrainNumber("12801").orElse(null);
+        
+        if (user1 == null || user2 == null || train1 == null || train2 == null) {
+            logger.warn("⚠️ Some users or trains not found, skipping booking creation");
+            return;
+        }
+        
+        // Create passengers first
+        Passenger passenger1 = new Passenger();
+        passenger1.setUser(user1);
+        passenger1.setFirstName("Rajesh");
+        passenger1.setLastName("Kumar");
+        passenger1.setAge(35);
+        passenger1.setGender(Passenger.Gender.MALE);
+        passenger1.setPassengerType(Passenger.PassengerType.ADULT);
+        passenger1.setIdProofType(Passenger.IdProofType.AADHAR);
+        passenger1.setIdProofNumber("123456789013");
+        passenger1.setIsSeniorCitizen(false);
+        passenger1.setIsLadiesQuota(false);
+        passenger1.setIsHandicapped(false);
+        
+        Passenger passenger2 = new Passenger();
+        passenger2.setUser(user2);
+        passenger2.setFirstName("Priya");
+        passenger2.setLastName("Sharma");
+        passenger2.setAge(28);
+        passenger2.setGender(Passenger.Gender.FEMALE);
+        passenger2.setPassengerType(Passenger.PassengerType.ADULT);
+        passenger2.setIdProofType(Passenger.IdProofType.PAN);
+        passenger2.setIdProofNumber("ABCDE1234F");
+        passenger2.setIsSeniorCitizen(false);
+        passenger2.setIsLadiesQuota(false);
+        passenger2.setIsHandicapped(false);
+        
+        List<Passenger> passengers = List.of(passenger1, passenger2);
+        passengerRepository.saveAll(passengers);
+        
+        // Create bookings
+        Booking booking1 = new Booking();
+        booking1.setPnrNumber("PNR123456");
+        booking1.setUser(user1);
+        booking1.setTrain(train1);
+        booking1.setPassenger(passenger1);
+        booking1.setJourneyDate(LocalDate.now().plusDays(7));
+        booking1.setBookingDate(LocalDateTime.now());
+        booking1.setTotalFare(new BigDecimal("2500.00"));
+        booking1.setBaseFare(new BigDecimal("2000.00"));
+        booking1.setConvenienceFee(new BigDecimal("50.00"));
+        booking1.setGstAmount(new BigDecimal("450.00"));
+        booking1.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking1.setPaymentStatus(Booking.PaymentStatus.COMPLETED);
+        booking1.setQuotaType(Booking.QuotaType.GENERAL);
+        booking1.setIsTatkal(false);
+        booking1.setIsCancelled(false);
+        booking1.setBookingSource("WEB");
+        
+        Booking booking2 = new Booking();
+        booking2.setPnrNumber("PNR789012");
+        booking2.setUser(user2);
+        booking2.setTrain(train2);
+        booking2.setPassenger(passenger2);
+        booking2.setJourneyDate(LocalDate.now().plusDays(10));
+        booking2.setBookingDate(LocalDateTime.now().minusHours(2));
+        booking2.setTotalFare(new BigDecimal("1800.00"));
+        booking2.setBaseFare(new BigDecimal("1500.00"));
+        booking2.setConvenienceFee(new BigDecimal("30.00"));
+        booking2.setGstAmount(new BigDecimal("270.00"));
+        booking2.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking2.setPaymentStatus(Booking.PaymentStatus.COMPLETED);
+        booking2.setQuotaType(Booking.QuotaType.GENERAL);
+        booking2.setIsTatkal(false);
+        booking2.setIsCancelled(false);
+        booking2.setBookingSource("MOBILE_APP");
+        
+        List<Booking> bookings = List.of(booking1, booking2);
+        bookingRepository.saveAll(bookings);
+        
+        logger.info("🎫 Created {} bookings", bookings.size());
+    }
+    
+    
+    private void createPayments() {
+        // Get bookings
+        Booking booking1 = bookingRepository.findByPnrNumber("PNR123456").orElse(null);
+        Booking booking2 = bookingRepository.findByPnrNumber("PNR789012").orElse(null);
+        
+        if (booking1 == null || booking2 == null) {
+            logger.warn("⚠️ Some bookings not found, skipping payment creation");
+            return;
+        }
+        
+        List<Payment> payments = new ArrayList<>();
+        
+        // Successful payment for booking1
+        Payment payment1 = new Payment();
+        payment1.setBooking(booking1);
+        payment1.setAmount(new BigDecimal("2500.00"));
+        payment1.setStatus(Payment.PaymentStatus.COMPLETED);
+        payment1.setPaymentMethod(Payment.PaymentMethod.RAZORPAY);
+        payment1.setTransactionId("TXN123456789");
+        payment1.setPaymentDate(LocalDateTime.now().minusHours(1));
+        payment1.setGatewayResponse("Payment successful");
+        payment1.setGatewayTransactionId("RZP_TXN_123456789");
+        payment1.setCurrency("INR");
+        payment1.setGatewayFee(new BigDecimal("75.00"));
+        payments.add(payment1);
+        
+        // Successful payment for booking2
+        Payment payment2 = new Payment();
+        payment2.setBooking(booking2);
+        payment2.setAmount(new BigDecimal("1800.00"));
+        payment2.setStatus(Payment.PaymentStatus.COMPLETED);
+        payment2.setPaymentMethod(Payment.PaymentMethod.UPI);
+        payment2.setTransactionId("TXN987654321");
+        payment2.setPaymentDate(LocalDateTime.now().minusHours(2));
+        payment2.setGatewayResponse("Payment successful");
+        payment2.setGatewayTransactionId("UPI_TXN_987654321");
+        payment2.setCurrency("INR");
+        payment2.setGatewayFee(new BigDecimal("0.00"));
+        payments.add(payment2);
+        
+        paymentRepository.saveAll(payments);
+        logger.info("💳 Created {} payments", payments.size());
+    }
+}
