@@ -62,6 +62,30 @@ public class Payment {
     @Column(name = "refund_reason")
     private String refundReason;
     
+    @Column(name = "gateway_order_id")
+    private String gatewayOrderId;
+    
+    @Column(name = "gateway_payment_id")
+    private String gatewayPaymentId;
+    
+    @Column(name = "gateway_signature")
+    private String gatewaySignature;
+    
+    @Column(name = "currency", nullable = false)
+    private String currency = "INR";
+    
+    @Column(name = "gateway_fee")
+    private BigDecimal gatewayFee;
+    
+    @Column(name = "retry_count")
+    private Integer retryCount = 0;
+    
+    @Column(name = "max_retry_attempts")
+    private Integer maxRetryAttempts = 3;
+    
+    @Column(name = "next_retry_at")
+    private LocalDateTime nextRetryAt;
+    
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -71,7 +95,8 @@ public class Payment {
     private LocalDateTime updatedAt;
     
     public enum PaymentMethod {
-        CREDIT_CARD, DEBIT_CARD, NET_BANKING, UPI, WALLET, CASH, CHEQUE
+        CREDIT_CARD, DEBIT_CARD, NET_BANKING, UPI, WALLET, CASH, CHEQUE, 
+        RAZORPAY, PAYTM, PHONEPE, GOOGLE_PAY, AMAZON_PAY, BHIM_UPI
     }
     
     public enum PaymentStatus {
