@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -52,6 +51,9 @@ public class SimpleDataInitializer implements CommandLineRunner {
     private SeatRepository seatRepository;
     
     @Autowired
+    private FareRuleRepository fareRuleRepository;
+    
+    @Autowired
     private PasswordEncoder passwordEncoder;
     
     @Override
@@ -76,6 +78,9 @@ public class SimpleDataInitializer implements CommandLineRunner {
         
         // Create coaches and seats for trains
         createCoachesAndSeats();
+        
+        // Create fare rules for trains
+        createFareRules();
         
         // Create additional users
         createUsers();
@@ -280,6 +285,55 @@ public class SimpleDataInitializer implements CommandLineRunner {
         }
         
         return seats;
+    }
+    
+    private void createFareRules() {
+        List<Train> trains = trainRepository.findAll();
+        if (trains.isEmpty()) {
+            logger.warn("⚠️ No trains found, skipping fare rule creation");
+            return;
+        }
+        
+        List<FareRule> fareRules = new ArrayList<>();
+        
+        for (Train train : trains) {
+            // Create fare rules for different coach types
+            fareRules.add(createFareRule(train, Coach.CoachType.AC_2_TIER, 2500, 1384));
+            fareRules.add(createFareRule(train, Coach.CoachType.SLEEPER_CLASS, 800, 1384));
+            fareRules.add(createFareRule(train, Coach.CoachType.AC_CHAIR_CAR, 1200, 1384));
+        }
+        
+        fareRuleRepository.saveAll(fareRules);
+        logger.info("💰 Created {} fare rules", fareRules.size());
+    }
+    
+    private FareRule createFareRule(Train train, Coach.CoachType coachType, int baseFare, int distanceKm) {
+        FareRule fareRule = new FareRule();
+        fareRule.setTrain(train);
+        fareRule.setCoachType(coachType);
+        fareRule.setBaseFare(BigDecimal.valueOf(baseFare));
+        fareRule.setDistanceKm(distanceKm);
+        
+        // Set Tatkal fares
+        fareRule.setTatkalFare(BigDecimal.valueOf(baseFare * 0.1)); // 10% of base fare
+        fareRule.setPremiumTatkalFare(BigDecimal.valueOf(baseFare * 0.15)); // 15% of base fare
+        
+        // Set discount rates
+        fareRule.setLadiesQuotaDiscount(BigDecimal.valueOf(0.05)); // 5% discount
+        fareRule.setSeniorCitizenDiscount(BigDecimal.valueOf(0.10)); // 10% discount
+        fareRule.setHandicappedDiscount(BigDecimal.valueOf(0.20)); // 20% discount
+        
+        // Set surge multipliers
+        fareRule.setSurgeMultiplier(BigDecimal.valueOf(1.0)); // No base surge
+        fareRule.setPeakHourMultiplier(BigDecimal.valueOf(1.2)); // 20% peak hour surge
+        fareRule.setWeekendMultiplier(BigDecimal.valueOf(1.15)); // 15% weekend surge
+        fareRule.setFestivalMultiplier(BigDecimal.valueOf(1.3)); // 30% festival surge
+        
+        fareRule.setIsActive(true);
+        fareRule.setValidFrom(LocalDateTime.now().minusDays(1));
+        fareRule.setValidUntil(LocalDateTime.now().plusYears(1));
+        
+        return fareRule;
     }
     
     private void createUsers() {
