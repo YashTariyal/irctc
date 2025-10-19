@@ -1,9 +1,12 @@
 package com.irctc_backend.irctc.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
@@ -19,10 +22,14 @@ public class MealOrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
+    @Fetch(FetchMode.JOIN)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private MealOrder order;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "meal_item_id", nullable = false)
+    @Fetch(FetchMode.JOIN)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private MealItem mealItem;
 
     @NotNull
