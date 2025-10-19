@@ -54,6 +54,12 @@ public class SimpleDataInitializer implements CommandLineRunner {
     private FareRuleRepository fareRuleRepository;
     
     @Autowired
+    private LoyaltyAccountRepository loyaltyAccountRepository;
+    
+    @Autowired
+    private RewardRepository rewardRepository;
+    
+    @Autowired
     private PasswordEncoder passwordEncoder;
     
     @Override
@@ -81,6 +87,9 @@ public class SimpleDataInitializer implements CommandLineRunner {
         
         // Create fare rules for trains
         createFareRules();
+        
+        // Create sample rewards
+        createSampleRewards();
         
         // Create additional users
         createUsers();
@@ -334,6 +343,101 @@ public class SimpleDataInitializer implements CommandLineRunner {
         fareRule.setValidUntil(LocalDateTime.now().plusYears(1));
         
         return fareRule;
+    }
+    
+    private void createSampleRewards() {
+        List<Reward> rewards = new ArrayList<>();
+        
+        // Travel vouchers
+        rewards.add(createReward("₹100 Travel Voucher", "Get ₹100 off on your next train booking", 
+                                Reward.RewardCategory.TRAVEL_VOUCHER, new BigDecimal("1000"), 
+                                new BigDecimal("100"), null, null, 30, "BRONZE"));
+        
+        rewards.add(createReward("₹500 Travel Voucher", "Get ₹500 off on your next train booking", 
+                                Reward.RewardCategory.TRAVEL_VOUCHER, new BigDecimal("5000"), 
+                                new BigDecimal("500"), null, null, 30, "SILVER"));
+        
+        rewards.add(createReward("₹1000 Travel Voucher", "Get ₹1000 off on your next train booking", 
+                                Reward.RewardCategory.TRAVEL_VOUCHER, new BigDecimal("10000"), 
+                                new BigDecimal("1000"), null, null, 30, "GOLD"));
+        
+        // Cashback rewards
+        rewards.add(createReward("5% Cashback", "Get 5% cashback on your booking", 
+                                Reward.RewardCategory.CASHBACK, new BigDecimal("2000"), 
+                                null, new BigDecimal("5.00"), new BigDecimal("500"), 60, "BRONZE"));
+        
+        rewards.add(createReward("10% Cashback", "Get 10% cashback on your booking", 
+                                Reward.RewardCategory.CASHBACK, new BigDecimal("5000"), 
+                                null, new BigDecimal("10.00"), new BigDecimal("1000"), 60, "SILVER"));
+        
+        // Upgrades
+        rewards.add(createReward("Free Seat Upgrade", "Upgrade to next higher class", 
+                                Reward.RewardCategory.UPGRADE, new BigDecimal("3000"), 
+                                null, null, null, 90, "GOLD"));
+        
+        rewards.add(createReward("Premium Upgrade", "Upgrade to AC class", 
+                                Reward.RewardCategory.UPGRADE, new BigDecimal("8000"), 
+                                null, null, null, 90, "PLATINUM"));
+        
+        // Meal vouchers
+        rewards.add(createReward("Free Meal Voucher", "Get free meal during your journey", 
+                                Reward.RewardCategory.MEAL_VOUCHER, new BigDecimal("1500"), 
+                                new BigDecimal("200"), null, null, 45, "BRONZE"));
+        
+        rewards.add(createReward("Premium Meal Voucher", "Get premium meal during your journey", 
+                                Reward.RewardCategory.MEAL_VOUCHER, new BigDecimal("4000"), 
+                                new BigDecimal("500"), null, null, 45, "SILVER"));
+        
+        // Lounge access
+        rewards.add(createReward("Station Lounge Access", "Free access to station lounge", 
+                                Reward.RewardCategory.LOUNGE_ACCESS, new BigDecimal("2500"), 
+                                null, null, null, 30, "GOLD"));
+        
+        // Priority booking
+        rewards.add(createReward("Priority Booking", "Get priority booking privileges", 
+                                Reward.RewardCategory.PRIORITY_BOOKING, new BigDecimal("6000"), 
+                                null, null, null, 180, "PLATINUM"));
+        
+        // Bonus points
+        rewards.add(createReward("500 Bonus Points", "Get 500 additional loyalty points", 
+                                Reward.RewardCategory.BONUS_POINTS, new BigDecimal("2000"), 
+                                null, null, null, 365, "BRONZE"));
+        
+        rewards.add(createReward("1000 Bonus Points", "Get 1000 additional loyalty points", 
+                                Reward.RewardCategory.BONUS_POINTS, new BigDecimal("4000"), 
+                                null, null, null, 365, "SILVER"));
+        
+        // Merchandise
+        rewards.add(createReward("IRCTC T-Shirt", "Get IRCTC branded T-shirt", 
+                                Reward.RewardCategory.MERCHANDISE, new BigDecimal("3000"), 
+                                new BigDecimal("500"), null, null, 365, "BRONZE"));
+        
+        rewards.add(createReward("IRCTC Travel Bag", "Get IRCTC branded travel bag", 
+                                Reward.RewardCategory.MERCHANDISE, new BigDecimal("8000"), 
+                                new BigDecimal("1500"), null, null, 365, "GOLD"));
+        
+        rewardRepository.saveAll(rewards);
+        logger.info("🎁 Created {} sample rewards", rewards.size());
+    }
+    
+    private Reward createReward(String name, String description, Reward.RewardCategory category, 
+                               BigDecimal pointsRequired, BigDecimal cashValue, BigDecimal discountPercentage, 
+                               BigDecimal maxDiscountAmount, Integer validityDays, String minTierRequired) {
+        Reward reward = new Reward();
+        reward.setName(name);
+        reward.setDescription(description);
+        reward.setCategory(category);
+        reward.setPointsRequired(pointsRequired);
+        reward.setCashValue(cashValue);
+        reward.setDiscountPercentage(discountPercentage);
+        reward.setMaxDiscountAmount(maxDiscountAmount);
+        reward.setValidityDays(validityDays);
+        reward.setMinTierRequired(minTierRequired);
+        reward.setIsActive(true);
+        reward.setIsFeatured(false);
+        reward.setRedemptionLimit(100); // Limit to 100 redemptions per reward
+        reward.setRedemptionCount(0);
+        return reward;
     }
     
     private void createUsers() {
