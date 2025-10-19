@@ -66,6 +66,12 @@ public class SimpleDataInitializer implements CommandLineRunner {
     private InsurancePlanRepository insurancePlanRepository;
     
     @Autowired
+    private MealVendorRepository mealVendorRepository;
+    
+    @Autowired
+    private MealItemRepository mealItemRepository;
+    
+    @Autowired
     private PasswordEncoder passwordEncoder;
     
     @Override
@@ -99,6 +105,9 @@ public class SimpleDataInitializer implements CommandLineRunner {
         
         // Create insurance providers and plans
         createInsuranceProvidersAndPlans();
+        
+        // Create meal vendors and menu items
+        createMealVendorsAndMenu();
         
         // Create additional users
         createUsers();
@@ -664,5 +673,141 @@ public class SimpleDataInitializer implements CommandLineRunner {
         
         userRepository.saveAll(users);
         logger.info("👥 Created {} users", users.size());
+    }
+    
+    private void createMealVendorsAndMenu() {
+        List<MealVendor> vendors = new ArrayList<>();
+        
+        // Create meal vendors for different stations
+        MealVendor vendor1 = new MealVendor();
+        vendor1.setVendorName("Delhi Food Court");
+        vendor1.setStationCode("NDLS");
+        vendor1.setStationName("New Delhi");
+        vendor1.setContactEmail("delhi@foodcourt.com");
+        vendor1.setContactPhone("+91-11-12345678");
+        vendor1.setRating(new BigDecimal("4.5"));
+        vendor1.setIsActive(true);
+        vendors.add(vendor1);
+        
+        MealVendor vendor2 = new MealVendor();
+        vendor2.setVendorName("Mumbai Central Kitchen");
+        vendor2.setStationCode("MUMB");
+        vendor2.setStationName("Mumbai Central");
+        vendor2.setContactEmail("mumbai@centralkitchen.com");
+        vendor2.setContactPhone("+91-22-87654321");
+        vendor2.setRating(new BigDecimal("4.3"));
+        vendor2.setIsActive(true);
+        vendors.add(vendor2);
+        
+        MealVendor vendor3 = new MealVendor();
+        vendor3.setVendorName("Chennai Express Meals");
+        vendor3.setStationCode("CHEN");
+        vendor3.setStationName("Chennai Central");
+        vendor3.setContactEmail("chennai@expressmeals.com");
+        vendor3.setContactPhone("+91-44-11223344");
+        vendor3.setRating(new BigDecimal("4.7"));
+        vendor3.setIsActive(true);
+        vendors.add(vendor3);
+        
+        MealVendor vendor4 = new MealVendor();
+        vendor4.setVendorName("Kolkata Spice Kitchen");
+        vendor4.setStationCode("KOLK");
+        vendor4.setStationName("Howrah");
+        vendor4.setContactEmail("kolkata@spicekitchen.com");
+        vendor4.setContactPhone("+91-33-55667788");
+        vendor4.setRating(new BigDecimal("4.4"));
+        vendor4.setIsActive(true);
+        vendors.add(vendor4);
+        
+        mealVendorRepository.saveAll(vendors);
+        logger.info("🍽️ Created {} meal vendors", vendors.size());
+        
+        // Create menu items for each vendor
+        List<MealItem> menuItems = new ArrayList<>();
+        
+        // Delhi Food Court Menu
+        menuItems.addAll(createMenuForVendor(vendor1, "Delhi"));
+        
+        // Mumbai Central Kitchen Menu
+        menuItems.addAll(createMenuForVendor(vendor2, "Mumbai"));
+        
+        // Chennai Express Meals Menu
+        menuItems.addAll(createMenuForVendor(vendor3, "Chennai"));
+        
+        // Kolkata Spice Kitchen Menu
+        menuItems.addAll(createMenuForVendor(vendor4, "Kolkata"));
+        
+        mealItemRepository.saveAll(menuItems);
+        logger.info("🍴 Created {} menu items", menuItems.size());
+    }
+    
+    private List<MealItem> createMenuForVendor(MealVendor vendor, String city) {
+        List<MealItem> items = new ArrayList<>();
+        
+        // Breakfast items
+        items.add(createMealItem(vendor, "Masala Dosa", "Crispy dosa with spiced potato filling", 
+                                new BigDecimal("120"), MealItem.MealCategory.BREAKFAST, MealItem.MealType.VEG, true, 10));
+        
+        items.add(createMealItem(vendor, "Idli Sambar", "Soft idlis with tangy sambar", 
+                                new BigDecimal("80"), MealItem.MealCategory.BREAKFAST, MealItem.MealType.VEG, true, 8));
+        
+        items.add(createMealItem(vendor, "Poha", "Flattened rice with vegetables and spices", 
+                                new BigDecimal("60"), MealItem.MealCategory.BREAKFAST, MealItem.MealType.VEG, true, 5));
+        
+        // Lunch items
+        items.add(createMealItem(vendor, "Dal Makhani", "Creamy black lentils with butter", 
+                                new BigDecimal("180"), MealItem.MealCategory.LUNCH, MealItem.MealType.VEG, true, 15));
+        
+        items.add(createMealItem(vendor, "Chicken Curry", "Spicy chicken curry with rice", 
+                                new BigDecimal("220"), MealItem.MealCategory.LUNCH, MealItem.MealType.NON_VEG, false, 20));
+        
+        items.add(createMealItem(vendor, "Vegetable Biryani", "Aromatic rice with mixed vegetables", 
+                                new BigDecimal("160"), MealItem.MealCategory.LUNCH, MealItem.MealType.VEG, true, 18));
+        
+        // Dinner items
+        items.add(createMealItem(vendor, "Paneer Butter Masala", "Cottage cheese in rich tomato gravy", 
+                                new BigDecimal("200"), MealItem.MealCategory.DINNER, MealItem.MealType.VEG, true, 15));
+        
+        items.add(createMealItem(vendor, "Fish Curry", "Traditional fish curry with rice", 
+                                new BigDecimal("250"), MealItem.MealCategory.DINNER, MealItem.MealType.NON_VEG, false, 25));
+        
+        // Snacks
+        items.add(createMealItem(vendor, "Samosa", "Crispy fried pastry with spiced filling", 
+                                new BigDecimal("40"), MealItem.MealCategory.SNACKS, MealItem.MealType.VEG, true, 5));
+        
+        items.add(createMealItem(vendor, "Vada Pav", "Spicy potato fritter in bread", 
+                                new BigDecimal("50"), MealItem.MealCategory.SNACKS, MealItem.MealType.VEG, true, 8));
+        
+        // Beverages
+        items.add(createMealItem(vendor, "Masala Chai", "Spiced Indian tea", 
+                                new BigDecimal("25"), MealItem.MealCategory.BEVERAGES, MealItem.MealType.VEG, true, 3));
+        
+        items.add(createMealItem(vendor, "Fresh Lime Soda", "Refreshing lime drink", 
+                                new BigDecimal("35"), MealItem.MealCategory.BEVERAGES, MealItem.MealType.VEG, true, 2));
+        
+        // Desserts
+        items.add(createMealItem(vendor, "Gulab Jamun", "Sweet milk dumplings in syrup", 
+                                new BigDecimal("60"), MealItem.MealCategory.DESSERTS, MealItem.MealType.VEG, true, 5));
+        
+        items.add(createMealItem(vendor, "Kheer", "Rice pudding with nuts", 
+                                new BigDecimal("80"), MealItem.MealCategory.DESSERTS, MealItem.MealType.VEG, true, 8));
+        
+        return items;
+    }
+    
+    private MealItem createMealItem(MealVendor vendor, String itemName, String description, 
+                                   BigDecimal price, MealItem.MealCategory category, MealItem.MealType mealType, 
+                                   Boolean isVegetarian, Integer prepTime) {
+        MealItem item = new MealItem();
+        item.setVendor(vendor);
+        item.setItemName(itemName);
+        item.setDescription(description);
+        item.setPrice(price);
+        item.setCategory(category);
+        item.setMealType(mealType);
+        item.setIsVegetarian(isVegetarian);
+        item.setIsAvailable(true);
+        item.setPreparationTimeMinutes(prepTime);
+        return item;
     }
 }
