@@ -60,6 +60,12 @@ public class SimpleDataInitializer implements CommandLineRunner {
     private RewardRepository rewardRepository;
     
     @Autowired
+    private InsuranceProviderRepository insuranceProviderRepository;
+    
+    @Autowired
+    private InsurancePlanRepository insurancePlanRepository;
+    
+    @Autowired
     private PasswordEncoder passwordEncoder;
     
     @Override
@@ -90,6 +96,9 @@ public class SimpleDataInitializer implements CommandLineRunner {
         
         // Create sample rewards
         createSampleRewards();
+        
+        // Create insurance providers and plans
+        createInsuranceProvidersAndPlans();
         
         // Create additional users
         createUsers();
@@ -438,6 +447,168 @@ public class SimpleDataInitializer implements CommandLineRunner {
         reward.setRedemptionLimit(100); // Limit to 100 redemptions per reward
         reward.setRedemptionCount(0);
         return reward;
+    }
+    
+    private void createInsuranceProvidersAndPlans() {
+        List<InsuranceProvider> providers = new ArrayList<>();
+        
+        // Create insurance providers
+        InsuranceProvider provider1 = new InsuranceProvider();
+        provider1.setProviderName("IRCTC Travel Shield");
+        provider1.setCompanyName("IRCTC Insurance Services Ltd.");
+        provider1.setDescription("Comprehensive travel insurance with 24x7 support and quick claim settlement");
+        provider1.setContactEmail("support@irctcinsurance.com");
+        provider1.setContactPhone("+91-11-39340000");
+        provider1.setWebsiteUrl("https://www.irctcinsurance.com");
+        provider1.setLogoUrl("https://irctc.com/images/insurance-logo.png");
+        provider1.setBasePremiumRate(new BigDecimal("0.15")); // ₹0.15 per ₹1000 coverage
+        provider1.setMinCoverageAmount(new BigDecimal("10000"));
+        provider1.setMaxCoverageAmount(new BigDecimal("1000000"));
+        provider1.setClaimSettlementRatio(new BigDecimal("98.50"));
+        provider1.setAverageSettlementDays(5);
+        provider1.setIsActive(true);
+        provider1.setIsFeatured(true);
+        provider1.setRating(new BigDecimal("4.8"));
+        provider1.setTotalPoliciesSold(50000L);
+        provider1.setTotalClaimsProcessed(1200L);
+        providers.add(provider1);
+        
+        InsuranceProvider provider2 = new InsuranceProvider();
+        provider2.setProviderName("Railway Travel Guard");
+        provider2.setCompanyName("Railway Insurance Corporation");
+        provider2.setDescription("Specialized railway travel insurance with comprehensive coverage");
+        provider2.setContactEmail("info@railwayguard.com");
+        provider2.setContactPhone("+91-22-22044044");
+        provider2.setWebsiteUrl("https://www.railwayguard.com");
+        provider2.setLogoUrl("https://railwayguard.com/images/logo.png");
+        provider2.setBasePremiumRate(new BigDecimal("0.12")); // ₹0.12 per ₹1000 coverage
+        provider2.setMinCoverageAmount(new BigDecimal("5000"));
+        provider2.setMaxCoverageAmount(new BigDecimal("500000"));
+        provider2.setClaimSettlementRatio(new BigDecimal("96.00"));
+        provider2.setAverageSettlementDays(7);
+        provider2.setIsActive(true);
+        provider2.setIsFeatured(false);
+        provider2.setRating(new BigDecimal("4.5"));
+        provider2.setTotalPoliciesSold(25000L);
+        provider2.setTotalClaimsProcessed(800L);
+        providers.add(provider2);
+        
+        InsuranceProvider provider3 = new InsuranceProvider();
+        provider3.setProviderName("Journey Safe Plus");
+        provider3.setCompanyName("Journey Safe Insurance Ltd.");
+        provider3.setDescription("Premium travel insurance with global coverage and emergency assistance");
+        provider3.setContactEmail("contact@journeysafe.com");
+        provider3.setContactPhone("+91-80-40404040");
+        provider3.setWebsiteUrl("https://www.journeysafe.com");
+        provider3.setLogoUrl("https://journeysafe.com/images/logo.png");
+        provider3.setBasePremiumRate(new BigDecimal("0.20")); // ₹0.20 per ₹1000 coverage
+        provider3.setMinCoverageAmount(new BigDecimal("25000"));
+        provider3.setMaxCoverageAmount(new BigDecimal("2000000"));
+        provider3.setClaimSettlementRatio(new BigDecimal("99.20"));
+        provider3.setAverageSettlementDays(3);
+        provider3.setIsActive(true);
+        provider3.setIsFeatured(true);
+        provider3.setRating(new BigDecimal("4.9"));
+        provider3.setTotalPoliciesSold(75000L);
+        provider3.setTotalClaimsProcessed(2000L);
+        providers.add(provider3);
+        
+        insuranceProviderRepository.saveAll(providers);
+        logger.info("🛡️ Created {} insurance providers", providers.size());
+        
+        // Create insurance plans
+        List<InsurancePlan> plans = new ArrayList<>();
+        
+        // IRCTC Travel Shield Plans
+        plans.add(createInsurancePlan(provider1, "Basic Travel Shield", "Essential coverage for basic travel needs", 
+                                    InsurancePlan.PlanType.BASIC, new BigDecimal("0.10"), 
+                                    new BigDecimal("10000"), new BigDecimal("100000"), 
+                                    new BigDecimal("50"), new BigDecimal("500"), 30, 0, 80, true, false, false, true, false, true,
+                                    new BigDecimal("50000"), new BigDecimal("25000"), new BigDecimal("10000"), new BigDecimal("100000"), new BigDecimal("1000")));
+        
+        plans.add(createInsurancePlan(provider1, "Standard Travel Shield", "Comprehensive coverage with standard benefits", 
+                                    InsurancePlan.PlanType.STANDARD, new BigDecimal("0.15"), 
+                                    new BigDecimal("25000"), new BigDecimal("500000"), 
+                                    new BigDecimal("100"), new BigDecimal("2000"), 45, 0, 75, true, true, true, true, false, true,
+                                    new BigDecimal("200000"), new BigDecimal("100000"), new BigDecimal("25000"), new BigDecimal("500000"), new BigDecimal("2000")));
+        
+        plans.add(createInsurancePlan(provider1, "Premium Travel Shield", "Premium coverage with enhanced benefits", 
+                                    InsurancePlan.PlanType.PREMIUM, new BigDecimal("0.25"), 
+                                    new BigDecimal("50000"), new BigDecimal("1000000"), 
+                                    new BigDecimal("200"), new BigDecimal("5000"), 60, 0, 70, true, true, true, true, true, true,
+                                    new BigDecimal("500000"), new BigDecimal("250000"), new BigDecimal("50000"), new BigDecimal("1000000"), new BigDecimal("5000")));
+        
+        // Railway Travel Guard Plans
+        plans.add(createInsurancePlan(provider2, "Railway Basic", "Basic railway travel insurance", 
+                                    InsurancePlan.PlanType.BASIC, new BigDecimal("0.08"), 
+                                    new BigDecimal("5000"), new BigDecimal("100000"), 
+                                    new BigDecimal("25"), new BigDecimal("300"), 30, 0, 85, true, false, false, true, false, true,
+                                    new BigDecimal("30000"), new BigDecimal("15000"), new BigDecimal("5000"), new BigDecimal("100000"), new BigDecimal("500")));
+        
+        plans.add(createInsurancePlan(provider2, "Railway Standard", "Standard railway travel insurance", 
+                                    InsurancePlan.PlanType.STANDARD, new BigDecimal("0.12"), 
+                                    new BigDecimal("15000"), new BigDecimal("300000"), 
+                                    new BigDecimal("75"), new BigDecimal("1000"), 45, 0, 80, true, true, true, true, false, true,
+                                    new BigDecimal("150000"), new BigDecimal("75000"), new BigDecimal("15000"), new BigDecimal("300000"), new BigDecimal("1000")));
+        
+        // Journey Safe Plus Plans
+        plans.add(createInsurancePlan(provider3, "Journey Safe Elite", "Elite travel insurance with global coverage", 
+                                    InsurancePlan.PlanType.PREMIUM, new BigDecimal("0.30"), 
+                                    new BigDecimal("100000"), new BigDecimal("2000000"), 
+                                    new BigDecimal("500"), new BigDecimal("10000"), 90, 0, 65, true, true, true, true, true, true,
+                                    new BigDecimal("1000000"), new BigDecimal("500000"), new BigDecimal("100000"), new BigDecimal("2000000"), new BigDecimal("10000")));
+        
+        plans.add(createInsurancePlan(provider3, "Family Journey Safe", "Family coverage for multiple travelers", 
+                                    InsurancePlan.PlanType.FAMILY, new BigDecimal("0.18"), 
+                                    new BigDecimal("50000"), new BigDecimal("1000000"), 
+                                    new BigDecimal("200"), new BigDecimal("3000"), 60, 0, 75, true, true, true, true, false, true,
+                                    new BigDecimal("300000"), new BigDecimal("200000"), new BigDecimal("50000"), new BigDecimal("1000000"), new BigDecimal("3000")));
+        
+        insurancePlanRepository.saveAll(plans);
+        logger.info("📋 Created {} insurance plans", plans.size());
+    }
+    
+    private InsurancePlan createInsurancePlan(InsuranceProvider provider, String planName, String description, 
+                                            InsurancePlan.PlanType planType, BigDecimal premiumRate,
+                                            BigDecimal minCoverage, BigDecimal maxCoverage,
+                                            BigDecimal minPremium, BigDecimal maxPremium, Integer coverageDuration,
+                                            Integer ageMin, Integer ageMax, Boolean coversMedical, Boolean coversCancellation,
+                                            Boolean coversBaggage, Boolean coversAccident, Boolean coversEvacuation, Boolean coversSupport,
+                                            BigDecimal medicalLimit, BigDecimal cancellationLimit, BigDecimal baggageLimit,
+                                            BigDecimal accidentLimit, BigDecimal deductible) {
+        InsurancePlan plan = new InsurancePlan();
+        plan.setProvider(provider);
+        plan.setPlanName(planName);
+        plan.setDescription(description);
+        plan.setPlanType(planType);
+        plan.setPremiumRate(premiumRate);
+        plan.setMinCoverageAmount(minCoverage);
+        plan.setMaxCoverageAmount(maxCoverage);
+        plan.setMinPremium(minPremium);
+        plan.setMaxPremium(maxPremium);
+        plan.setCoverageDurationDays(coverageDuration);
+        plan.setAgeMin(ageMin);
+        plan.setAgeMax(ageMax);
+        plan.setIsActive(true);
+        plan.setIsFeatured(planType == InsurancePlan.PlanType.PREMIUM);
+        plan.setPopularityScore(0);
+        
+        // Coverage details
+        plan.setCoversMedicalExpenses(coversMedical);
+        plan.setCoversTripCancellation(coversCancellation);
+        plan.setCoversBaggageLoss(coversBaggage);
+        plan.setCoversPersonalAccident(coversAccident);
+        plan.setCoversEmergencyEvacuation(coversEvacuation);
+        plan.setCovers24x7Support(coversSupport);
+        
+        // Coverage limits
+        plan.setMedicalCoverageLimit(medicalLimit);
+        plan.setTripCancellationLimit(cancellationLimit);
+        plan.setBaggageCoverageLimit(baggageLimit);
+        plan.setPersonalAccidentLimit(accidentLimit);
+        plan.setDeductibleAmount(deductible);
+        
+        return plan;
     }
     
     private void createUsers() {
