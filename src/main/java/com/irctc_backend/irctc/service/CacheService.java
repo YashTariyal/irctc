@@ -1,6 +1,7 @@
 package com.irctc_backend.irctc.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0.0
  */
 @Service
+@ConditionalOnProperty(name = "spring.redis.host")
 public class CacheService {
     
     private static final Logger logger = LoggerFactory.getLogger(CacheService.class);

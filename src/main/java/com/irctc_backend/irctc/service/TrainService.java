@@ -27,7 +27,7 @@ public class TrainService {
     @Autowired
     private StationRepository stationRepository;
     
-    @Autowired
+    @Autowired(required = false)
     private CacheService cacheService;
     
     @ExecutionTime("Create Train")
@@ -58,6 +58,12 @@ public class TrainService {
     
     @ExecutionTime("Search Trains with Caching")
     public List<Train> searchTrainsWithCache(String sourceStationCode, String destinationStationCode, String journeyDate) {
+        if (cacheService == null) {
+            // No cache service available, search database directly
+            logger.info("No cache service available, querying database directly");
+            return trainRepository.findAll(); // Simplified for now
+        }
+        
         String cacheKey = CacheService.Keys.TRAIN_SEARCH + sourceStationCode + ":" + destinationStationCode + ":" + journeyDate;
         
         // Try to get from cache first

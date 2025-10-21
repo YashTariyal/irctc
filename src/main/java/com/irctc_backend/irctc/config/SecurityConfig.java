@@ -50,6 +50,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/forgot-password").permitAll()
                 .requestMatchers("/api/users/reset-password").permitAll()
                 
+                // Security endpoints (2FA and password validation)
+                .requestMatchers("/api/security/**").permitAll()
+                
                 // Swagger and documentation
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
                 

@@ -35,7 +35,7 @@ public class TwoFactorAuthService {
     // Store failed attempts
     private final Map<String, Integer> failedAttempts = new ConcurrentHashMap<>();
     
-    @Autowired
+    @Autowired(required = false)
     private CacheService cacheService;
     
     /**
@@ -55,7 +55,14 @@ public class TwoFactorAuthService {
             // Store OTP data
             OtpData otpData = new OtpData(otp, expiryTime, 0);
             String cacheKey = "otp:" + userId;
-            cacheService.put(cacheKey, otpData, OTP_VALIDITY_MINUTES * 60);
+            
+            if (cacheService != null) {
+                cacheService.put(cacheKey, otpData, OTP_VALIDITY_MINUTES * 60);
+            } else {
+                // Use in-memory storage when cache service is not available
+                otpStorage.put(cacheKey, otpData);
+                logger.info("Stored OTP with key: {} in in-memory storage", cacheKey);
+            }
             
             // Send OTP via SMS and Email (mock implementation)
             boolean smsSent = sendOtpViaSms(phoneNumber, otp);
@@ -80,7 +87,17 @@ public class TwoFactorAuthService {
     public OtpResult verifyOtp(String userId, String inputOtp) {
         try {
             String cacheKey = "otp:" + userId;
-            Optional<OtpData> cachedOtp = cacheService.get(cacheKey, OtpData.class);
+            Optional<OtpData> cachedOtp;
+            
+            if (cacheService != null) {
+                cachedOtp = cacheService.get(cacheKey, OtpData.class);
+            } else {
+                // Use in-memory storage when cache service is not available
+                OtpData otpData = otpStorage.get(cacheKey);
+                logger.info("Looking for OTP with key: {}, found: {}", cacheKey, otpData != null ? "YES" : "NO");
+                logger.info("Available keys in storage: {}", otpStorage.keySet());
+                cachedOtp = Optional.ofNullable(otpData);
+            }
             
             if (cachedOtp.isEmpty()) {
                 return new OtpResult(false, "OTP not found or expired", null);
@@ -90,31 +107,51 @@ public class TwoFactorAuthService {
             
             // Check if OTP is expired
             if (LocalDateTime.now().isAfter(otpData.getExpiryTime())) {
-                cacheService.delete(cacheKey);
+                if (cacheService != null) {
+                    cacheService.delete(cacheKey);
+                } else {
+                    otpStorage.remove(cacheKey);
+                }
                 return new OtpResult(false, "OTP has expired", null);
             }
             
             // Check if too many attempts
             if (otpData.getAttempts() >= MAX_OTP_ATTEMPTS) {
-                cacheService.delete(cacheKey);
+                if (cacheService != null) {
+                    cacheService.delete(cacheKey);
+                } else {
+                    otpStorage.remove(cacheKey);
+                }
                 return new OtpResult(false, "Too many incorrect attempts. OTP invalidated.", null);
             }
             
             // Verify OTP
             if (otpData.getOtp().equals(inputOtp)) {
                 // OTP is correct
-                cacheService.delete(cacheKey);
+                if (cacheService != null) {
+                    cacheService.delete(cacheKey);
+                } else {
+                    otpStorage.remove(cacheKey);
+                }
                 clearFailedAttempts(userId);
                 logger.info("OTP verified successfully for user: {}", userId);
                 return new OtpResult(true, "OTP verified successfully", null);
             } else {
                 // Increment attempts
                 otpData.incrementAttempts();
-                cacheService.put(cacheKey, otpData, OTP_VALIDITY_MINUTES * 60);
+                if (cacheService != null) {
+                    cacheService.put(cacheKey, otpData, OTP_VALIDITY_MINUTES * 60);
+                } else {
+                    otpStorage.put(cacheKey, otpData);
+                }
                 
                 int remainingAttempts = MAX_OTP_ATTEMPTS - otpData.getAttempts();
                 if (remainingAttempts <= 0) {
-                    cacheService.delete(cacheKey);
+                    if (cacheService != null) {
+                        cacheService.delete(cacheKey);
+                    } else {
+                        otpStorage.remove(cacheKey);
+                    }
                     return new OtpResult(false, "Too many incorrect attempts. OTP invalidated.", null);
                 }
                 
@@ -213,6 +250,10 @@ public class TwoFactorAuthService {
      * Check if user has exceeded OTP generation limit
      */
     private boolean hasExceededOtpLimit(String userId) {
+        if (cacheService == null) {
+            return false; // No cache service, allow OTP generation
+        }
+        
         String limitKey = "otp:limit:" + userId;
         Optional<Integer> attempts = cacheService.get(limitKey, Integer.class);
         
@@ -231,6 +272,10 @@ public class TwoFactorAuthService {
      * Clear failed attempts for user
      */
     private void clearFailedAttempts(String userId) {
+        if (cacheService == null) {
+            return; // No cache service, nothing to clear
+        }
+        
         String attemptsKey = "failed:attempts:" + userId;
         cacheService.delete(attemptsKey);
     }
