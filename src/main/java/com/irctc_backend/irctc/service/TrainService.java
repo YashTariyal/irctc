@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -17,11 +19,16 @@ import java.util.Optional;
 @Service
 public class TrainService {
     
+    private static final Logger logger = LoggerFactory.getLogger(TrainService.class);
+    
     @Autowired
     private TrainRepository trainRepository;
     
     @Autowired
     private StationRepository stationRepository;
+    
+    @Autowired
+    private CacheService cacheService;
     
     @ExecutionTime("Create Train")
     @CacheEvict(value = {"train-schedules", "stations"}, allEntries = true)
@@ -47,6 +54,29 @@ public class TrainService {
     @Cacheable(value = "train-schedules", key = "#trainNumber")
     public Optional<Train> findByTrainNumber(String trainNumber) {
         return trainRepository.findByTrainNumber(trainNumber);
+    }
+    
+    @ExecutionTime("Search Trains with Caching")
+    public List<Train> searchTrainsWithCache(String sourceStationCode, String destinationStationCode, String journeyDate) {
+        String cacheKey = CacheService.Keys.TRAIN_SEARCH + sourceStationCode + ":" + destinationStationCode + ":" + journeyDate;
+        
+        // Try to get from cache first
+        Optional<Object> cachedResult = cacheService.get(cacheKey);
+        if (cachedResult.isPresent()) {
+            logger.info("Cache hit for train search: {}", cacheKey);
+            @SuppressWarnings("unchecked")
+            List<Train> cachedTrains = (List<Train>) cachedResult.get();
+            return cachedTrains;
+        }
+        
+        // If not in cache, search database
+        logger.info("Cache miss for train search: {}, querying database", cacheKey);
+        List<Train> trains = trainRepository.findAll(); // Simplified for now
+        
+        // Cache the result for 30 minutes
+        cacheService.put(cacheKey, trains, 1800);
+        
+        return trains;
     }
     
     @Cacheable(value = "train-schedules", key = "#id")
