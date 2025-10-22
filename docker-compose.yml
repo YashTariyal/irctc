@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: irctc-postgres
+    environment:
+      POSTGRES_DB: irctc_user_db
+      POSTGRES_USER: irctc_user
+      POSTGRES_PASSWORD: irctc_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - irctc-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: irctc-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - irctc-network
+
+  # Eureka Server
+  eureka-server:
+    build:
+      context: ./irctc-eureka-server
+      dockerfile: Dockerfile
+    container_name: irctc-eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - irctc-network
+    depends_on:
+      - postgres
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./irctc-api-gateway
+      dockerfile: Dockerfile
+    container_name: irctc-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - irctc-network
+    depends_on:
+      - eureka-server
+
+  # User Service
+  user-service:
+    build:
+      context: ./irctc-user-service
+      dockerfile: Dockerfile
+    container_name: irctc-user-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/irctc_user_db
+      - SPRING_DATASOURCE_USERNAME=irctc_user
+      - SPRING_DATASOURCE_PASSWORD=irctc_password
+      - SPRING_REDIS_HOST=redis
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - irctc-network
+    depends_on:
+      - postgres
+      - redis
+      - eureka-server
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  irctc-network:
+    driver: bridge
