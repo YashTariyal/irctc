@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -50,5 +53,120 @@ public class SimpleNotificationController {
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
         notificationService.deleteNotification(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ===== ADVANCED NOTIFICATION APIs =====
+    
+    @PostMapping("/send/email")
+    public ResponseEntity<SimpleNotification> sendEmailNotification(@RequestBody Map<String, Object> emailData) {
+        try {
+            SimpleNotification notification = new SimpleNotification();
+            notification.setUserId(Long.valueOf(emailData.get("userId").toString()));
+            notification.setType("EMAIL");
+            notification.setTitle(emailData.get("title").toString());
+            notification.setMessage(emailData.get("message").toString());
+            notification.setStatus("SENT");
+            
+            SimpleNotification sentNotification = notificationService.createNotification(notification);
+            return ResponseEntity.ok(sentNotification);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+    
+    @PostMapping("/send/sms")
+    public ResponseEntity<SimpleNotification> sendSmsNotification(@RequestBody Map<String, Object> smsData) {
+        try {
+            SimpleNotification notification = new SimpleNotification();
+            notification.setUserId(Long.valueOf(smsData.get("userId").toString()));
+            notification.setType("SMS");
+            notification.setTitle("SMS Notification");
+            notification.setMessage(smsData.get("message").toString());
+            notification.setStatus("SENT");
+            
+            SimpleNotification sentNotification = notificationService.createNotification(notification);
+            return ResponseEntity.ok(sentNotification);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+    
+    @PostMapping("/send/push")
+    public ResponseEntity<SimpleNotification> sendPushNotification(@RequestBody Map<String, Object> pushData) {
+        try {
+            SimpleNotification notification = new SimpleNotification();
+            notification.setUserId(Long.valueOf(pushData.get("userId").toString()));
+            notification.setType("PUSH");
+            notification.setTitle(pushData.get("title").toString());
+            notification.setMessage(pushData.get("message").toString());
+            notification.setStatus("SENT");
+            
+            SimpleNotification sentNotification = notificationService.createNotification(notification);
+            return ResponseEntity.ok(sentNotification);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+    
+    @GetMapping("/user/{userId}/unread")
+    public ResponseEntity<List<SimpleNotification>> getUnreadNotificationsByUser(@PathVariable Long userId) {
+        List<SimpleNotification> notifications = notificationService.getNotificationsByUserId(userId).stream()
+                .filter(notification -> "UNREAD".equals(notification.getStatus()))
+                .toList();
+        return ResponseEntity.ok(notifications);
+    }
+    
+    @GetMapping("/user/{userId}/read")
+    public ResponseEntity<List<SimpleNotification>> getReadNotificationsByUser(@PathVariable Long userId) {
+        List<SimpleNotification> notifications = notificationService.getNotificationsByUserId(userId).stream()
+                .filter(notification -> "READ".equals(notification.getStatus()))
+                .toList();
+        return ResponseEntity.ok(notifications);
+    }
+    
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<SimpleNotification>> getNotificationsByStatus(@PathVariable String status) {
+        List<SimpleNotification> notifications = notificationService.getAllNotifications().stream()
+                .filter(notification -> status.equalsIgnoreCase(notification.getStatus()))
+                .toList();
+        return ResponseEntity.ok(notifications);
+    }
+    
+    @PutMapping("/{id}/mark-read")
+    public ResponseEntity<SimpleNotification> markAsRead(@PathVariable Long id) {
+        SimpleNotification notification = notificationService.getNotificationById(id);
+        notification.setStatus("READ");
+        SimpleNotification updatedNotification = notificationService.updateNotification(id, notification);
+        return ResponseEntity.ok(updatedNotification);
+    }
+    
+    @PutMapping("/{id}/mark-unread")
+    public ResponseEntity<SimpleNotification> markAsUnread(@PathVariable Long id) {
+        SimpleNotification notification = notificationService.getNotificationById(id);
+        notification.setStatus("UNREAD");
+        SimpleNotification updatedNotification = notificationService.updateNotification(id, notification);
+        return ResponseEntity.ok(updatedNotification);
+    }
+    
+    @DeleteMapping("/user/{userId}/clear")
+    public ResponseEntity<Void> clearAllNotificationsForUser(@PathVariable Long userId) {
+        List<SimpleNotification> notifications = notificationService.getNotificationsByUserId(userId);
+        for (SimpleNotification notification : notifications) {
+            notificationService.deleteNotification(notification.getId());
+        }
+        return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/stats/user/{userId}")
+    public ResponseEntity<Map<String, Object>> getNotificationStatsForUser(@PathVariable Long userId) {
+        List<SimpleNotification> notifications = notificationService.getNotificationsByUserId(userId);
+        
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("total", notifications.size());
+        stats.put("unread", notifications.stream().filter(n -> "UNREAD".equals(n.getStatus())).count());
+        stats.put("read", notifications.stream().filter(n -> "READ".equals(n.getStatus())).count());
+        stats.put("sent", notifications.stream().filter(n -> "SENT".equals(n.getStatus())).count());
+        
+        return ResponseEntity.ok(stats);
     }
 }

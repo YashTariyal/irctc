@@ -56,4 +56,96 @@ public class SimpleBookingController {
         bookingService.cancelBooking(id);
         return ResponseEntity.noContent().build();
     }
+
+    // ===== ADVANCED BOOKING APIs =====
+    
+    @GetMapping("/user/{userId}/upcoming")
+    public ResponseEntity<List<SimpleBooking>> getUpcomingBookingsByUser(@PathVariable Long userId) {
+        List<SimpleBooking> bookings = bookingService.getBookingsByUserId(userId).stream()
+                .filter(booking -> "CONFIRMED".equals(booking.getStatus()) || "PENDING".equals(booking.getStatus()))
+                .toList();
+        return ResponseEntity.ok(bookings);
+    }
+    
+    @GetMapping("/user/{userId}/past")
+    public ResponseEntity<List<SimpleBooking>> getPastBookingsByUser(@PathVariable Long userId) {
+        List<SimpleBooking> bookings = bookingService.getBookingsByUserId(userId).stream()
+                .filter(booking -> "CANCELLED".equals(booking.getStatus()) || "COMPLETED".equals(booking.getStatus()))
+                .toList();
+        return ResponseEntity.ok(bookings);
+    }
+    
+    @GetMapping("/user/{userId}/confirmed")
+    public ResponseEntity<List<SimpleBooking>> getConfirmedUpcomingBookingsByUser(@PathVariable Long userId) {
+        List<SimpleBooking> bookings = bookingService.getBookingsByUserId(userId).stream()
+                .filter(booking -> "CONFIRMED".equals(booking.getStatus()))
+                .toList();
+        return ResponseEntity.ok(bookings);
+    }
+    
+    @GetMapping("/train/{trainId}")
+    public ResponseEntity<List<SimpleBooking>> getBookingsByTrain(@PathVariable Long trainId) {
+        List<SimpleBooking> bookings = bookingService.getAllBookings().stream()
+                .filter(booking -> trainId.equals(booking.getTrainId()))
+                .toList();
+        return ResponseEntity.ok(bookings);
+    }
+    
+    @GetMapping("/date/{journeyDate}")
+    public ResponseEntity<List<SimpleBooking>> getBookingsByJourneyDate(@PathVariable String journeyDate) {
+        List<SimpleBooking> bookings = bookingService.getAllBookings().stream()
+                .filter(booking -> booking.getBookingTime().toString().contains(journeyDate))
+                .toList();
+        return ResponseEntity.ok(bookings);
+    }
+    
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<SimpleBooking>> getBookingsByStatus(@PathVariable String status) {
+        List<SimpleBooking> bookings = bookingService.getAllBookings().stream()
+                .filter(booking -> status.equalsIgnoreCase(booking.getStatus()))
+                .toList();
+        return ResponseEntity.ok(bookings);
+    }
+    
+    @GetMapping("/payment-status/{paymentStatus}")
+    public ResponseEntity<List<SimpleBooking>> getBookingsByPaymentStatus(@PathVariable String paymentStatus) {
+        // For now, return all bookings (in real implementation, filter by payment status)
+        List<SimpleBooking> bookings = bookingService.getAllBookings();
+        return ResponseEntity.ok(bookings);
+    }
+    
+    @GetMapping("/search/pnr")
+    public ResponseEntity<List<SimpleBooking>> searchBookingsByPnr(@RequestParam String pnr) {
+        List<SimpleBooking> bookings = bookingService.getAllBookings().stream()
+                .filter(booking -> booking.getPnrNumber().toLowerCase().contains(pnr.toLowerCase()))
+                .toList();
+        return ResponseEntity.ok(bookings);
+    }
+    
+    @PutMapping("/{id}/status")
+    public ResponseEntity<SimpleBooking> updateBookingStatus(@PathVariable Long id, @RequestParam String status) {
+        SimpleBooking booking = bookingService.getBookingById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+        booking.setStatus(status);
+        SimpleBooking updatedBooking = bookingService.updateBooking(id, booking);
+        return ResponseEntity.ok(updatedBooking);
+    }
+    
+    @PutMapping("/{id}/payment-status")
+    public ResponseEntity<SimpleBooking> updatePaymentStatus(@PathVariable Long id, @RequestParam String paymentStatus) {
+        SimpleBooking booking = bookingService.getBookingById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+        // In real implementation, update payment status
+        SimpleBooking updatedBooking = bookingService.updateBooking(id, booking);
+        return ResponseEntity.ok(updatedBooking);
+    }
+    
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<SimpleBooking> cancelBooking(@PathVariable Long id) {
+        SimpleBooking booking = bookingService.getBookingById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+        booking.setStatus("CANCELLED");
+        SimpleBooking updatedBooking = bookingService.updateBooking(id, booking);
+        return ResponseEntity.ok(updatedBooking);
+    }
 }
