@@ -1,19 +1,19 @@
 server:
-  port: 8091
+  port: 8093
 
 spring:
   application:
-    name: irctc-user-service
+    name: irctc-booking-service
   cloud:
     compatibility-verifier:
       enabled: false
-  
+
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
-    password: 
+    password:
     driver-class-name: org.h2.Driver
-  
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -22,17 +22,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
-  
-  # redis:
-  #   host: localhost
-  #   port: 6379
-  #   database: 1
-  #   timeout: 2000ms
-  #   lettuce:
-  #     pool:
-  #       max-active: 8
-  #       max-idle: 8
-  #       min-idle: 0
 
 # Eureka Client Configuration
 eureka:
@@ -42,6 +31,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
   instance:
+    hostname: localhost
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
     metadata-map:
@@ -49,51 +39,17 @@ eureka:
       api-docs: http://localhost:${server.port}/api-docs
       health: http://localhost:${server.port}/actuator/health
       service-name: ${spring.application.name}
-      service-description: User Management and Authentication Service
-
-# Security Configuration
-security:
-  jwt:
-    secret: irctc-user-service-secret-key-2024
-    expiration: 86400000 # 24 hours
-  
-  password:
-    min-length: 8
-    require-uppercase: true
-    require-lowercase: true
-    require-digits: true
-    require-special-chars: true
-  
-  2fa:
-    otp-length: 6
-    otp-validity-minutes: 5
-    max-attempts: 3
-
-# Logging Configuration
-logging:
-  level:
-    com.irctc.user: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/irctc-user-service.log
+      service-description: Ticket Booking and Management Service
 
 # Management endpoints
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
   endpoint:
     health:
       show-details: always
-  metrics:
-    export:
-      prometheus:
-        enabled: true
 
 # Swagger Configuration
 springdoc:
@@ -107,3 +63,11 @@ springdoc:
     displayRequestDuration: true
     showExtensions: true
     showCommonExtensions: true
+
+# Logging Configuration
+logging:
+  level:
+    com.irctc.booking: DEBUG
+    org.springframework.web: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

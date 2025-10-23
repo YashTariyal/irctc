@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRCTC Microservices - Swagger Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        .service-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .service-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1.3em;
+        }
+        .service-card p {
+            margin: 0 0 15px 0;
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        .service-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .service-link {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .service-link:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        .service-link.swagger {
+            background: #28a745;
+        }
+        .service-link.swagger:hover {
+            background: #218838;
+        }
+        .service-link.health {
+            background: #17a2b8;
+        }
+        .service-link.health:hover {
+            background: #138496;
+        }
+        .status-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        .refresh-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .refresh-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 IRCTC Microservices</h1>
+            <p>Swagger UI Dashboard - Interactive API Documentation</p>
+        </div>
+        
+        <div class="services-grid" id="services-grid">
+            <!-- Services will be loaded dynamically -->
+        </div>
+        
+        <div class="footer">
+            <p>🔗 <strong>Eureka Dashboard:</strong> <a href="/" target="_blank">http://localhost:8761</a></p>
+            <p>🌐 <strong>API Gateway:</strong> <a href="http://localhost:8090" target="_blank">http://localhost:8090</a></p>
+        </div>
+    </div>
+    
+    <button class="refresh-btn" onclick="loadServices()">🔄 Refresh</button>
+
+    <script>
+        // Service configurations
+        const services = [
+            {
+                name: "User Service",
+                port: 8091,
+                description: "User Management and Authentication Service",
+                color: "#ff6b6b"
+            },
+            {
+                name: "Train Service", 
+                port: 8092,
+                description: "Train Information, Search, and Management Service",
+                color: "#4ecdc4"
+            },
+            {
+                name: "Booking Service",
+                port: 8093,
+                description: "Ticket Booking and Management Service", 
+                color: "#45b7d1"
+            },
+            {
+                name: "Payment Service",
+                port: 8094,
+                description: "Payment Processing and Management Service",
+                color: "#96ceb4"
+            },
+            {
+                name: "Notification Service",
+                port: 8095,
+                description: "Notifications and Alerts Service",
+                color: "#feca57"
+            },
+            {
+                name: "Swagger Hub",
+                port: 8096,
+                description: "Central API Documentation Hub for all IRCTC Microservices",
+                color: "#ff9ff3"
+            }
+        ];
+
+        function createServiceCard(service) {
+            return `
+                <div class="service-card" style="border-left: 4px solid ${service.color}">
+                    <div class="status-indicator" id="status-${service.port}"></div>
+                    <h3>${service.name}</h3>
+                    <p>${service.description}</p>
+                    <div class="service-links">
+                        <a href="http://localhost:${service.port}/swagger-ui/index.html" 
+                           class="service-link swagger" target="_blank">
+                            📚 Swagger UI
+                        </a>
+                        <a href="http://localhost:${service.port}/api-docs" 
+                           class="service-link" target="_blank">
+                            📋 API Docs (JSON)
+                        </a>
+                        <a href="http://localhost:${service.port}/actuator/health" 
+                           class="service-link health" target="_blank">
+                            ❤️ Health Check
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function checkServiceHealth(port) {
+            try {
+                const response = await fetch(`http://localhost:${port}/actuator/health`);
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function loadServices() {
+            const servicesGrid = document.getElementById('services-grid');
+            servicesGrid.innerHTML = '';
+            
+            for (const service of services) {
+                const card = createServiceCard(service);
+                servicesGrid.innerHTML += card;
+                
+                // Check health status
+                const isHealthy = await checkServiceHealth(service.port);
+                const statusIndicator = document.getElementById(`status-${service.port}`);
+                if (statusIndicator) {
+                    statusIndicator.style.background = isHealthy ? '#28a745' : '#dc3545';
+                }
+            }
+        }
+
+        // Load services on page load
+        document.addEventListener('DOMContentLoaded', loadServices);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadServices, 30000);
+    </script>
+</body>
+</html>

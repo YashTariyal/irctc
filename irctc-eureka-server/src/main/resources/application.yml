@@ -12,6 +12,9 @@ spring:
 eureka:
   instance:
     hostname: localhost
+    metadata-map:
+      swagger-dashboard: http://localhost:8761/swagger-dashboard
+      service-description: Eureka Server for IRCTC Microservices
   client:
     register-with-eureka: false
     fetch-registry: false

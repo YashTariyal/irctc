@@ -1,0 +1,69 @@
+server:
+  port: 8096
+
+spring:
+  application:
+    name: irctc-swagger-hub
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+    metadata-map:
+      swagger-ui: http://localhost:${server.port}/swagger-ui/index.html
+      api-docs: http://localhost:${server.port}/api-docs
+      health: http://localhost:${server.port}/actuator/health
+      service-name: ${spring.application.name}
+      service-description: Central API Documentation Hub for all IRCTC Microservices
+
+# Swagger Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+    displayRequestDuration: true
+    showExtensions: true
+    showCommonExtensions: true
+    urls:
+      - name: User Service
+        url: http://localhost:8091/api-docs
+      - name: Train Service
+        url: http://localhost:8092/api-docs
+      - name: Booking Service
+        url: http://localhost:8093/api-docs
+      - name: Payment Service
+        url: http://localhost:8094/api-docs
+      - name: Notification Service
+        url: http://localhost:8095/api-docs
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging Configuration
+logging:
+  level:
+    com.irctc.swagger: DEBUG
+    org.springframework.web: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
