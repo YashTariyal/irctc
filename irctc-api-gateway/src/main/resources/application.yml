@@ -15,37 +15,45 @@ spring:
           predicates:
             - Path=/api/users/**
           filters:
-            - StripPrefix=1
+            - RewritePath=/api/users/(?<segment>.*), /api/users/$\{segment}
         
-        # Train Service Routes (Future)
+        # Train Service Routes
         - id: train-service
-          uri: lb://irctc-train-service
+          uri: lb://IRCTC-TRAIN-SERVICE
           predicates:
             - Path=/api/trains/**
           filters:
-            - StripPrefix=1
+            - RewritePath=/api/trains/(?<segment>.*), /api/trains/$\{segment}
         
-        # Booking Service Routes (Future)
+        # Booking Service Routes
         - id: booking-service
-          uri: lb://irctc-booking-service
+          uri: lb://IRCTC-BOOKING-SERVICE
           predicates:
             - Path=/api/bookings/**
           filters:
-            - StripPrefix=1
+            - RewritePath=/api/bookings/(?<segment>.*), /api/bookings/$\{segment}
         
-        # Payment Service Routes (Future)
+        # Payment Service Routes
         - id: payment-service
-          uri: lb://irctc-payment-service
+          uri: lb://IRCTC-PAYMENT-SERVICE
           predicates:
             - Path=/api/payments/**
           filters:
-            - StripPrefix=1
+            - RewritePath=/api/payments/(?<segment>.*), /api/payments/$\{segment}
         
-        # Notification Service Routes (Future)
+        # Notification Service Routes
         - id: notification-service
-          uri: lb://irctc-notification-service
+          uri: lb://IRCTC-NOTIFICATION-SERVICE
           predicates:
             - Path=/api/notifications/**
+          filters:
+            - RewritePath=/api/notifications/(?<segment>.*), /api/notifications/$\{segment}
+        
+        # Swagger Hub Routes
+        - id: swagger-hub
+          uri: lb://IRCTC-SWAGGER-HUB
+          predicates:
+            - Path=/swagger-hub/**
           filters:
             - StripPrefix=1
       
