@@ -5,6 +5,7 @@ import com.irctc.external.notification.TwilioSmsService;
 import com.irctc.shared.events.UserEvents;
 import com.irctc.shared.events.BookingEvents;
 import com.irctc.shared.events.PaymentEvents;
+import com.irctc.notification.entity.SimpleNotification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -32,17 +33,21 @@ public class NotificationConsumerService {
         System.out.println("Received user registered event: " + event.getUserId());
         
         try {
-            // Send welcome email
-            emailService.sendBookingConfirmation(
-                event.getEmail(),
-                event.getFirstName() + " " + event.getLastName(),
-                "WELCOME",
-                "Welcome to IRCTC!",
-                "Your account has been created successfully."
-            ).subscribe(
-                response -> System.out.println("Welcome email sent: " + response.isSuccess()),
-                error -> System.err.println("Failed to send welcome email: " + error.getMessage())
-            );
+            // Send welcome email (with null check)
+            if (emailService != null) {
+                emailService.sendBookingConfirmation(
+                    event.getEmail(),
+                    event.getFirstName() + " " + event.getLastName(),
+                    "WELCOME",
+                    "Welcome to IRCTC!",
+                    "Your account has been created successfully."
+                ).subscribe(
+                    response -> System.out.println("Welcome email sent: " + response.isSuccess()),
+                    error -> System.err.println("Failed to send welcome email: " + error.getMessage())
+                );
+            } else {
+                System.out.println("Email service not available, skipping email send");
+            }
             
             // Create notification record
             com.irctc.notification.entity.SimpleNotification notification = 
@@ -53,7 +58,9 @@ public class NotificationConsumerService {
             notification.setMessage("Your account has been created successfully.");
             notification.setStatus("SENT");
             
-            notificationService.createNotification(notification);
+            System.out.println("Creating notification for user: " + event.getUserId());
+            SimpleNotification createdNotification = notificationService.createNotification(notification);
+            System.out.println("Notification created with ID: " + createdNotification.getId());
             
         } catch (Exception e) {
             System.err.println("Error processing user registered event: " + e.getMessage());
