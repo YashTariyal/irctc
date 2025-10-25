@@ -18,7 +18,7 @@ public class NotificationConsumerService {
     @Autowired
     private SendGridEmailService emailService;
     
-    @Autowired
+    @Autowired(required = false)
     private TwilioSmsService smsService;
     
     @Autowired
