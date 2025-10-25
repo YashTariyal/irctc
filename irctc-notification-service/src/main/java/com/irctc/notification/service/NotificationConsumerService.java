@@ -49,7 +49,7 @@ public class NotificationConsumerService {
                 new com.irctc.notification.entity.SimpleNotification();
             notification.setUserId(event.getUserId());
             notification.setType("EMAIL");
-            notification.setTitle("Welcome to IRCTC!");
+            notification.setSubject("Welcome to IRCTC!");
             notification.setMessage("Your account has been created successfully.");
             notification.setStatus("SENT");
             
@@ -73,7 +73,7 @@ public class NotificationConsumerService {
                 new com.irctc.notification.entity.SimpleNotification();
             notification.setUserId(event.getUserId());
             notification.setType("SYSTEM");
-            notification.setTitle("Login Alert");
+            notification.setSubject("Login Alert");
             notification.setMessage("You logged in from " + event.getIpAddress() + " at " + event.getLoginTime());
             notification.setStatus("SENT");
             
@@ -120,7 +120,7 @@ public class NotificationConsumerService {
                 new com.irctc.notification.entity.SimpleNotification();
             notification.setUserId(event.getUserId());
             notification.setType("BOOKING");
-            notification.setTitle("Booking Confirmed");
+            notification.setSubject("Booking Confirmed");
             notification.setMessage("Your booking has been confirmed. PNR: " + event.getPnrNumber());
             notification.setStatus("SENT");
             
@@ -165,7 +165,7 @@ public class NotificationConsumerService {
                 new com.irctc.notification.entity.SimpleNotification();
             notification.setUserId(event.getUserId());
             notification.setType("PAYMENT");
-            notification.setTitle("Payment Successful");
+            notification.setSubject("Payment Successful");
             notification.setMessage("Your payment of ₹" + event.getAmount() + " has been processed successfully.");
             notification.setStatus("SENT");
             
@@ -210,7 +210,7 @@ public class NotificationConsumerService {
                 new com.irctc.notification.entity.SimpleNotification();
             notification.setUserId(event.getUserId());
             notification.setType("CANCELLATION");
-            notification.setTitle("Booking Cancelled");
+            notification.setSubject("Booking Cancelled");
             notification.setMessage("Your booking has been cancelled. PNR: " + event.getPnrNumber() + 
                                   ". Refund: ₹" + event.getRefundAmount());
             notification.setStatus("SENT");

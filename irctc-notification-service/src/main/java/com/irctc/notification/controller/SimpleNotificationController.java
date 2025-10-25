@@ -63,7 +63,7 @@ public class SimpleNotificationController {
             SimpleNotification notification = new SimpleNotification();
             notification.setUserId(Long.valueOf(emailData.get("userId").toString()));
             notification.setType("EMAIL");
-            notification.setTitle(emailData.get("title").toString());
+            notification.setSubject(emailData.get("title").toString());
             notification.setMessage(emailData.get("message").toString());
             notification.setStatus("SENT");
             
@@ -80,7 +80,7 @@ public class SimpleNotificationController {
             SimpleNotification notification = new SimpleNotification();
             notification.setUserId(Long.valueOf(smsData.get("userId").toString()));
             notification.setType("SMS");
-            notification.setTitle("SMS Notification");
+            notification.setSubject("SMS Notification");
             notification.setMessage(smsData.get("message").toString());
             notification.setStatus("SENT");
             
@@ -97,7 +97,7 @@ public class SimpleNotificationController {
             SimpleNotification notification = new SimpleNotification();
             notification.setUserId(Long.valueOf(pushData.get("userId").toString()));
             notification.setType("PUSH");
-            notification.setTitle(pushData.get("title").toString());
+            notification.setSubject(pushData.get("title").toString());
             notification.setMessage(pushData.get("message").toString());
             notification.setStatus("SENT");
             
