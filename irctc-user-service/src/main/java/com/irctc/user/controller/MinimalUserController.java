@@ -2,6 +2,7 @@ package com.irctc.user.controller;
 
 import com.irctc.user.entity.SimpleUser;
 import com.irctc.user.repository.SimpleUserRepository;
+import com.irctc.user.service.EventPublisherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,9 @@ public class MinimalUserController {
 
     @Autowired
     private SimpleUserRepository userRepository;
+    
+    @Autowired
+    private EventPublisherService eventPublisherService;
     
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -100,6 +104,16 @@ public class MinimalUserController {
             user.setRoles("USER");
             
             SimpleUser savedUser = userRepository.save(user);
+            
+            // Publish user registered event
+            eventPublisherService.publishUserRegistered(
+                savedUser.getId(), 
+                savedUser.getUsername(), 
+                savedUser.getEmail(), 
+                savedUser.getFirstName(), 
+                savedUser.getLastName()
+            );
+            
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Registration failed: " + e.getMessage());
@@ -135,6 +149,14 @@ public class MinimalUserController {
             response.put("lastName", user.getLastName());
             response.put("roles", user.getRoles());
             response.put("message", "Login successful");
+            
+            // Publish user login event
+            eventPublisherService.publishUserLogin(
+                user.getId(), 
+                user.getUsername(), 
+                "127.0.0.1", // In production, get from request
+                "IRCTC-Web-Client" // In production, get from request headers
+            );
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {

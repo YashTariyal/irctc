@@ -1,0 +1,52 @@
+# External API Configuration
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.irctc.shared.events"
+
+# SendGrid Configuration
+sendgrid:
+  api:
+    key: ${SENDGRID_API_KEY:your-sendgrid-api-key}
+  base:
+    url: https://api.sendgrid.com/v3
+
+# Twilio Configuration
+twilio:
+  account:
+    sid: ${TWILIO_ACCOUNT_SID:your-twilio-account-sid}
+  auth:
+    token: ${TWILIO_AUTH_TOKEN:your-twilio-auth-token}
+  from:
+    number: ${TWILIO_FROM_NUMBER:+1234567890}
+  base:
+    url: https://api.twilio.com/2010-04-01
+
+# Razorpay Configuration
+razorpay:
+  key:
+    id: ${RAZORPAY_KEY_ID:your-razorpay-key-id}
+    secret: ${RAZORPAY_KEY_SECRET:your-razorpay-key-secret}
+  base:
+    url: https://api.razorpay.com/v1
+
+# External API URLs
+external:
+  railways:
+    api:
+      url: ${RAILWAYS_API_URL:https://api.irctc.co.in/v1}
+      key: ${RAILWAYS_API_KEY:your-railways-api-key}
+  weather:
+    api:
+      url: ${WEATHER_API_URL:https://api.openweathermap.org/data/2.5}
+      key: ${WEATHER_API_KEY:your-weather-api-key}
+  maps:
+    api:
+      url: ${MAPS_API_URL:https://maps.googleapis.com/maps/api}
+      key: ${MAPS_API_KEY:your-google-maps-api-key}
