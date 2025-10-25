@@ -141,7 +141,7 @@ public class SimpleBookingController {
     }
     
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<SimpleBooking> cancelBooking(@PathVariable Long id) {
+    public ResponseEntity<SimpleBooking> cancelBookingById(@PathVariable Long id) {
         SimpleBooking booking = bookingService.getBookingById(id)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
         booking.setStatus("CANCELLED");

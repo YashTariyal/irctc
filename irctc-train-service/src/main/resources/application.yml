@@ -64,6 +64,35 @@ springdoc:
     showExtensions: true
     showCommonExtensions: true
 
+# External API Configuration
+external:
+  railways:
+    api:
+      key: "demo-key"
+      base-url: "https://api.railwayapi.com"
+  weather:
+    api:
+      key: "demo-key"
+      base-url: "https://api.openweathermap.org"
+  maps:
+    api:
+      key: "demo-key"
+      base-url: "https://maps.googleapis.com"
+
+# SendGrid Configuration
+sendgrid:
+  api:
+    key: "demo-key"
+    base-url: "https://api.sendgrid.com"
+
+# Twilio Configuration
+twilio:
+  account:
+    sid: "demo-sid"
+    auth-token: "demo-token"
+  phone:
+    number: "+1234567890"
+
 # Logging Configuration
 logging:
   level:

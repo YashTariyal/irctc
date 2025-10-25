@@ -17,7 +17,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @author IRCTC Development Team
  * @version 1.0.0
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.irctc.train", "com.irctc.external.railways", "com.irctc.external.weather", "com.irctc.external.maps"})
 @EnableFeignClients
 public class TrainServiceApplication {
 

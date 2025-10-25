@@ -35,8 +35,8 @@ public class SimpleTrainController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<SimpleTrain>> searchTrains(
+    @GetMapping("/search/route")
+    public ResponseEntity<List<SimpleTrain>> searchTrainsByRoute(
             @RequestParam String source,
             @RequestParam String destination) {
         return ResponseEntity.ok(trainService.searchTrains(source, destination));

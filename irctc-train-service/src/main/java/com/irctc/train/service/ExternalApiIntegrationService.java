@@ -132,7 +132,12 @@ public class ExternalApiIntegrationService {
                 })
                 .flatMap(weather -> {
                     result.put("weather", weather);
-                    return mapsApiService.getGeocoding(stationInfo.getStationName());
+                    // Get station info from result to access station name
+                    Object stationInfoObj = result.get("stationInfo");
+                    if (stationInfoObj != null) {
+                        return mapsApiService.getGeocoding(stationInfoObj.toString());
+                    }
+                    return Mono.just(new MapsApiService.GeocodingResponse());
                 })
                 .flatMap(geocoding -> {
                     result.put("geocoding", geocoding);
