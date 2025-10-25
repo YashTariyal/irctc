@@ -64,6 +64,8 @@ public class NotificationConsumerService {
             
         } catch (Exception e) {
             System.err.println("Error processing user registered event: " + e.getMessage());
+            System.err.println("Exception type: " + e.getClass().getSimpleName());
+            e.printStackTrace();
         }
     }
 

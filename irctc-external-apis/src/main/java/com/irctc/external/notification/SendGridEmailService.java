@@ -173,7 +173,8 @@ public class SendGridEmailService {
 
         public void addTo(EmailAddress to) {
             if (personalizations == null) {
-                personalizations = List.of(new Personalization());
+                personalizations = new java.util.ArrayList<>();
+                personalizations.add(new Personalization());
             }
             personalizations.get(0).addTo(to);
         }
@@ -183,7 +184,8 @@ public class SendGridEmailService {
         }
 
         public void setContent(EmailContent content) {
-            this.content = List.of(content);
+            this.content = new java.util.ArrayList<>();
+            this.content.add(content);
         }
 
         // Getters and Setters
@@ -222,7 +224,7 @@ public class SendGridEmailService {
         private List<EmailAddress> to;
 
         public Personalization() {
-            this.to = List.of();
+            this.to = new java.util.ArrayList<>();
         }
 
         public void addTo(EmailAddress to) {
