@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -368,6 +368,190 @@ public class WaitlistRacService {
      */
     private RacEntry.QuotaType convertQuotaType(WaitlistEntry.QuotaType quotaType) {
         return RacEntry.QuotaType.valueOf(quotaType.name());
+    }
+    
+    /**
+     * Enhanced batch processing method for automatic confirmations
+     * This method is called by the TicketConfirmationBatchService
+     */
+    public int processBatchConfirmations(Long trainId, LocalDate journeyDate) {
+        logger.info("Starting batch confirmation processing for train: {}, date: {}", trainId, journeyDate);
+        
+        try {
+            Train train = trainRepository.findById(trainId)
+                .orElseThrow(() -> new RuntimeException("Train not found with ID: " + trainId));
+            
+            List<Coach> coaches = coachRepository.findByTrain(train);
+            int totalConfirmations = 0;
+            
+            for (Coach coach : coaches) {
+                int coachConfirmations = processCoachBatchConfirmations(coach, journeyDate);
+                totalConfirmations += coachConfirmations;
+            }
+            
+            logger.info("Completed batch confirmation processing for train: {}, total confirmations: {}", 
+                       trainId, totalConfirmations);
+            
+            return totalConfirmations;
+            
+        } catch (Exception e) {
+            logger.error("Error in batch confirmation processing for train: {}", trainId, e);
+            return 0;
+        }
+    }
+    
+    /**
+     * Process batch confirmations for a specific coach
+     */
+    private int processCoachBatchConfirmations(Coach coach, LocalDate journeyDate) {
+        logger.info("Processing batch confirmations for coach: {}, date: {}", 
+                   coach.getCoachNumber(), journeyDate);
+        
+        int confirmations = 0;
+        LocalDateTime journeyDateTime = journeyDate.atStartOfDay();
+        
+        try {
+            // Get available seats (cancelled seats)
+            List<Seat> availableSeats = seatRepository.findAvailableSeatsByCoach(coach);
+            
+            // Get RAC entries sorted by priority
+            List<RacEntry> racEntries = racRepository.findActiveRacByCoachAndDate(coach, journeyDateTime)
+                .stream()
+                .sorted(Comparator.comparing(RacEntry::getRacNumber))
+                .collect(Collectors.toList());
+            
+            // Get Waitlist entries sorted by priority
+            List<WaitlistEntry> waitlistEntries = waitlistRepository.findPendingWaitlistByCoachAndDate(coach, journeyDateTime)
+                .stream()
+                .sorted(Comparator.comparing(WaitlistEntry::getWaitlistNumber))
+                .collect(Collectors.toList());
+            
+            logger.info("Found {} available seats, {} RAC entries, {} waitlist entries for coach: {}", 
+                       availableSeats.size(), racEntries.size(), waitlistEntries.size(), coach.getCoachNumber());
+            
+            // Process confirmations
+            for (Seat seat : availableSeats) {
+                if (!racEntries.isEmpty()) {
+                    RacEntry racEntry = racEntries.remove(0);
+                    if (convertRacToConfirmedBatch(racEntry, seat)) {
+                        confirmations++;
+                    }
+                } else if (!waitlistEntries.isEmpty()) {
+                    WaitlistEntry waitlistEntry = waitlistEntries.remove(0);
+                    if (convertWaitlistToConfirmedBatch(waitlistEntry, seat)) {
+                        confirmations++;
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+            logger.error("Error processing batch confirmations for coach: {}", coach.getCoachNumber(), e);
+        }
+        
+        return confirmations;
+    }
+    
+    /**
+     * Convert RAC to confirmed (batch processing version)
+     */
+    private boolean convertRacToConfirmedBatch(RacEntry racEntry, Seat seat) {
+        try {
+            logger.info("Converting RAC {} to CONFIRMED (batch processing)", racEntry.getRacNumber());
+            
+            // Update RAC entry
+            racEntry.setStatus(RacEntry.RacStatus.CONFIRMED);
+            racEntry.setConfirmedAt(LocalDateTime.now());
+            racEntry.setSeat(seat);
+            
+            // Update seat
+            seat.setStatus(Seat.SeatStatus.BOOKED);
+            
+            // Save changes
+            racRepository.save(racEntry);
+            seatRepository.save(seat);
+            
+            logger.info("Successfully converted RAC {} to CONFIRMED (batch processing)", racEntry.getRacNumber());
+            return true;
+            
+        } catch (Exception e) {
+            logger.error("Error converting RAC {} to confirmed (batch processing): {}", 
+                        racEntry.getRacNumber(), e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Convert Waitlist to confirmed (batch processing version)
+     */
+    private boolean convertWaitlistToConfirmedBatch(WaitlistEntry waitlistEntry, Seat seat) {
+        try {
+            logger.info("Converting Waitlist {} to CONFIRMED (batch processing)", waitlistEntry.getWaitlistNumber());
+            
+            // Update waitlist entry
+            waitlistEntry.setStatus(WaitlistEntry.WaitlistStatus.CONFIRMED);
+            waitlistEntry.setConfirmedAt(LocalDateTime.now());
+            
+            // Update seat
+            seat.setStatus(Seat.SeatStatus.BOOKED);
+            
+            // Save changes
+            waitlistRepository.save(waitlistEntry);
+            seatRepository.save(seat);
+            
+            logger.info("Successfully converted Waitlist {} to CONFIRMED (batch processing)", 
+                       waitlistEntry.getWaitlistNumber());
+            return true;
+            
+        } catch (Exception e) {
+            logger.error("Error converting Waitlist {} to confirmed (batch processing): {}", 
+                        waitlistEntry.getWaitlistNumber(), e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get confirmation statistics for monitoring
+     */
+    public Map<String, Object> getConfirmationStatistics(Long trainId, LocalDate journeyDate) {
+        try {
+            Train train = trainRepository.findById(trainId)
+                .orElseThrow(() -> new RuntimeException("Train not found with ID: " + trainId));
+            
+            LocalDateTime journeyDateTime = journeyDate.atStartOfDay();
+            
+            // Count different statuses
+            long totalWaitlist = waitlistRepository.countByTrainAndJourneyDate(train, journeyDateTime);
+            long pendingWaitlist = waitlistRepository.countByTrainJourneyDateAndStatus(train, journeyDateTime, WaitlistEntry.WaitlistStatus.PENDING);
+            long confirmedWaitlist = waitlistRepository.countByTrainJourneyDateAndStatus(train, journeyDateTime, WaitlistEntry.WaitlistStatus.CONFIRMED);
+            long racWaitlist = waitlistRepository.countByTrainJourneyDateAndStatus(train, journeyDateTime, WaitlistEntry.WaitlistStatus.RAC);
+            
+            long totalRac = racRepository.countByTrainAndJourneyDate(train, journeyDateTime);
+            long activeRac = racRepository.countByTrainJourneyDateAndStatus(train, journeyDateTime, RacEntry.RacStatus.RAC);
+            long confirmedRac = racRepository.countByTrainJourneyDateAndStatus(train, journeyDateTime, RacEntry.RacStatus.CONFIRMED);
+            
+            return Map.of(
+                "trainId", trainId,
+                "trainNumber", train.getTrainNumber(),
+                "journeyDate", journeyDate,
+                "waitlist", Map.of(
+                    "total", totalWaitlist,
+                    "pending", pendingWaitlist,
+                    "confirmed", confirmedWaitlist,
+                    "rac", racWaitlist
+                ),
+                "rac", Map.of(
+                    "total", totalRac,
+                    "active", activeRac,
+                    "confirmed", confirmedRac
+                ),
+                "totalConfirmations", confirmedWaitlist + confirmedRac,
+                "pendingConfirmations", pendingWaitlist + activeRac
+            );
+            
+        } catch (Exception e) {
+            logger.error("Error getting confirmation statistics for train: {}, date: {}", trainId, journeyDate, e);
+            return Map.of("error", e.getMessage());
+        }
     }
     
     /**
