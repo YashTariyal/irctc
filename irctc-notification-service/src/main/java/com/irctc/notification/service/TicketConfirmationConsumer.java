@@ -1,6 +1,6 @@
 package com.irctc.notification.service;
 
-import com.irctc_backend.irctc.events.TicketConfirmationEvent;
+import com.irctc.shared.events.BookingEvents;
 import com.irctc.notification.entity.SimpleNotification;
 import com.irctc.notification.repository.SimpleNotificationRepository;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class TicketConfirmationConsumer {
      */
     @KafkaListener(topics = "ticket-confirmation-events", groupId = "notification-service")
     @Transactional
-    public void handleTicketConfirmation(TicketConfirmationEvent event) {
+    public void handleTicketConfirmation(BookingEvents.TicketConfirmationEvent event) {
         String requestId = event.getRequestId() != null ? event.getRequestId() : "unknown";
         
         logger.info("Processing ticket confirmation event for user: {}, PNR: {} - RequestId: {}", 
@@ -66,15 +66,9 @@ public class TicketConfirmationConsumer {
     /**
      * Send email notification
      */
-    private void sendEmailNotification(TicketConfirmationEvent event, String requestId) {
-        if (!event.getEmailNotificationEnabled()) {
-            logger.info("Email notification disabled for user: {} - RequestId: {}", 
-                       event.getUserId(), requestId);
-            return;
-        }
-        
+    private void sendEmailNotification(BookingEvents.TicketConfirmationEvent event, String requestId) {
         try {
-            String subject = event.getEmailSubject();
+            String subject = "🎉 Your Ticket is Confirmed! PNR: " + event.getPnrNumber();
             String emailBody = buildEmailTemplate(event);
             
             emailService.sendEmail(
@@ -101,15 +95,16 @@ public class TicketConfirmationConsumer {
     /**
      * Send SMS notification
      */
-    private void sendSmsNotification(TicketConfirmationEvent event, String requestId) {
-        if (!event.getSmsNotificationEnabled()) {
-            logger.info("SMS notification disabled for user: {} - RequestId: {}", 
-                       event.getUserId(), requestId);
-            return;
-        }
-        
+    private void sendSmsNotification(BookingEvents.TicketConfirmationEvent event, String requestId) {
         try {
-            String smsMessage = event.getSmsMessage();
+            String smsMessage = String.format(
+                "🎉 Your ticket is CONFIRMED! PNR: %s, Train: %s, Seat: %s-%s, Date: %s. Safe journey!",
+                event.getPnrNumber(),
+                event.getTrainNumber(),
+                event.getCoachNumber(),
+                event.getSeatNumber(),
+                event.getJourneyDate().toLocalDate()
+            );
             
             smsService.sendSms(event.getPassengerPhone(), smsMessage)
                 .subscribe(
@@ -132,19 +127,19 @@ public class TicketConfirmationConsumer {
     /**
      * Send push notification
      */
-    private void sendPushNotification(TicketConfirmationEvent event, String requestId) {
-        if (!event.getPushNotificationEnabled()) {
-            logger.info("Push notification disabled for user: {} - RequestId: {}", 
-                       event.getUserId(), requestId);
-            return;
-        }
-        
+    private void sendPushNotification(BookingEvents.TicketConfirmationEvent event, String requestId) {
         try {
             String title = "🎉 Ticket Confirmed!";
-            String body = String.format("Your ticket is confirmed. PNR: %s, Seat: %s-%s", 
+            String body = String.format("Your ticket is confirmed. PNR: %s, Seat: %s-%s",
                                       event.getPnrNumber(), event.getCoachNumber(), event.getSeatNumber());
             
-            Map<String, Object> data = event.getNotificationData();
+            Map<String, Object> data = Map.of(
+                "pnr", event.getPnrNumber(),
+                "trainNumber", event.getTrainNumber(),
+                "seatNumber", event.getSeatNumber(),
+                "coachNumber", event.getCoachNumber(),
+                "journeyDate", event.getJourneyDate().toString()
+            );
             
             pushNotificationService.sendPushNotification(
                 event.getUserId(),
@@ -171,13 +166,15 @@ public class TicketConfirmationConsumer {
     /**
      * Store notification record in database
      */
-    private void storeNotificationRecord(TicketConfirmationEvent event, String requestId) {
+    private void storeNotificationRecord(BookingEvents.TicketConfirmationEvent event, String requestId) {
         try {
             SimpleNotification notification = new SimpleNotification();
             notification.setUserId(event.getUserId());
             notification.setType("TICKET_CONFIRMATION");
-            notification.setSubject(event.getEmailSubject());
-            notification.setMessage(event.getSmsMessage());
+            notification.setSubject("Ticket Confirmed: PNR " + event.getPnrNumber());
+            notification.setMessage(String.format("Your ticket for Train %s (%s) on %s is now CONFIRMED! Seat: %s-%s. PNR: %s.",
+                event.getTrainName(), event.getTrainNumber(), event.getJourneyDate().toLocalDate(),
+                event.getCoachNumber(), event.getSeatNumber(), event.getPnrNumber()));
             notification.setStatus("SENT");
             notification.setCreatedAt(LocalDateTime.now());
             notification.setMetadata(String.format(
@@ -203,7 +200,7 @@ public class TicketConfirmationConsumer {
     /**
      * Build comprehensive email template
      */
-    private String buildEmailTemplate(TicketConfirmationEvent event) {
+    private String buildEmailTemplate(BookingEvents.TicketConfirmationEvent event) {
         return String.format("""
             <!DOCTYPE html>
             <html>
@@ -248,9 +245,9 @@ public class TicketConfirmationConsumer {
                             <tr><td><strong>Seat Number:</strong></td><td><strong>%s</strong></td></tr>
                             <tr><td><strong>Coach Number:</strong></td><td><strong>%s</strong></td></tr>
                             <tr><td><strong>Coach Type:</strong></td><td>%s</td></tr>
-                            <tr><td><strong>Berth Type:</strong></td><td>%s</td></tr>
-                            <tr><td><strong>Seat Type:</strong></td><td>%s</td></tr>
-                            <tr><td><strong>Quota:</strong></td><td>%s</td></tr>
+                            <tr><td><strong>Berth Type:</strong></td><td>Lower</td></tr>
+                            <tr><td><strong>Seat Type:</strong></td><td>Window</td></tr>
+                            <tr><td><strong>Quota:</strong></td><td>General</td></tr>
                         </table>
                     </div>
                     
@@ -267,7 +264,7 @@ public class TicketConfirmationConsumer {
                         <h3>📈 Status Update</h3>
                         <p><strong>Previous Status:</strong> %s</p>
                         <p><strong>Current Status:</strong> <span class="status-badge">CONFIRMED ✅</span></p>
-                        <p><strong>Confirmation Reason:</strong> %s</p>
+                        <p><strong>Confirmation Reason:</strong> Seat became available</p>
                     </div>
                     
                     <div class="details">
@@ -300,13 +297,9 @@ public class TicketConfirmationConsumer {
             event.getSeatNumber(),
             event.getCoachNumber(),
             event.getCoachType(),
-            event.getBerthType(),
-            event.getSeatType(),
-            event.getQuotaType(),
             event.getFare(),
             event.getConfirmationTime(),
-            event.getPreviousStatus(),
-            event.getConfirmationReason()
+            event.getPreviousStatus()
         );
     }
 }
