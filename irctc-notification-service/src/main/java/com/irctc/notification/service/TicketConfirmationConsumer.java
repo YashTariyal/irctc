@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,13 +39,20 @@ public class TicketConfirmationConsumer {
     /**
      * Consume ticket confirmation events from Kafka
      */
-    @KafkaListener(topics = "ticket-confirmation-events", groupId = "notification-service")
+    @KafkaListener(topics = {"ticket-confirmation-events", "ticket-confirmation-events.DLT"}, groupId = "notification-service")
     @Transactional
-    public void handleTicketConfirmation(BookingEvents.TicketConfirmationEvent event) {
+    public void handleTicketConfirmation(BookingEvents.TicketConfirmationEvent event,
+                                         @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         String requestId = event.getRequestId() != null ? event.getRequestId() : "unknown";
-        
-        logger.info("Processing ticket confirmation event for user: {}, PNR: {} - RequestId: {}", 
-                   event.getUserId(), event.getPnrNumber(), requestId);
+        logger.info("Processing ticket confirmation event from topic={} for user: {}, PNR: {} - RequestId: {}",
+                   topic, event.getUserId(), event.getPnrNumber(), requestId);
+
+        // Simulation hook to force DLQ routing for testing
+        boolean simulateDlq = Boolean.getBoolean("simulate.dlq");
+        if (simulateDlq && (topic == null || !topic.endsWith(".DLT"))) {
+            logger.warn("simulate.dlq enabled - throwing to route to DLT for PNR: {}", event.getPnrNumber());
+            throw new RuntimeException("Simulated processing failure");
+        }
         
         try {
             // Send multi-channel notifications

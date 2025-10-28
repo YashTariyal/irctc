@@ -28,6 +28,8 @@ public class SimpleNotification {
     private LocalDateTime sentTime;
     
     private String status;
+    @Column(columnDefinition = "TEXT")
+    private String metadata;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
