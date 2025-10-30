@@ -2,6 +2,8 @@ package com.irctc.notification.service;
 
 import com.irctc.notification.entity.SimpleNotification;
 import com.irctc.notification.repository.SimpleNotificationRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -28,6 +30,12 @@ public class SimpleNotificationService {
 
     public List<SimpleNotification> getNotificationsByType(String type) {
         return notificationRepository.findByType(type);
+    }
+
+    public List<SimpleNotification> getRecentNotificationsByUserId(Long userId, int limit) {
+        int pageSize = Math.max(1, Math.min(limit, 100));
+        Pageable pageable = PageRequest.of(0, pageSize);
+        return notificationRepository.findByUserIdOrderBySentTimeDesc(userId, pageable).getContent();
     }
 
     public SimpleNotification createNotification(SimpleNotification notification) {

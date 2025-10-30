@@ -29,6 +29,8 @@ import {
   Restaurant,
   Route,
   Logout,
+  Settings,
+  Notifications as NotificationsIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -56,6 +58,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { text: 'Travel Insurance', icon: <Security />, path: '/insurance' },
     { text: 'Meal Booking', icon: <Restaurant />, path: '/meals' },
     { text: 'Trip Planner', icon: <Route />, path: '/trip-planner' },
+    { text: 'Preferences', icon: <Settings />, path: '/preferences' },
+    { text: 'PNR Timeline', icon: <Dashboard />, path: '/pnr-timeline' },
+    { text: 'Notifications', icon: <NotificationsIcon />, path: '/notifications' },
   ];
 
   const handleDrawerToggle = () => {

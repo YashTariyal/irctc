@@ -1,0 +1,28 @@
+resilience4j:
+  circuitbreaker:
+    instances:
+      railways:
+        sliding-window-type: count_based
+        sliding-window-size: 20
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 2s
+        minimum-number-of-calls: 10
+        permitted-number-of-calls-in-half-open-state: 3
+        wait-duration-in-open-state: 30s
+        automatic-transition-from-open-to-half-open-enabled: true
+  retry:
+    instances:
+      railways:
+        max-attempts: 3
+        wait-duration: 300ms
+        retry-exceptions:
+          - java.io.IOException
+          - org.springframework.web.reactive.function.client.WebClientResponseException$InternalServerError
+        ignore-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException$BadRequest
+
+spring:
+  main:
+    banner-mode: off
+

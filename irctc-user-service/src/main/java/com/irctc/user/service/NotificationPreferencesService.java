@@ -2,6 +2,8 @@ package com.irctc.user.service;
 
 import com.irctc.user.entity.NotificationPreferences;
 import com.irctc.user.repository.NotificationPreferencesRepository;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,7 +16,8 @@ public class NotificationPreferencesService {
 		this.repository = repository;
 	}
 
-	public NotificationPreferences getOrCreate(Long userId) {
+    @Cacheable(value = "user-prefs", key = "#userId")
+    public NotificationPreferences getOrCreate(Long userId) {
 		Optional<NotificationPreferences> existing = repository.findByUserId(userId);
 		if (existing.isPresent()) return existing.get();
 		NotificationPreferences prefs = new NotificationPreferences();
@@ -22,7 +25,8 @@ public class NotificationPreferencesService {
 		return repository.save(prefs);
 	}
 
-	public NotificationPreferences update(Long userId, NotificationPreferences updated) {
+    @CachePut(value = "user-prefs", key = "#userId")
+    public NotificationPreferences update(Long userId, NotificationPreferences updated) {
 		NotificationPreferences prefs = getOrCreate(userId);
 		prefs.setEmailEnabled(updated.isEmailEnabled());
 		prefs.setSmsEnabled(updated.isSmsEnabled());

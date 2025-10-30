@@ -37,6 +37,14 @@ public class SimpleNotificationController {
         return ResponseEntity.ok(notificationService.getNotificationsByType(type));
     }
 
+    @GetMapping("/user/{userId}/recent")
+    public ResponseEntity<List<SimpleNotification>> getRecentNotificationsByUserId(
+            @PathVariable Long userId,
+            @RequestParam(name = "limit", required = false, defaultValue = "20") int limit
+    ) {
+        return ResponseEntity.ok(notificationService.getRecentNotificationsByUserId(userId, limit));
+    }
+
     @PostMapping
     public ResponseEntity<SimpleNotification> createNotification(@RequestBody SimpleNotification notification) {
         SimpleNotification newNotification = notificationService.createNotification(notification);

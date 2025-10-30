@@ -4,11 +4,14 @@ import com.irctc.shared.events.BookingEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import io.micrometer.tracing.Tracer;
+import io.micrometer.tracing.Span;
+import io.micrometer.tracing.Tracer.SpanInScope;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -41,34 +44,48 @@ public class TicketConfirmationBatchService {
     private static final Random RANDOM = new Random();
 
     @Autowired
-    private KafkaTemplate<String, Object> kafkaTemplate;
+    private OutboxEventService outboxEventService;
 
     @Autowired
     private SimpleBookingService bookingService;
+
+    @Autowired(required = false)
+    private Tracer tracer;
 
     /**
      * Main scheduled job that runs every 30 minutes to process ticket confirmations
      */
     @Scheduled(fixedRate = 1800000) // 30 minutes
+    @SchedulerLock(name = "ticketConfirmationBatch", lockAtLeastFor = "PT30S", lockAtMostFor = "PT4M")
     public void processTicketConfirmations() {
-        String requestId = UUID.randomUUID().toString();
-        long startTime = System.currentTimeMillis();
+        Span span = startSpan("booking.batch.process");
+        try (SpanInScope ignored = span != null && tracer != null ? tracer.withSpan(span) : null) {
+            String requestId = UUID.randomUUID().toString();
+            long startTime = System.currentTimeMillis();
 
-        logger.info("🎫 Starting ticket confirmation batch processing - RequestId: {}", requestId);
+            String traceId = tracer != null && tracer.currentSpan() != null ? tracer.currentSpan().context().traceId() : "no-trace";
+            logger.info("🎫 Starting ticket confirmation batch - RequestId: {}, traceId: {}", requestId, traceId);
 
-        try {
-            // Simulate processing confirmations
-            int totalConfirmations = processBatchConfirmations(requestId);
-            
-            long processingTime = System.currentTimeMillis() - startTime;
-
-            logger.info("✅ Completed ticket confirmation batch processing - RequestId: {}, " +
-                       "Total confirmations: {}, Processing time: {}ms",
-                       requestId, totalConfirmations, processingTime);
-
-        } catch (Exception e) {
-            logger.error("❌ Error in ticket confirmation batch processing - RequestId: {}", requestId, e);
+            try {
+                int totalConfirmations = processBatchConfirmations(requestId);
+                long processingTime = System.currentTimeMillis() - startTime;
+                logger.info("✅ Completed ticket confirmation batch - RequestId: {}, Total: {}, Time: {}ms, traceId: {}",
+                        requestId, totalConfirmations, processingTime, traceId);
+            } catch (Exception e) {
+                logger.error("❌ Error in ticket confirmation batch - RequestId: {}", requestId, e);
+            }
+        } finally {
+            endSpan(span);
         }
+    }
+
+    private Span startSpan(String name) {
+        if (tracer == null) return null;
+        return tracer.nextSpan().name(name).start();
+    }
+
+    private void endSpan(Span span) {
+        if (span != null) span.end();
     }
 
     /**
@@ -76,14 +93,10 @@ public class TicketConfirmationBatchService {
      */
     private int processBatchConfirmations(String requestId) {
         logger.info("🔄 Processing batch confirmations - RequestId: {}", requestId);
-        
-        // Simulate finding confirmations to process
         int confirmations = RANDOM.nextInt(5) + 1; // 1-5 confirmations
-        
         for (int i = 0; i < confirmations; i++) {
             processSingleConfirmation(requestId, i + 1);
         }
-        
         return confirmations;
     }
 
@@ -92,16 +105,13 @@ public class TicketConfirmationBatchService {
      */
     private void processSingleConfirmation(String requestId, int confirmationNumber) {
         try {
-            // Simulate ticket confirmation data
             Long userId = (long) (RANDOM.nextInt(1000) + 1);
             Long trainId = (long) (RANDOM.nextInt(100) + 1);
             String pnrNumber = generatePNR();
             String previousStatus = RANDOM.nextBoolean() ? "RAC" : "WAITLIST";
-            
-            logger.info("🎫 Processing confirmation #{} for user: {}, PNR: {}, Previous status: {} - RequestId: {}",
+            logger.info("🎫 Processing confirmation #{} for user: {}, PNR: {}, Previous: {} - RequestId: {}",
                        confirmationNumber, userId, pnrNumber, previousStatus, requestId);
 
-            // Create confirmation event
             BookingEvents.TicketConfirmationEvent event = new BookingEvents.TicketConfirmationEvent(
                 requestId,
                 userId,
@@ -117,7 +127,6 @@ public class TicketConfirmationBatchService {
                 previousStatus
             );
 
-            // Set additional details
             event.setRacNumber(previousStatus.equals("RAC") ? RANDOM.nextInt(20) + 1 : null);
             event.setWaitlistNumber(previousStatus.equals("WAITLIST") ? RANDOM.nextInt(50) + 1 : null);
             event.setSourceStation("DEL");
@@ -128,50 +137,37 @@ public class TicketConfirmationBatchService {
             event.setPassengerEmail("passenger" + userId + "@example.com");
             event.setPassengerPhone("+91" + (9000000000L + userId));
 
-            // Publish confirmation event
             publishConfirmationEvent(event, requestId);
-
             logger.info("✅ Successfully processed confirmation #{} for PNR: {} - RequestId: {}",
                        confirmationNumber, pnrNumber, requestId);
-
         } catch (Exception e) {
             logger.error("❌ Error processing confirmation #{} - RequestId: {}", confirmationNumber, requestId, e);
         }
     }
 
     /**
-     * Publish confirmation event to Kafka
+     * Save confirmation event to outbox table (will be published by OutboxEventPublisher)
      */
     private void publishConfirmationEvent(BookingEvents.TicketConfirmationEvent event, String requestId) {
         try {
-            kafkaTemplate.send("ticket-confirmation-events", event);
-
-            logger.info("📤 Published confirmation event for user: {}, PNR: {} - RequestId: {}",
-                       event.getUserId(), event.getPnrNumber(), requestId);
-
+            outboxEventService.saveEvent("ticket-confirmation-events", event);
+            String traceId = tracer != null && tracer.currentSpan() != null ? tracer.currentSpan().context().traceId() : "no-trace";
+            logger.info("💾 Saved confirmation to outbox for user: {}, PNR: {} - RequestId: {}, traceId: {}",
+                       event.getUserId(), event.getPnrNumber(), requestId, traceId);
         } catch (Exception e) {
-            logger.error("❌ Error publishing confirmation event - RequestId: {}", requestId, e);
+            logger.error("❌ Error saving confirmation event to outbox - RequestId: {}", requestId, e);
         }
     }
 
-    /**
-     * Generate a unique PNR number
-     */
     private String generatePNR() {
         return "PNR" + System.currentTimeMillis() + RANDOM.nextInt(1000);
     }
 
-    /**
-     * Manual trigger for testing purposes
-     */
     public void triggerManualProcessing() {
         logger.info("🔧 Manual trigger for ticket confirmation batch processing");
         processTicketConfirmations();
     }
 
-    /**
-     * Get batch processing statistics
-     */
     public String getBatchStatistics() {
         return String.format("""
             📊 Batch Processing Statistics:

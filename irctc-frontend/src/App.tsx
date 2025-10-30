@@ -19,6 +19,9 @@ import Insurance from './pages/Insurance';
 import MealBooking from './pages/MealBooking';
 import TripPlanner from './pages/TripPlanner';
 import ProtectedRoute from './components/ProtectedRoute';
+import Preferences from './pages/Preferences';
+import PNRTimeline from './pages/PNRTimeline';
+import Notifications from './pages/Notifications';
 
 const theme = createTheme({
   palette: {
@@ -91,6 +94,9 @@ function App() {
                 <Route path="/insurance" element={<ProtectedRoute><Insurance /></ProtectedRoute>} />
                 <Route path="/meals" element={<ProtectedRoute><MealBooking /></ProtectedRoute>} />
                 <Route path="/trip-planner" element={<ProtectedRoute><TripPlanner /></ProtectedRoute>} />
+                <Route path="/preferences" element={<ProtectedRoute><Preferences /></ProtectedRoute>} />
+                <Route path="/pnr-timeline" element={<ProtectedRoute><PNRTimeline /></ProtectedRoute>} />
+                <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Layout>

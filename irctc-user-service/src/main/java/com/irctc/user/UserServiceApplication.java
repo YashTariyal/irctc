@@ -2,6 +2,7 @@ package com.irctc.user;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 /**
  * IRCTC User Service - Microservice for User Management
  * 
@@ -16,6 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @version 1.0.0
  */
 @SpringBootApplication
+@EnableCaching
 public class UserServiceApplication {
 
     public static void main(String[] args) {

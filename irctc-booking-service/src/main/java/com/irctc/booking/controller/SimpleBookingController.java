@@ -2,6 +2,7 @@ package com.irctc.booking.controller;
 
 import com.irctc.booking.entity.SimpleBooking;
 import com.irctc.booking.service.SimpleBookingService;
+import com.irctc.booking.service.IdempotencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,9 @@ public class SimpleBookingController {
 
     @Autowired
     private SimpleBookingService bookingService;
+
+    @Autowired
+    private IdempotencyService idempotencyService;
 
     @GetMapping
     public ResponseEntity<List<SimpleBooking>> getAllBookings() {
@@ -40,8 +44,16 @@ public class SimpleBookingController {
     }
 
     @PostMapping
-    public ResponseEntity<SimpleBooking> createBooking(@RequestBody SimpleBooking booking) {
-        SimpleBooking newBooking = bookingService.createBooking(booking);
+    public ResponseEntity<SimpleBooking> createBooking(@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+                                                       @RequestBody SimpleBooking booking) {
+        SimpleBooking newBooking = idempotencyService.process(
+                idempotencyKey,
+                "POST",
+                "/api/bookings",
+                booking,
+                SimpleBooking.class,
+                () -> bookingService.createBooking(booking)
+        );
         return ResponseEntity.ok(newBooking);
     }
 

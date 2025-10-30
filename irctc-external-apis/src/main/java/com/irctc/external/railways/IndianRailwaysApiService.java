@@ -2,6 +2,8 @@ package com.irctc.external.railways;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Value;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -38,6 +40,8 @@ public class IndianRailwaysApiService {
     /**
      * Get live train status
      */
+    @CircuitBreaker(name = "railways", fallbackMethod = "fallbackTrainStatus")
+    @Retry(name = "railways")
     public Mono<TrainStatusResponse> getTrainStatus(String trainNumber, String date) {
         return webClient.get()
                 .uri("/trains/{trainNumber}/status?date={date}", trainNumber, date)
@@ -52,6 +56,8 @@ public class IndianRailwaysApiService {
     /**
      * Get train running information
      */
+    @CircuitBreaker(name = "railways", fallbackMethod = "fallbackTrainRunning")
+    @Retry(name = "railways")
     public Mono<TrainRunningResponse> getTrainRunningInfo(String trainNumber, String date) {
         return webClient.get()
                 .uri("/trains/{trainNumber}/running?date={date}", trainNumber, date)
@@ -66,6 +72,8 @@ public class IndianRailwaysApiService {
     /**
      * Get train schedule
      */
+    @CircuitBreaker(name = "railways", fallbackMethod = "fallbackTrainSchedule")
+    @Retry(name = "railways")
     public Mono<TrainScheduleResponse> getTrainSchedule(String trainNumber) {
         return webClient.get()
                 .uri("/trains/{trainNumber}/schedule", trainNumber)
@@ -80,6 +88,8 @@ public class IndianRailwaysApiService {
     /**
      * Get train route
      */
+    @CircuitBreaker(name = "railways", fallbackMethod = "fallbackTrainRoute")
+    @Retry(name = "railways")
     public Mono<TrainRouteResponse> getTrainRoute(String trainNumber) {
         return webClient.get()
                 .uri("/trains/{trainNumber}/route", trainNumber)
@@ -94,6 +104,8 @@ public class IndianRailwaysApiService {
     /**
      * Get live train position
      */
+    @CircuitBreaker(name = "railways", fallbackMethod = "fallbackTrainPosition")
+    @Retry(name = "railways")
     public Mono<TrainPositionResponse> getTrainPosition(String trainNumber) {
         return webClient.get()
                 .uri("/trains/{trainNumber}/position", trainNumber)
@@ -108,6 +120,8 @@ public class IndianRailwaysApiService {
     /**
      * Get train delays
      */
+    @CircuitBreaker(name = "railways", fallbackMethod = "fallbackTrainDelays")
+    @Retry(name = "railways")
     public Mono<TrainDelaysResponse> getTrainDelays(String trainNumber, String date) {
         return webClient.get()
                 .uri("/trains/{trainNumber}/delays?date={date}", trainNumber, date)
@@ -122,6 +136,8 @@ public class IndianRailwaysApiService {
     /**
      * Get station information
      */
+    @CircuitBreaker(name = "railways", fallbackMethod = "fallbackStationInfo")
+    @Retry(name = "railways")
     public Mono<StationInfoResponse> getStationInfo(String stationCode) {
         return webClient.get()
                 .uri("/stations/{stationCode}", stationCode)
@@ -136,6 +152,8 @@ public class IndianRailwaysApiService {
     /**
      * Search trains between stations
      */
+    @CircuitBreaker(name = "railways", fallbackMethod = "fallbackTrainSearch")
+    @Retry(name = "railways")
     public Mono<TrainSearchResponse> searchTrains(String fromStation, String toStation, String date) {
         return webClient.get()
                 .uri("/trains/search?from={from}&to={to}&date={date}", fromStation, toStation, date)
@@ -530,5 +548,37 @@ public class IndianRailwaysApiService {
         
         public Integer getDistance() { return distance; }
         public void setDistance(Integer distance) { this.distance = distance; }
+    }
+    // Resilience4j fallbacks
+    private Mono<TrainStatusResponse> fallbackTrainStatus(String trainNumber, String date, Throwable t) {
+        return Mono.just(new TrainStatusResponse());
+    }
+
+    private Mono<TrainRunningResponse> fallbackTrainRunning(String trainNumber, String date, Throwable t) {
+        return Mono.just(new TrainRunningResponse());
+    }
+
+    private Mono<TrainScheduleResponse> fallbackTrainSchedule(String trainNumber, Throwable t) {
+        return Mono.just(new TrainScheduleResponse());
+    }
+
+    private Mono<TrainRouteResponse> fallbackTrainRoute(String trainNumber, Throwable t) {
+        return Mono.just(new TrainRouteResponse());
+    }
+
+    private Mono<TrainPositionResponse> fallbackTrainPosition(String trainNumber, Throwable t) {
+        return Mono.just(new TrainPositionResponse());
+    }
+
+    private Mono<TrainDelaysResponse> fallbackTrainDelays(String trainNumber, String date, Throwable t) {
+        return Mono.just(new TrainDelaysResponse());
+    }
+
+    private Mono<StationInfoResponse> fallbackStationInfo(String stationCode, Throwable t) {
+        return Mono.just(new StationInfoResponse());
+    }
+
+    private Mono<TrainSearchResponse> fallbackTrainSearch(String fromStation, String toStation, String date, Throwable t) {
+        return Mono.just(new TrainSearchResponse());
     }
 }

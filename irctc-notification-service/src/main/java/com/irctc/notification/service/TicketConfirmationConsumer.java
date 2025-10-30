@@ -3,6 +3,7 @@ package com.irctc.notification.service;
 import com.irctc.shared.events.BookingEvents;
 import com.irctc.notification.entity.SimpleNotification;
 import com.irctc.notification.repository.SimpleNotificationRepository;
+import com.irctc.notification.metrics.NotificationMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,9 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.tracing.Tracer;
+import io.micrometer.tracing.Span;
+import io.micrometer.tracing.Tracer.SpanInScope;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -35,6 +39,12 @@ public class TicketConfirmationConsumer {
     
     @Autowired
     private SimpleNotificationRepository notificationRepository;
+
+    @Autowired
+    private NotificationMetrics metrics;
+
+    @Autowired(required = false)
+    private Tracer tracer;
     
     /**
      * Consume ticket confirmation events from Kafka
@@ -43,33 +53,45 @@ public class TicketConfirmationConsumer {
     @Transactional
     public void handleTicketConfirmation(BookingEvents.TicketConfirmationEvent event,
                                          @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-        String requestId = event.getRequestId() != null ? event.getRequestId() : "unknown";
-        logger.info("Processing ticket confirmation event from topic={} for user: {}, PNR: {} - RequestId: {}",
-                   topic, event.getUserId(), event.getPnrNumber(), requestId);
+        Span span = startSpan("notification.consume.ticket_confirmation");
+        try (SpanInScope ignored = span != null && tracer != null ? tracer.withSpan(span) : null) {
+            String requestId = event.getRequestId() != null ? event.getRequestId() : "unknown";
+            String traceId = tracer != null && tracer.currentSpan() != null ? tracer.currentSpan().context().traceId() : "no-trace";
+            logger.info("Consuming ticket confirmation event topic={}, user: {}, PNR: {}, traceId: {} - RequestId: {}",
+                       topic, event.getUserId(), event.getPnrNumber(), traceId, requestId);
 
-        // Simulation hook to force DLQ routing for testing
-        boolean simulateDlq = Boolean.getBoolean("simulate.dlq");
-        if (simulateDlq && (topic == null || !topic.endsWith(".DLT"))) {
-            logger.warn("simulate.dlq enabled - throwing to route to DLT for PNR: {}", event.getPnrNumber());
-            throw new RuntimeException("Simulated processing failure");
+            metrics.incrementConsumedEvent(topic != null ? topic : "unknown");
+
+            boolean simulateDlq = Boolean.getBoolean("simulate.dlq");
+            if (simulateDlq && (topic == null || !topic.endsWith(".DLT"))) {
+                logger.warn("simulate.dlq enabled - throwing to route to DLT for PNR: {}", event.getPnrNumber());
+                throw new RuntimeException("Simulated processing failure");
+            }
+            
+            try {
+                sendEmailNotification(event, requestId);
+                sendSmsNotification(event, requestId);
+                sendPushNotification(event, requestId);
+                storeNotificationRecord(event, requestId);
+                logger.info("Successfully processed confirmation event for PNR: {} - RequestId: {}", 
+                           event.getPnrNumber(), requestId);
+            } catch (Exception e) {
+                metrics.incrementConsumerError(topic != null ? topic : "unknown");
+                logger.error("Error processing confirmation event for PNR: {} - RequestId: {}", 
+                            event.getPnrNumber(), requestId, e);
+            }
+        } finally {
+            endSpan(span);
         }
-        
-        try {
-            // Send multi-channel notifications
-            sendEmailNotification(event, requestId);
-            sendSmsNotification(event, requestId);
-            sendPushNotification(event, requestId);
-            
-            // Store notification record
-            storeNotificationRecord(event, requestId);
-            
-            logger.info("Successfully processed confirmation event for PNR: {} - RequestId: {}", 
-                       event.getPnrNumber(), requestId);
-            
-        } catch (Exception e) {
-            logger.error("Error processing confirmation event for PNR: {} - RequestId: {}", 
-                        event.getPnrNumber(), requestId, e);
-        }
+    }
+
+    private Span startSpan(String name) {
+        if (tracer == null) return null;
+        return tracer.nextSpan().name(name).start();
+    }
+
+    private void endSpan(Span span) {
+        if (span != null) span.end();
     }
     
     /**
@@ -206,16 +228,13 @@ public class TicketConfirmationConsumer {
         }
     }
     
-    /**
-     * Build comprehensive email template
-     */
     private String buildEmailTemplate(BookingEvents.TicketConfirmationEvent event) {
         return String.format("""
             <!DOCTYPE html>
             <html>
             <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta charset=\"UTF-8\">
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
                 <title>Ticket Confirmation</title>
                 <style>
                     body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6; }
@@ -230,13 +249,13 @@ public class TicketConfirmationConsumer {
                 </style>
             </head>
             <body>
-                <div class="header">
+                <div class=\"header\">
                     <h1>🎉 Congratulations! Your Ticket is Confirmed</h1>
                     <p>Your journey is confirmed and ready to go!</p>
                 </div>
                 
-                <div class="content">
-                    <div class="details">
+                <div class=\"content\">
+                    <div class=\"details\">
                         <h2>📋 Booking Details</h2>
                         <table>
                             <tr><td><strong>PNR Number:</strong></td><td><strong>%s</strong></td></tr>
@@ -248,7 +267,7 @@ public class TicketConfirmationConsumer {
                         </table>
                     </div>
                     
-                    <div class="details">
+                    <div class=\"details\">
                         <h2>🎫 Seat Information</h2>
                         <table>
                             <tr><td><strong>Seat Number:</strong></td><td><strong>%s</strong></td></tr>
@@ -260,7 +279,7 @@ public class TicketConfirmationConsumer {
                         </table>
                     </div>
                     
-                    <div class="details">
+                    <div class=\"details\">
                         <h2>💰 Fare Details</h2>
                         <table>
                             <tr><td><strong>Total Fare:</strong></td><td><strong>₹%s</strong></td></tr>
@@ -269,14 +288,14 @@ public class TicketConfirmationConsumer {
                         </table>
                     </div>
                     
-                    <div class="highlight">
+                    <div class=\"highlight\">
                         <h3>📈 Status Update</h3>
                         <p><strong>Previous Status:</strong> %s</p>
-                        <p><strong>Current Status:</strong> <span class="status-badge">CONFIRMED ✅</span></p>
+                        <p><strong>Current Status:</strong> <span class=\"status-badge\">CONFIRMED ✅</span></p>
                         <p><strong>Confirmation Reason:</strong> Seat became available</p>
                     </div>
                     
-                    <div class="details">
+                    <div class=\"details\">
                         <h2>📱 Important Information</h2>
                         <ul>
                             <li>Please arrive at the station at least 30 minutes before departure</li>
@@ -287,7 +306,7 @@ public class TicketConfirmationConsumer {
                     </div>
                 </div>
                 
-                <div class="footer">
+                <div class=\"footer\">
                     <p><strong>Have a safe and pleasant journey! 🚂</strong></p>
                     <p>Thank you for choosing IRCTC Railway Services</p>
                     <p>For support: support@irctc.com | Phone: 139</p>
