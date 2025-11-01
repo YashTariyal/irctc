@@ -1,5 +1,6 @@
 package com.irctc.booking.controller;
 
+import com.irctc.booking.annotation.Auditable;
 import com.irctc.booking.entity.SimpleBooking;
 import com.irctc.booking.service.SimpleBookingService;
 import com.irctc.booking.service.IdempotencyService;
@@ -44,6 +45,7 @@ public class SimpleBookingController {
     }
 
     @PostMapping
+    @Auditable(entityType = "Booking", action = "CREATE", logRequestBody = true)
     public ResponseEntity<SimpleBooking> createBooking(@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
                                                        @RequestBody SimpleBooking booking) {
         SimpleBooking newBooking = idempotencyService.process(
@@ -58,12 +60,14 @@ public class SimpleBookingController {
     }
 
     @PutMapping("/{id}")
+    @Auditable(entityType = "Booking", action = "UPDATE", logRequestBody = true)
     public ResponseEntity<SimpleBooking> updateBooking(@PathVariable Long id, @RequestBody SimpleBooking booking) {
         SimpleBooking updatedBooking = bookingService.updateBooking(id, booking);
         return ResponseEntity.ok(updatedBooking);
     }
 
     @DeleteMapping("/{id}")
+    @Auditable(entityType = "Booking", action = "DELETE")
     public ResponseEntity<Void> cancelBooking(@PathVariable Long id) {
         bookingService.cancelBooking(id);
         return ResponseEntity.noContent().build();
@@ -153,6 +157,7 @@ public class SimpleBookingController {
     }
     
     @PutMapping("/{id}/cancel")
+    @Auditable(entityType = "Booking", action = "CANCEL", logRequestBody = true)
     public ResponseEntity<SimpleBooking> cancelBookingById(@PathVariable Long id) {
         SimpleBooking booking = bookingService.getBookingById(id)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));

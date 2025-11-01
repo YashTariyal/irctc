@@ -77,3 +77,29 @@ ALTER TABLE passengers ADD COLUMN IF NOT EXISTS booking_id BIGINT;
 ALTER TABLE passengers ADD CONSTRAINT IF NOT EXISTS fk_passenger_booking 
   FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE;
 
+-- Audit Logs table
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  entity_type VARCHAR(100) NOT NULL,
+  entity_id BIGINT NOT NULL,
+  action VARCHAR(50) NOT NULL,
+  user_id VARCHAR(255),
+  username VARCHAR(255),
+  ip_address VARCHAR(50),
+  http_method VARCHAR(10),
+  request_path VARCHAR(500),
+  request_body TEXT,
+  response_body TEXT,
+  response_status INT,
+  old_values TEXT,
+  new_values TEXT,
+  error_message TEXT,
+  timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  additional_info VARCHAR(1000)
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_entity_type ON audit_logs(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_logs(timestamp);
+CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_logs(action);
+

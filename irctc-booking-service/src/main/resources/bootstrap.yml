@@ -1,0 +1,16 @@
+# Bootstrap configuration - loaded before application.yml
+# This connects to Config Server
+spring:
+  application:
+    name: irctc-booking-service
+  cloud:
+    config:
+      enabled: ${CONFIG_SERVER_ENABLED:false}  # Disable by default, enable when Config Server is running
+      uri: http://localhost:8888
+      fail-fast: false  # Don't fail if Config Server is unavailable
+      retry:
+        initial-interval: 1000
+        max-attempts: 6
+        max-interval: 2000
+        multiplier: 1.1
+
