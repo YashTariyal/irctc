@@ -14,26 +14,82 @@ public class SimpleTrainService {
     @Autowired
     private SimpleTrainRepository trainRepository;
 
+    @Autowired(required = false)
+    private TrainCacheService cacheService;
+
     public List<SimpleTrain> getAllTrains() {
         return trainRepository.findAll();
     }
 
     public Optional<SimpleTrain> getTrainById(Long id) {
-        return trainRepository.findById(id);
+        // Try cache first
+        if (cacheService != null) {
+            Optional<SimpleTrain> cached = cacheService.getCachedTrain(id);
+            if (cached.isPresent()) {
+                return cached;
+            }
+        }
+        
+        Optional<SimpleTrain> train = trainRepository.findById(id);
+        
+        // Cache the result
+        if (train.isPresent() && cacheService != null) {
+            cacheService.cacheTrain(id, train.get());
+        }
+        
+        return train;
     }
 
     public Optional<SimpleTrain> getTrainByNumber(String trainNumber) {
-        return trainRepository.findByTrainNumber(trainNumber);
+        // Try cache first
+        if (cacheService != null) {
+            Optional<SimpleTrain> cached = cacheService.getCachedTrainByNumber(trainNumber);
+            if (cached.isPresent()) {
+                return cached;
+            }
+        }
+        
+        Optional<SimpleTrain> train = trainRepository.findByTrainNumber(trainNumber);
+        
+        // Cache the result
+        if (train.isPresent() && cacheService != null) {
+            cacheService.cacheTrainByNumber(trainNumber, train.get());
+        }
+        
+        return train;
     }
 
     public List<SimpleTrain> searchTrains(String source, String destination) {
-        return trainRepository.findBySourceStationAndDestinationStation(source, destination);
+        // Try cache first
+        if (cacheService != null) {
+            Optional<List<SimpleTrain>> cached = cacheService.getCachedTrainSearch(source, destination);
+            if (cached.isPresent()) {
+                return cached.get();
+            }
+        }
+        
+        List<SimpleTrain> trains = trainRepository.findBySourceStationAndDestinationStation(source, destination);
+        
+        // Cache the result
+        if (cacheService != null) {
+            cacheService.cacheTrainSearch(source, destination, trains);
+        }
+        
+        return trains;
     }
 
     public SimpleTrain createTrain(SimpleTrain train) {
         // createdAt will be set automatically by @PrePersist
         train.setStatus("ACTIVE");
-        return trainRepository.save(train);
+        SimpleTrain saved = trainRepository.save(train);
+        
+        // Cache the new train
+        if (cacheService != null) {
+            cacheService.cacheTrain(saved.getId(), saved);
+            cacheService.cacheTrainByNumber(saved.getTrainNumber(), saved);
+        }
+        
+        return saved;
     }
 
     public SimpleTrain updateTrain(Long id, SimpleTrain trainDetails) {
@@ -55,7 +111,16 @@ public class SimpleTrainService {
         train.setDistance(trainDetails.getDistance());
         train.setDuration(trainDetails.getDuration());
 
-        return trainRepository.save(train);
+        SimpleTrain saved = trainRepository.save(train);
+        
+        // Invalidate and refresh cache
+        if (cacheService != null) {
+            cacheService.invalidateTrain(id);
+            cacheService.cacheTrain(id, saved);
+            cacheService.cacheTrainByNumber(saved.getTrainNumber(), saved);
+        }
+        
+        return saved;
     }
 
     public void deleteTrain(Long id) {
@@ -63,5 +128,10 @@ public class SimpleTrainService {
                 .orElseThrow(() -> new RuntimeException("Train not found with id: " + id));
         train.setStatus("INACTIVE");
         trainRepository.save(train);
+        
+        // Invalidate cache
+        if (cacheService != null) {
+            cacheService.invalidateTrain(id);
+        }
     }
 }

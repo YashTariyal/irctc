@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/trains")
+@RequestMapping({"/api/v1/trains", "/api/trains"}) // Support both versioned and non-versioned
 public class SimpleTrainController {
 
     @Autowired

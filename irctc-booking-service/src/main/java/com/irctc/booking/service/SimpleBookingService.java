@@ -15,20 +15,68 @@ public class SimpleBookingService {
     @Autowired
     private SimpleBookingRepository bookingRepository;
 
+    @Autowired(required = false)
+    private BookingCacheService cacheService;
+
     public List<SimpleBooking> getAllBookings() {
         return bookingRepository.findAll();
     }
 
     public Optional<SimpleBooking> getBookingById(Long id) {
-        return bookingRepository.findById(id);
+        // Try cache first
+        if (cacheService != null) {
+            Optional<SimpleBooking> cached = cacheService.getCachedBooking(id);
+            if (cached.isPresent()) {
+                return cached;
+            }
+        }
+        
+        Optional<SimpleBooking> booking = bookingRepository.findById(id);
+        
+        // Cache the result
+        if (booking.isPresent() && cacheService != null) {
+            cacheService.cacheBooking(id, booking.get());
+        }
+        
+        return booking;
     }
 
     public Optional<SimpleBooking> getBookingByPnr(String pnrNumber) {
-        return bookingRepository.findByPnrNumber(pnrNumber);
+        // Try cache first
+        if (cacheService != null) {
+            Optional<SimpleBooking> cached = cacheService.getCachedBookingByPnr(pnrNumber);
+            if (cached.isPresent()) {
+                return cached;
+            }
+        }
+        
+        Optional<SimpleBooking> booking = bookingRepository.findByPnrNumber(pnrNumber);
+        
+        // Cache the result
+        if (booking.isPresent() && cacheService != null) {
+            cacheService.cacheBookingByPnr(pnrNumber, booking.get());
+        }
+        
+        return booking;
     }
 
     public List<SimpleBooking> getBookingsByUserId(Long userId) {
-        return bookingRepository.findByUserId(userId);
+        // Try cache first
+        if (cacheService != null) {
+            Optional<List<SimpleBooking>> cached = cacheService.getCachedUserBookings(userId);
+            if (cached.isPresent()) {
+                return cached.get();
+            }
+        }
+        
+        List<SimpleBooking> bookings = bookingRepository.findByUserId(userId);
+        
+        // Cache the result
+        if (cacheService != null) {
+            cacheService.cacheUserBookings(userId, bookings);
+        }
+        
+        return bookings;
     }
 
     public SimpleBooking createBooking(SimpleBooking booking) {
@@ -36,7 +84,14 @@ public class SimpleBookingService {
         booking.setBookingTime(LocalDateTime.now());
         booking.setStatus("CONFIRMED");
         booking.setCreatedAt(LocalDateTime.now());
-        return bookingRepository.save(booking);
+        SimpleBooking saved = bookingRepository.save(booking);
+        
+        // Invalidate user bookings cache
+        if (cacheService != null) {
+            cacheService.invalidateUserBookings(saved.getUserId());
+        }
+        
+        return saved;
     }
 
     public SimpleBooking updateBooking(Long id, SimpleBooking bookingDetails) {
@@ -49,7 +104,15 @@ public class SimpleBookingService {
         booking.setTotalFare(bookingDetails.getTotalFare());
         booking.setPassengers(bookingDetails.getPassengers());
 
-        return bookingRepository.save(booking);
+        SimpleBooking saved = bookingRepository.save(booking);
+        
+        // Invalidate cache
+        if (cacheService != null) {
+            cacheService.invalidateBooking(id, saved.getPnrNumber());
+            cacheService.invalidateUserBookings(saved.getUserId());
+        }
+        
+        return saved;
     }
 
     public void cancelBooking(Long id) {
@@ -57,6 +120,12 @@ public class SimpleBookingService {
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
         booking.setStatus("CANCELLED");
         bookingRepository.save(booking);
+        
+        // Invalidate cache
+        if (cacheService != null) {
+            cacheService.invalidateBooking(id, booking.getPnrNumber());
+            cacheService.invalidateUserBookings(booking.getUserId());
+        }
     }
 
     private String generatePnr() {

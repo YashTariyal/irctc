@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping({"/api/v1/bookings", "/api/bookings"}) // Support both versioned and non-versioned
 public class SimpleBookingController {
 
     @Autowired

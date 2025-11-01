@@ -29,7 +29,19 @@ spring:
                 redis-rate-limiter.replenishRate: 10
                 redis-rate-limiter.burstCapacity: 20
         
-        # Train Service Routes
+        # Train Service Routes (v1)
+        - id: train-service-v1
+          uri: lb://IRCTC-TRAIN-SERVICE
+          predicates:
+            - Path=/api/v1/trains/**
+          filters:
+            - RewritePath=/api/v1/trains/(?<segment>.*), /api/trains/${segment}
+            - name: RequestRateLimiter
+              args:
+                key-resolver: '#{@ipKeyResolver}'
+                redis-rate-limiter.replenishRate: 15
+                redis-rate-limiter.burstCapacity: 30
+        # Train Service Routes (legacy)
         - id: train-service
           uri: lb://IRCTC-TRAIN-SERVICE
           predicates:
@@ -42,7 +54,19 @@ spring:
                 redis-rate-limiter.replenishRate: 15
                 redis-rate-limiter.burstCapacity: 30
         
-        # Booking Service Routes
+        # Booking Service Routes (v1)
+        - id: booking-service-v1
+          uri: lb://IRCTC-BOOKING-SERVICE
+          predicates:
+            - Path=/api/v1/bookings/**
+          filters:
+            - RewritePath=/api/v1/bookings/(?<segment>.*), /api/bookings/${segment}
+            - name: RequestRateLimiter
+              args:
+                key-resolver: '#{@ipKeyResolver}'
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+        # Booking Service Routes (legacy)
         - id: booking-service
           uri: lb://IRCTC-BOOKING-SERVICE
           predicates:
