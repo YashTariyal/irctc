@@ -49,6 +49,12 @@ public interface WaitlistRepository extends JpaRepository<WaitlistEntry, Long> {
     @Query("SELECT COUNT(w) FROM WaitlistEntry w WHERE w.train = :train AND w.journeyDate = :journeyDate AND w.status = 'PENDING'")
     Long countPendingWaitlistByTrainAndDate(@Param("train") Train train, @Param("journeyDate") LocalDateTime journeyDate);
     
+    @Query("SELECT COUNT(w) FROM WaitlistEntry w WHERE w.train = :train AND w.journeyDate = :journeyDate")
+    Long countByTrainAndJourneyDate(@Param("train") Train train, @Param("journeyDate") LocalDateTime journeyDate);
+    
+    @Query("SELECT COUNT(w) FROM WaitlistEntry w WHERE w.train = :train AND w.journeyDate = :journeyDate AND w.status = :status")
+    Long countByTrainJourneyDateAndStatus(@Param("train") Train train, @Param("journeyDate") LocalDateTime journeyDate, @Param("status") WaitlistEntry.WaitlistStatus status);
+    
     @Query("SELECT COUNT(w) FROM WaitlistEntry w WHERE w.coach = :coach AND w.journeyDate = :journeyDate AND w.status = 'PENDING'")
     Long countPendingWaitlistByCoachAndDate(@Param("coach") Coach coach, @Param("journeyDate") LocalDateTime journeyDate);
     

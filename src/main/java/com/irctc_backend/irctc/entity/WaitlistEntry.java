@@ -89,6 +89,9 @@ public class WaitlistEntry {
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
     
+    @Column(name = "confirmed_at")
+    private LocalDateTime confirmedAt;
+    
     @Column(name = "cancellation_reason")
     private String cancellationReason;
     

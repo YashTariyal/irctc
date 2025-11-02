@@ -52,6 +52,12 @@ public interface RacRepository extends JpaRepository<RacEntry, Long> {
     @Query("SELECT COUNT(r) FROM RacEntry r WHERE r.train = :train AND r.journeyDate = :journeyDate AND r.status = 'RAC'")
     Long countActiveRacByTrainAndDate(@Param("train") Train train, @Param("journeyDate") LocalDateTime journeyDate);
     
+    @Query("SELECT COUNT(r) FROM RacEntry r WHERE r.train = :train AND r.journeyDate = :journeyDate")
+    Long countByTrainAndJourneyDate(@Param("train") Train train, @Param("journeyDate") LocalDateTime journeyDate);
+    
+    @Query("SELECT COUNT(r) FROM RacEntry r WHERE r.train = :train AND r.journeyDate = :journeyDate AND r.status = :status")
+    Long countByTrainJourneyDateAndStatus(@Param("train") Train train, @Param("journeyDate") LocalDateTime journeyDate, @Param("status") RacEntry.RacStatus status);
+    
     @Query("SELECT COUNT(r) FROM RacEntry r WHERE r.coach = :coach AND r.journeyDate = :journeyDate AND r.status = 'RAC'")
     Long countActiveRacByCoachAndDate(@Param("coach") Coach coach, @Param("journeyDate") LocalDateTime journeyDate);
     
