@@ -2,13 +2,19 @@ package com.irctc.booking.service;
 
 import com.irctc.booking.entity.SimpleBooking;
 import com.irctc.booking.exception.EntityNotFoundException;
+import com.irctc.booking.metrics.BookingMetrics;
 import com.irctc.booking.repository.SimpleBookingRepository;
+import com.irctc.booking.websocket.BookingStatusHandler;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class SimpleBookingService {
@@ -18,6 +24,12 @@ public class SimpleBookingService {
 
     @Autowired(required = false)
     private BookingCacheService cacheService;
+
+    @Autowired(required = false)
+    private BookingMetrics bookingMetrics;
+
+    @Autowired(required = false)
+    private BookingStatusHandler bookingStatusHandler;
 
     public List<SimpleBooking> getAllBookings() {
         return bookingRepository.findAll();
@@ -81,24 +93,53 @@ public class SimpleBookingService {
     }
 
     public SimpleBooking createBooking(SimpleBooking booking) {
-        booking.setPnrNumber(generatePnr());
-        booking.setBookingTime(LocalDateTime.now());
-        booking.setStatus("CONFIRMED");
-        booking.setCreatedAt(LocalDateTime.now());
-        SimpleBooking saved = bookingRepository.save(booking);
+        Timer.Sample timer = bookingMetrics != null ? bookingMetrics.startBookingCreationTimer() : null;
         
-        // Invalidate user bookings cache
-        if (cacheService != null) {
-            cacheService.invalidateUserBookings(saved.getUserId());
+        try {
+            booking.setPnrNumber(generatePnr());
+            booking.setBookingTime(LocalDateTime.now());
+            booking.setStatus("CONFIRMED");
+            booking.setCreatedAt(LocalDateTime.now());
+            SimpleBooking saved = bookingRepository.save(booking);
+            
+            // Metrics
+            if (bookingMetrics != null) {
+                bookingMetrics.incrementBookingsCreated();
+                bookingMetrics.incrementBookingsConfirmed();
+                bookingMetrics.recordRevenue(saved.getTotalFare());
+                if (saved.getPassengers() != null) {
+                    bookingMetrics.incrementPassengersBooked(saved.getPassengers().size());
+                }
+                if (timer != null) {
+                    bookingMetrics.recordBookingCreationTime(timer);
+                }
+            }
+            
+            // Invalidate user bookings cache
+            if (cacheService != null) {
+                cacheService.invalidateUserBookings(saved.getUserId());
+            }
+            
+            // Broadcast WebSocket update asynchronously
+            if (bookingStatusHandler != null) {
+                broadcastBookingUpdateAsync(saved);
+            }
+            
+            return saved;
+        } catch (Exception e) {
+            if (bookingMetrics != null) {
+                bookingMetrics.incrementBookingsFailed();
+            }
+            throw e;
         }
-        
-        return saved;
     }
 
     public SimpleBooking updateBooking(Long id, SimpleBooking bookingDetails) {
         SimpleBooking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Booking", id));
 
+        String oldStatus = booking.getStatus();
+        
         booking.setUserId(bookingDetails.getUserId());
         booking.setTrainId(bookingDetails.getTrainId());
         booking.setStatus(bookingDetails.getStatus());
@@ -107,25 +148,77 @@ public class SimpleBookingService {
 
         SimpleBooking saved = bookingRepository.save(booking);
         
+        // Metrics - track status changes
+        if (bookingMetrics != null && !oldStatus.equals(saved.getStatus())) {
+            if ("CONFIRMED".equals(saved.getStatus())) {
+                bookingMetrics.incrementBookingsConfirmed();
+            } else if ("CANCELLED".equals(saved.getStatus())) {
+                bookingMetrics.incrementBookingsCancelled();
+            }
+        }
+        
         // Invalidate cache
         if (cacheService != null) {
             cacheService.invalidateBooking(id, saved.getPnrNumber());
             cacheService.invalidateUserBookings(saved.getUserId());
         }
         
+        // Broadcast WebSocket update asynchronously
+        if (bookingStatusHandler != null) {
+            broadcastBookingUpdateAsync(saved);
+        }
+        
         return saved;
     }
 
     public void cancelBooking(Long id) {
-        SimpleBooking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Booking", id));
-        booking.setStatus("CANCELLED");
-        bookingRepository.save(booking);
+        Timer.Sample timer = bookingMetrics != null ? bookingMetrics.startBookingCancellationTimer() : null;
         
-        // Invalidate cache
-        if (cacheService != null) {
-            cacheService.invalidateBooking(id, booking.getPnrNumber());
-            cacheService.invalidateUserBookings(booking.getUserId());
+        try {
+            SimpleBooking booking = bookingRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Booking", id));
+            booking.setStatus("CANCELLED");
+            SimpleBooking saved = bookingRepository.save(booking);
+            
+            // Metrics
+            if (bookingMetrics != null) {
+                bookingMetrics.incrementBookingsCancelled();
+                if (timer != null) {
+                    bookingMetrics.recordBookingCancellationTime(timer);
+                }
+            }
+            
+            // Invalidate cache
+            if (cacheService != null) {
+                cacheService.invalidateBooking(id, saved.getPnrNumber());
+                cacheService.invalidateUserBookings(saved.getUserId());
+            }
+            
+            // Broadcast WebSocket update asynchronously
+            if (bookingStatusHandler != null) {
+                broadcastBookingUpdateAsync(saved);
+            }
+        } catch (Exception e) {
+            if (bookingMetrics != null) {
+                bookingMetrics.incrementBookingsFailed();
+            }
+            throw e;
+        }
+    }
+
+    /**
+     * Broadcast booking update via WebSocket asynchronously
+     */
+    @Async("taskExecutor")
+    public CompletableFuture<Void> broadcastBookingUpdateAsync(SimpleBooking booking) {
+        try {
+            if (bookingStatusHandler != null) {
+                bookingStatusHandler.broadcastBookingUpdate(booking);
+            }
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            // Log error but don't fail the main operation
+            return CompletableFuture.failedFuture(e);
         }
     }
 

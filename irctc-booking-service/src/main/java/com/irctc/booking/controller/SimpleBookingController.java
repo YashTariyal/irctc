@@ -4,11 +4,13 @@ import com.irctc.booking.annotation.Auditable;
 import com.irctc.booking.entity.SimpleBooking;
 import com.irctc.booking.service.SimpleBookingService;
 import com.irctc.booking.service.IdempotencyService;
+import com.irctc.booking.service.AsyncBookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping({"/api/v1/bookings", "/api/bookings"}) // Support both versioned and non-versioned
@@ -19,6 +21,9 @@ public class SimpleBookingController {
 
     @Autowired
     private IdempotencyService idempotencyService;
+
+    @Autowired(required = false)
+    private AsyncBookingService asyncBookingService;
 
     @GetMapping
     public ResponseEntity<List<SimpleBooking>> getAllBookings() {
@@ -121,6 +126,27 @@ public class SimpleBookingController {
                 .filter(booking -> status.equalsIgnoreCase(booking.getStatus()))
                 .toList();
         return ResponseEntity.ok(bookings);
+    }
+
+    // ===== ASYNC OPERATIONS =====
+
+    @PostMapping("/async/bulk")
+    @Auditable(entityType = "Booking", action = "BULK_CREATE")
+    public ResponseEntity<String> createBulkBookingsAsync(@RequestBody List<SimpleBooking> bookings) {
+        if (asyncBookingService != null) {
+            CompletableFuture<List<SimpleBooking>> future = asyncBookingService.processBulkBookings(bookings);
+            return ResponseEntity.accepted().body("Processing " + bookings.size() + " bookings asynchronously");
+        }
+        return ResponseEntity.badRequest().body("Async service not available");
+    }
+
+    @GetMapping("/user/{userId}/report")
+    public ResponseEntity<String> generateBookingReport(@PathVariable Long userId) {
+        if (asyncBookingService != null) {
+            CompletableFuture<String> reportFuture = asyncBookingService.generateBookingReport(userId);
+            return ResponseEntity.accepted().body("Booking report generation started for user: " + userId);
+        }
+        return ResponseEntity.badRequest().body("Async service not available");
     }
     
     @GetMapping("/payment-status/{paymentStatus}")
