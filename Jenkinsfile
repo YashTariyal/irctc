@@ -4,14 +4,11 @@
 pipeline {
     agent any
     
-    tools {
-        maven 'Maven-3.9'
-        jdk 'JDK-21'
-    }
-    
     environment {
-        JAVA_HOME = tool 'JDK-21'
-        MAVEN_HOME = tool 'Maven-3.9'
+        // Use system Java if JDK tool not configured
+        JAVA_HOME = "${tool 'JDK-21' ?: env.JAVA_HOME ?: '/usr/lib/jvm/java-21-openjdk'}"
+        // Use Maven wrapper if Maven tool not configured
+        PATH = "${env.PATH}:${pwd()}"
     }
     
     stages {
@@ -30,7 +27,11 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🔨 Building application with Maven...'
-                sh './mvnw clean compile -DskipTests'
+                echo "Java Version: ${sh(returnStdout: true, script: 'java -version 2>&1').trim()}"
+                sh '''
+                    chmod +x ./mvnw || true
+                    ./mvnw clean compile -DskipTests
+                '''
             }
         }
         
@@ -50,7 +51,11 @@ pipeline {
         stage('Package') {
             steps {
                 echo '📦 Packaging application...'
-                sh './mvnw package -DskipTests'
+                sh '''
+                    ./mvnw package -DskipTests
+                    echo "JAR files created:"
+                    ls -lh target/*.jar || echo "No JAR files found"
+                '''
             }
             post {
                 success {

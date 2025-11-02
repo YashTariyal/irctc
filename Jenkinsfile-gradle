@@ -4,15 +4,11 @@
 pipeline {
     agent any
     
-    tools {
-        gradle 'Gradle-8.10'
-        jdk 'JDK-21'
-    }
-    
     environment {
-        JAVA_HOME = tool 'JDK-21'
-        GRADLE_HOME = tool 'Gradle-8.10'
-        PATH = "${GRADLE_HOME}/bin:${JAVA_HOME}/bin:${PATH}"
+        // Use system Java if JDK tool not configured
+        JAVA_HOME = "${tool 'JDK-21' ?: env.JAVA_HOME ?: '/usr/lib/jvm/java-21-openjdk'}"
+        // Use Gradle wrapper if Gradle tool not configured
+        PATH = "${env.PATH}:${pwd()}"
     }
     
     stages {
@@ -31,7 +27,11 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🔨 Building application with Gradle...'
-                sh './gradlew clean compileJava -x test'
+                echo "Java Version: ${sh(returnStdout: true, script: 'java -version 2>&1').trim()}"
+                sh '''
+                    chmod +x ./gradlew || true
+                    ./gradlew clean compileJava -x test
+                '''
             }
         }
         
