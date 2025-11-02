@@ -69,8 +69,59 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🔨 Building application with Maven...'
-                echo "Java Version: ${sh(returnStdout: true, script: 'java -version 2>&1').trim()}"
+                script {
+                    // Find Java location and set JAVA_HOME
+                    def javaHome = sh(script: '''
+                        if [ -n "$JAVA_HOME" ]; then
+                            echo "$JAVA_HOME"
+                        else
+                            # Try to find Java
+                            java_path=$(which java 2>/dev/null)
+                            if [ -n "$java_path" ]; then
+                                java_dir=$(dirname "$java_path")
+                                dirname "$java_dir"
+                            else
+                                # Default locations
+                                if [ -d "/usr/lib/jvm/java-21-openjdk" ]; then
+                                    echo "/usr/lib/jvm/java-21-openjdk"
+                                elif [ -d "/Library/Java/JavaVirtualMachines" ]; then
+                                    # macOS - find latest JDK
+                                    ls -d /Library/Java/JavaVirtualMachines/*/Contents/Home 2>/dev/null | head -1 || echo ""
+                                else
+                                    echo ""
+                                fi
+                            fi
+                        fi
+                    ''', returnStdout: true).trim()
+                    
+                    if (javaHome) {
+                        env.JAVA_HOME = javaHome
+                        echo "✅ JAVA_HOME set to: ${javaHome}"
+                    } else {
+                        echo "⚠️  Could not detect JAVA_HOME, using system Java"
+                    }
+                    
+                    echo "Java Version: ${sh(returnStdout: true, script: 'java -version 2>&1').trim()}"
+                }
                 sh '''
+                    # Ensure JAVA_HOME is set for this shell
+                    if [ -z "$JAVA_HOME" ]; then
+                        # Try to find Java
+                        JAVA_PATH=$(which java 2>/dev/null)
+                        if [ -n "$JAVA_PATH" ]; then
+                            JAVA_DIR=$(dirname "$JAVA_PATH")
+                            export JAVA_HOME=$(dirname "$JAVA_DIR")
+                        fi
+                    fi
+                    
+                    # Verify JAVA_HOME
+                    if [ -n "$JAVA_HOME" ]; then
+                        echo "Using JAVA_HOME: $JAVA_HOME"
+                        export JAVA_HOME
+                    else
+                        echo "⚠️  Warning: JAVA_HOME not set, Maven wrapper will try to find Java"
+                    fi
+                    
                     chmod +x ./mvnw || true
                     ./mvnw clean compile -DskipTests
                 '''
