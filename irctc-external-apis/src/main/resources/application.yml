@@ -14,11 +14,17 @@ resilience4j:
   retry:
     instances:
       railways:
-        max-attempts: 3
-        wait-duration: 300ms
+        max-attempts: 5
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        exponential-max-wait-duration: 30s
         retry-exceptions:
           - java.io.IOException
+          - java.net.ConnectException
+          - java.util.concurrent.TimeoutException
           - org.springframework.web.reactive.function.client.WebClientResponseException$InternalServerError
+          - org.springframework.web.reactive.function.client.WebClientResponseException$ServiceUnavailable
         ignore-exceptions:
           - org.springframework.web.reactive.function.client.WebClientResponseException$BadRequest
 

@@ -24,10 +24,8 @@ public class SimpleNotificationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SimpleNotification> getNotificationById(@PathVariable Long id) {
+        // Service will throw EntityNotFoundException if not found
         SimpleNotification notification = notificationService.getNotificationById(id);
-        if (notification == null) {
-            throw new com.irctc.notification.exception.EntityNotFoundException("Notification", id);
-        }
         return ResponseEntity.ok(notification);
     }
 
