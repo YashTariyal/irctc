@@ -15,11 +15,35 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo '🔄 Checking out code from repository...'
-                checkout scm
                 script {
-                    def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-                    env.GIT_COMMIT_SHORT = gitCommit
-                    echo "📦 Git commit: ${gitCommit}"
+                    try {
+                        // Try using checkout scm (works if Pipeline script from SCM)
+                        checkout scm
+                        echo "✅ Checked out using SCM"
+                    } catch (Exception e) {
+                        echo "⚠️  SCM checkout not available, using manual checkout"
+                        // Manual git checkout (works for inline scripts)
+                        sh '''
+                            if [ -d .git ]; then
+                                echo "Git repository already exists, pulling latest..."
+                                git fetch --all
+                                git reset --hard origin/main || git reset --hard origin/master || true
+                            else
+                                echo "No git repository found, skipping checkout"
+                                echo "💡 Tip: Use 'Pipeline script from SCM' for automatic checkout"
+                            fi
+                        '''
+                    }
+                    
+                    // Get git commit info if available
+                    try {
+                        def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short HEAD 2>/dev/null || echo "N/A"').trim()
+                        env.GIT_COMMIT_SHORT = gitCommit
+                        echo "📦 Git commit: ${gitCommit}"
+                    } catch (Exception e) {
+                        env.GIT_COMMIT_SHORT = "N/A"
+                        echo "📦 Git commit: N/A (not a git repository or git not available)"
+                    }
                 }
             }
         }
