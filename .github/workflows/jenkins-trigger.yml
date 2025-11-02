@@ -63,7 +63,7 @@ jobs:
 
     - name: Trigger Jenkins Build
       if: steps.verify_jenkins.outputs.skip != 'true'
-      uses: appleboy/jenkins-action@master
+      uses: appleboy/jenkins-action@v1.0.0
       with:
         url: ${{ secrets.JENKINS_URL }}
         user: ${{ secrets.JENKINS_USER }}
