@@ -1,0 +1,113 @@
+// Jenkinsfile for Gradle-based Pipeline
+// Use this Jenkinsfile if you want to use Gradle instead of Maven
+
+pipeline {
+    agent any
+    
+    tools {
+        gradle 'Gradle-8.10'
+        jdk 'JDK-21'
+    }
+    
+    environment {
+        JAVA_HOME = tool 'JDK-21'
+        GRADLE_HOME = tool 'Gradle-8.10'
+        PATH = "${GRADLE_HOME}/bin:${JAVA_HOME}/bin:${PATH}"
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '🔄 Checking out code from repository...'
+                checkout scm
+                script {
+                    def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+                    env.GIT_COMMIT_SHORT = gitCommit
+                    echo "📦 Git commit: ${gitCommit}"
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo '🔨 Building application with Gradle...'
+                sh './gradlew clean compileJava -x test'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo '🧪 Running tests...'
+                sh './gradlew test'
+            }
+            post {
+                always {
+                    junit 'build/test-results/test/**/*.xml'
+                    publishTestResults testResultsPattern: 'build/test-results/test/**/*.xml'
+                }
+            }
+        }
+        
+        stage('Package') {
+            steps {
+                echo '📦 Packaging application...'
+                sh './gradlew bootJar -x test'
+            }
+            post {
+                success {
+                    echo '✅ Application packaged successfully'
+                    archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
+                }
+            }
+        }
+        
+        stage('Publish') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'release/*'
+                    expression { env.GITHUB_EVENT == 'release' }
+                }
+            }
+            steps {
+                echo '📤 Publishing to GitHub Packages...'
+                script {
+                    withCredentials([
+                        string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN'),
+                        string(credentialsId: 'github-owner', variable: 'GITHUB_OWNER'),
+                        string(credentialsId: 'github-repo', variable: 'GITHUB_REPO')
+                    ]) {
+                        sh """
+                            ./gradlew publish \
+                                -Pgithub.owner=${env.GITHUB_OWNER} \
+                                -Pgithub.repo=${env.GITHUB_REPO} \
+                                -Pgpr.user=${env.GITHUB_OWNER} \
+                                -Pgpr.token=${env.GITHUB_TOKEN}
+                        """
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo '📊 Build Summary:'
+            echo "   Status: ${currentBuild.currentResult}"
+            echo "   Build Number: ${env.BUILD_NUMBER}"
+            echo "   Git Commit: ${env.GIT_COMMIT_SHORT ?: 'N/A'}"
+            echo "   Gradle Version: ${sh(returnStdout: true, script: './gradlew --version | grep Gradle').trim()}"
+            cleanWs()
+        }
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed!'
+        }
+        unstable {
+            echo '⚠️  Pipeline completed with warnings'
+        }
+    }
+}
+
