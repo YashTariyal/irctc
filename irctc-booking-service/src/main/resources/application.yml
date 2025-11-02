@@ -7,6 +7,10 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
+    config:
+      enabled: false
+      import-check:
+        enabled: false
 
   datasource:
     url: jdbc:h2:mem:testdb

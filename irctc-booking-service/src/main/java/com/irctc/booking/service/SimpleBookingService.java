@@ -1,6 +1,7 @@
 package com.irctc.booking.service;
 
 import com.irctc.booking.entity.SimpleBooking;
+import com.irctc.booking.exception.EntityNotFoundException;
 import com.irctc.booking.repository.SimpleBookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -96,7 +97,7 @@ public class SimpleBookingService {
 
     public SimpleBooking updateBooking(Long id, SimpleBooking bookingDetails) {
         SimpleBooking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Booking", id));
 
         booking.setUserId(bookingDetails.getUserId());
         booking.setTrainId(bookingDetails.getTrainId());
@@ -117,7 +118,7 @@ public class SimpleBookingService {
 
     public void cancelBooking(Long id) {
         SimpleBooking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Booking", id));
         booking.setStatus("CANCELLED");
         bookingRepository.save(booking);
         

@@ -27,16 +27,16 @@ public class SimpleBookingController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SimpleBooking> getBookingById(@PathVariable Long id) {
-        return bookingService.getBookingById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        SimpleBooking booking = bookingService.getBookingById(id)
+                .orElseThrow(() -> new com.irctc.booking.exception.EntityNotFoundException("Booking", id));
+        return ResponseEntity.ok(booking);
     }
 
     @GetMapping("/pnr/{pnrNumber}")
     public ResponseEntity<SimpleBooking> getBookingByPnr(@PathVariable String pnrNumber) {
-        return bookingService.getBookingByPnr(pnrNumber)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        SimpleBooking booking = bookingService.getBookingByPnr(pnrNumber)
+                .orElseThrow(() -> new com.irctc.booking.exception.EntityNotFoundException("Booking", pnrNumber));
+        return ResponseEntity.ok(booking);
     }
 
     @GetMapping("/user/{userId}")
