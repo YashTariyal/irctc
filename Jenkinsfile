@@ -5,8 +5,8 @@ pipeline {
     agent any
     
     environment {
-        // Use system Java if JDK tool not configured
-        JAVA_HOME = "${tool 'JDK-21' ?: env.JAVA_HOME ?: '/usr/lib/jvm/java-21-openjdk'}"
+        // Use system Java from environment or default location
+        JAVA_HOME = "${env.JAVA_HOME ?: sh(script: 'echo $JAVA_HOME', returnStdout: true).trim() ?: '/usr/lib/jvm/java-21-openjdk'}"
         // Use Maven wrapper if Maven tool not configured
         PATH = "${env.PATH}:${pwd()}"
     }
@@ -87,27 +87,37 @@ pipeline {
     
     post {
         always {
-            echo '📊 Build Summary:'
-            echo "   Status: ${currentBuild.currentResult}"
-            echo "   Build Number: ${env.BUILD_NUMBER}"
-            echo "   Git Commit: ${env.GIT_COMMIT_SHORT ?: 'N/A'}"
-            cleanWs()
+            script {
+                echo '📊 Build Summary:'
+                echo "   Status: ${currentBuild.currentResult}"
+                echo "   Build Number: ${env.BUILD_NUMBER}"
+                echo "   Git Commit: ${env.GIT_COMMIT_SHORT ?: 'N/A'}"
+                // Clean workspace if inside node context
+                try {
+                    cleanWs()
+                } catch (Exception e) {
+                    echo "⚠️  Workspace cleanup skipped: ${e.message}"
+                }
+            }
         }
         success {
             echo '✅ Pipeline completed successfully!'
-            emailext (
-                subject: "✅ Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Build ${env.BUILD_NUMBER} completed successfully.",
-                to: "${env.CHANGE_AUTHOR_EMAIL ?: 'admin@example.com'}"
-            )
+            // Email disabled - configure SMTP in Jenkins if needed
+            // emailext (
+            //     subject: "✅ Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            //     body: "Build ${env.BUILD_NUMBER} completed successfully.",
+            //     to: "${env.CHANGE_AUTHOR_EMAIL ?: 'admin@example.com'}"
+            // )
         }
         failure {
             echo '❌ Pipeline failed!'
-            emailext (
-                subject: "❌ Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Build ${env.BUILD_NUMBER} failed. Check console output.",
-                to: "${env.CHANGE_AUTHOR_EMAIL ?: 'admin@example.com'}"
-            )
+            echo "Check console output for details."
+            // Email disabled - configure SMTP in Jenkins if needed
+            // emailext (
+            //     subject: "❌ Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            //     body: "Build ${env.BUILD_NUMBER} failed. Check console output.",
+            //     to: "${env.CHANGE_AUTHOR_EMAIL ?: 'admin@example.com'}"
+            // )
         }
         unstable {
             echo '⚠️  Pipeline completed with warnings'
