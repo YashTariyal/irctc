@@ -11,9 +11,9 @@ spring:
       default-filters:
         - name: RequestRateLimiter
           args:
-            key-resolver: '#{@ipKeyResolver}'
-            redis-rate-limiter.replenishRate: 20
-            redis-rate-limiter.burstCapacity: 40
+            key-resolver: '#{@userKeyResolver}'
+            redis-rate-limiter.replenishRate: 30
+            redis-rate-limiter.burstCapacity: 60
             redis-rate-limiter.requestedTokens: 1
       routes:
         # User Service Routes
@@ -25,9 +25,9 @@ spring:
             - RewritePath=/api/users/(?<segment>.*), /api/users/${segment}
             - name: RequestRateLimiter
               args:
-                key-resolver: '#{@ipKeyResolver}'
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
+                key-resolver: '#{@userKeyResolver}'
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
         
         # Train Service Routes (v1)
         - id: train-service-v1
@@ -63,9 +63,9 @@ spring:
             - RewritePath=/api/v1/bookings/(?<segment>.*), /api/bookings/${segment}
             - name: RequestRateLimiter
               args:
-                key-resolver: '#{@ipKeyResolver}'
-                redis-rate-limiter.replenishRate: 5
-                redis-rate-limiter.burstCapacity: 10
+                key-resolver: '#{@userKeyResolver}'
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
         # Booking Service Routes (legacy)
         - id: booking-service
           uri: lb://IRCTC-BOOKING-SERVICE
