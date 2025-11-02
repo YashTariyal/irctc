@@ -1,0 +1,103 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+
+name: Maven Package - Monolith
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:  # Allows manual triggering
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'pom.xml'
+      - 'src/**'
+      - '.github/workflows/maven-package.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Build with Maven
+      run: mvn -B clean package --file pom.xml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run tests
+      run: mvn -B test --file pom.xml
+      continue-on-error: true  # Don't fail build if tests fail (optional)
+
+    - name: Publish to GitHub Packages (on release)
+      if: github.event_name == 'release'
+      run: |
+        # Create settings.xml for GitHub Packages authentication
+        mkdir -p ${{ github.workspace }}
+        cat > ${{ github.workspace }}/settings.xml <<EOF
+        <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0
+          http://maven.apache.org/xsd/settings-1.2.0.xsd">
+          <servers>
+            <server>
+              <id>github</id>
+              <username>\${env.GITHUB_ACTOR}</username>
+              <password>\${env.GITHUB_TOKEN}</password>
+            </server>
+          </servers>
+        </settings>
+        EOF
+        mvn deploy -s ${{ github.workspace }}/settings.xml \
+          -Dgithub.owner=${{ github.repository_owner }} \
+          -Dgithub.repo=${{ github.event.repository.name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+        GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+    - name: Upload JAR artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: irctc-monolith-jar
+        path: target/*.jar
+        retention-days: 30
+
+    - name: Generate build report
+      if: always()
+      run: |
+        echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Java Version**: 21" >> $GITHUB_STEP_SUMMARY
+        echo "- **Maven Version**: $(mvn -version | head -1)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+        if [ -f target/*.jar ]; then
+          echo "- **JAR File**: ✅ Generated" >> $GITHUB_STEP_SUMMARY
+          ls -lh target/*.jar | awk '{print "- **Size**: " $5}' >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- **JAR File**: ❌ Not generated" >> $GITHUB_STEP_SUMMARY
+        fi
+
