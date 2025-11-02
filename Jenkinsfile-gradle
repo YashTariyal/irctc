@@ -5,10 +5,9 @@ pipeline {
     agent any
     
     environment {
-        // Use system Java from environment or default location
-        JAVA_HOME = "${env.JAVA_HOME ?: sh(script: 'echo $JAVA_HOME', returnStdout: true).trim() ?: '/usr/lib/jvm/java-21-openjdk'}"
         // Use Gradle wrapper if Gradle tool not configured
         PATH = "${env.PATH}:${pwd()}"
+        // Don't set JAVA_HOME here - let the build stage detect it properly
     }
     
     stages {
@@ -104,22 +103,68 @@ pipeline {
                     echo "Java Version: ${sh(returnStdout: true, script: 'java -version 2>&1').trim()}"
                 }
                 sh '''
-                    # Ensure JAVA_HOME is set for this shell
-                    if [ -z "$JAVA_HOME" ]; then
-                        # Try to find Java
+                    # Find and set JAVA_HOME properly
+                    # First, check if existing JAVA_HOME is valid
+                    if [ -n "$JAVA_HOME" ] && [ -d "$JAVA_HOME" ] && [ -f "$JAVA_HOME/bin/java" ]; then
+                        echo "Using existing JAVA_HOME: $JAVA_HOME"
+                        export JAVA_HOME
+                    else
+                        # Find Java using which
                         JAVA_PATH=$(which java 2>/dev/null)
                         if [ -n "$JAVA_PATH" ]; then
-                            JAVA_DIR=$(dirname "$JAVA_PATH")
-                            export JAVA_HOME=$(dirname "$JAVA_DIR")
+                            # Resolve symlinks and get real path
+                            JAVA_PATH=$(readlink -f "$JAVA_PATH" 2>/dev/null || echo "$JAVA_PATH")
+                            # For macOS, use realpath or calculate manually
+                            if [[ "$OSTYPE" == "darwin"* ]]; then
+                                # macOS: /usr/bin/java -> /Library/Java/JavaVirtualMachines/.../Contents/Home/bin/java
+                                JAVA_DIR=$(dirname "$JAVA_PATH")
+                                # Check if we're in a bin directory
+                                if [[ "$JAVA_DIR" == */bin ]]; then
+                                    export JAVA_HOME=$(dirname "$JAVA_DIR")
+                                else
+                                    # Try to go up to find Home
+                                    export JAVA_HOME=$(dirname "$JAVA_DIR")
+                                fi
+                            else
+                                # Linux: usually /usr/bin/java -> /usr/lib/jvm/java-21-openjdk/bin/java
+                                JAVA_DIR=$(dirname "$JAVA_PATH")
+                                export JAVA_HOME=$(dirname "$JAVA_DIR")
+                            fi
+                            
+                            # Verify JAVA_HOME exists
+                            if [ -n "$JAVA_HOME" ] && [ -d "$JAVA_HOME" ] && [ -f "$JAVA_HOME/bin/java" ]; then
+                                echo "✅ Detected JAVA_HOME: $JAVA_HOME"
+                                export JAVA_HOME
+                            else
+                                # Try macOS default locations
+                                if [[ "$OSTYPE" == "darwin"* ]]; then
+                                    MACOS_JAVA=$(/usr/libexec/java_home 2>/dev/null || ls -d /Library/Java/JavaVirtualMachines/*/Contents/Home 2>/dev/null | head -1)
+                                    if [ -n "$MACOS_JAVA" ] && [ -d "$MACOS_JAVA" ]; then
+                                        export JAVA_HOME="$MACOS_JAVA"
+                                        echo "✅ Using macOS Java: $JAVA_HOME"
+                                    else
+                                        echo "⚠️  Could not find valid JAVA_HOME"
+                                        unset JAVA_HOME
+                                    fi
+                                else
+                                    echo "⚠️  Could not find valid JAVA_HOME"
+                                    unset JAVA_HOME
+                                fi
+                            fi
+                        else
+                            echo "⚠️  Java not found in PATH"
+                            unset JAVA_HOME
                         fi
                     fi
                     
-                    # Verify JAVA_HOME
-                    if [ -n "$JAVA_HOME" ]; then
-                        echo "Using JAVA_HOME: $JAVA_HOME"
+                    # Final verification
+                    if [ -n "$JAVA_HOME" ] && [ -f "$JAVA_HOME/bin/java" ]; then
+                        echo "✅ Using JAVA_HOME: $JAVA_HOME"
+                        echo "Java version: $($JAVA_HOME/bin/java -version 2>&1 | head -1)"
                         export JAVA_HOME
                     else
-                        echo "⚠️  Warning: JAVA_HOME not set, Gradle wrapper will try to find Java"
+                        echo "⚠️  Warning: JAVA_HOME not properly set, Gradle wrapper will attempt to find Java"
+                        echo "Java path: $(which java 2>/dev/null || echo 'not found')"
                     fi
                     
                     chmod +x ./gradlew || true
