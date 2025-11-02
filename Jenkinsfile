@@ -23,16 +23,34 @@ pipeline {
                     } catch (Exception e) {
                         echo "⚠️  SCM checkout not available, using manual checkout"
                         // Manual git checkout (works for inline scripts)
-                        sh '''
-                            if [ -d .git ]; then
-                                echo "Git repository already exists, pulling latest..."
-                                git fetch --all
-                                git reset --hard origin/main || git reset --hard origin/master || true
-                            else
-                                echo "No git repository found, skipping checkout"
-                                echo "💡 Tip: Use 'Pipeline script from SCM' for automatic checkout"
-                            fi
-                        '''
+                        script {
+                            def repoUrl = env.GIT_URL ?: 'https://github.com/YOUR_USERNAME/irctc.git'
+                            def branch = env.GIT_BRANCH ?: 'main'
+                            
+                            sh """
+                                if [ -d .git ]; then
+                                    echo "Git repository already exists, pulling latest..."
+                                    git fetch --all || true
+                                    git reset --hard origin/${branch} || git reset --hard origin/main || git reset --hard origin/master || true
+                                else
+                                    echo "No git repository found, cloning..."
+                                    echo "Repository: ${repoUrl}"
+                                    echo "Branch: ${branch}"
+                                    echo ""
+                                    echo "⚠️  Using default repository URL. For your repo, set GIT_URL environment variable"
+                                    echo "   or configure 'Pipeline script from SCM' (recommended)"
+                                    echo ""
+                                    # Try to clone if git is available
+                                    if command -v git >/dev/null 2>&1; then
+                                        git clone --depth 1 --branch ${branch} ${repoUrl} . || \
+                                        git clone --depth 1 ${repoUrl} . || \
+                                        echo "⚠️  Could not clone repository. Please configure repository URL or use 'Pipeline script from SCM'"
+                                    else
+                                        echo "⚠️  Git not found. Please install git or use 'Pipeline script from SCM'"
+                                    fi
+                                fi
+                            """
+                        }
                     }
                     
                     // Get git commit info if available
