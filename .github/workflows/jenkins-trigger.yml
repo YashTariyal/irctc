@@ -1,5 +1,9 @@
 # GitHub Actions workflow to trigger Jenkins pipeline
 # This workflow can be triggered manually or on specific events
+# 
+# Prerequisites:
+# - Add GitHub Secrets: JENKINS_URL, JENKINS_USER, JENKINS_TOKEN
+# - Configure Jenkins job with matching name
 
 name: Trigger Jenkins Pipeline
 
@@ -14,6 +18,14 @@ on:
         description: 'Branch to build'
         required: false
         default: 'main'
+      skip_jenkins:
+        description: 'Skip Jenkins trigger (for testing)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
   push:
     branches:
       - main
@@ -24,12 +36,34 @@ on:
 jobs:
   trigger-jenkins:
     runs-on: ubuntu-latest
+    # Skip job if secrets are not configured
+    if: github.event.inputs.skip_jenkins != 'true'
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Verify Jenkins Configuration
+      id: verify_jenkins
+      run: |
+        if [ -z "${{ secrets.JENKINS_URL }}" ] || [ -z "${{ secrets.JENKINS_USER }}" ] || [ -z "${{ secrets.JENKINS_TOKEN }}" ]; then
+          echo "⚠️ Jenkins secrets not configured"
+          echo "Please add the following GitHub Secrets:"
+          echo "  - JENKINS_URL"
+          echo "  - JENKINS_USER"
+          echo "  - JENKINS_TOKEN"
+          echo ""
+          echo "Go to: Settings → Secrets and variables → Actions"
+          echo ""
+          echo "Skipping Jenkins trigger..."
+          echo "skip=true" >> $GITHUB_OUTPUT
+        else
+          echo "✅ Jenkins configuration found"
+          echo "skip=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Trigger Jenkins Build
-      uses: appleboy/jenkins-action@master
+      if: steps.verify_jenkins.outputs.skip != 'true'
+      uses: appleboy/jenkins-action@v1.0.10
       with:
         url: ${{ secrets.JENKINS_URL }}
         user: ${{ secrets.JENKINS_USER }}
@@ -40,10 +74,30 @@ jobs:
           GIT_COMMIT=${{ github.sha }}
           GIT_REPO=${{ github.repository }}
           BUILD_NUMBER=${{ github.run_number }}
+          GITHUB_RUN_ID=${{ github.run_id }}
 
-    - name: Wait for Jenkins Build
+    - name: Jenkins Build Status
+      if: steps.verify_jenkins.outputs.skip != 'true'
       run: |
         echo "✅ Jenkins build triggered successfully"
         echo "Job: ${{ github.event.inputs.jenkins_job || 'irctc-monolith-build' }}"
-        echo "Check Jenkins dashboard for build status"
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+        echo ""
+        echo "Check Jenkins dashboard for build status:"
+        echo "${{ secrets.JENKINS_URL }}/job/${{ github.event.inputs.jenkins_job || 'irctc-monolith-build' }}"
+
+    - name: Jenkins Not Configured
+      if: steps.verify_jenkins.outputs.skip == 'true'
+      run: |
+        echo "⚠️ Jenkins integration skipped"
+        echo ""
+        echo "To enable Jenkins integration:"
+        echo "1. Go to: Settings → Secrets and variables → Actions"
+        echo "2. Add the following secrets:"
+        echo "   - JENKINS_URL: Your Jenkins server URL (e.g., https://jenkins.example.com)"
+        echo "   - JENKINS_USER: Your Jenkins username"
+        echo "   - JENKINS_TOKEN: Your Jenkins API token"
+        echo ""
+        echo "See JENKINS_GITHUB_INTEGRATION.md for detailed setup instructions"
 
