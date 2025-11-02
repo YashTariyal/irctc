@@ -110,9 +110,13 @@ jobs:
         echo "- **Java Version**: 21" >> $GITHUB_STEP_SUMMARY
         echo "- **Maven Version**: $(./mvnw -version | head -1)" >> $GITHUB_STEP_SUMMARY
         echo "- **Build Time**: $(date)" >> $GITHUB_STEP_SUMMARY
-        if [ -f target/*.jar ]; then
+        if ls target/*.jar > /dev/null 2>&1; then
           echo "- **JAR File**: ✅ Generated" >> $GITHUB_STEP_SUMMARY
-          ls -lh target/*.jar | awk '{print "- **Size**: " $5}' >> $GITHUB_STEP_SUMMARY
+          JAR_FILE=$(ls -t target/*.jar | head -1)
+          if [ -n "$JAR_FILE" ]; then
+            ls -lh "$JAR_FILE" | awk '{print "- **Size**: " $5}' >> $GITHUB_STEP_SUMMARY
+            echo "- **File**: $(basename "$JAR_FILE")" >> $GITHUB_STEP_SUMMARY
+          fi
         else
           echo "- **JAR File**: ❌ Not generated" >> $GITHUB_STEP_SUMMARY
         fi
