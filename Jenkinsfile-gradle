@@ -69,38 +69,21 @@ pipeline {
             steps {
                 echo '🔨 Building application with Gradle...'
                 script {
-                    // Find Java location and set JAVA_HOME
-                    def javaHome = sh(script: '''
-                        if [ -n "$JAVA_HOME" ]; then
-                            echo "$JAVA_HOME"
-                        else
-                            # Try to find Java
-                            java_path=$(which java 2>/dev/null)
-                            if [ -n "$java_path" ]; then
-                                java_dir=$(dirname "$java_path")
-                                dirname "$java_dir"
-                            else
-                                # Default locations
-                                if [ -d "/usr/lib/jvm/java-21-openjdk" ]; then
-                                    echo "/usr/lib/jvm/java-21-openjdk"
-                                elif [ -d "/Library/Java/JavaVirtualMachines" ]; then
-                                    # macOS - find latest JDK
-                                    ls -d /Library/Java/JavaVirtualMachines/*/Contents/Home 2>/dev/null | head -1 || echo ""
-                                else
-                                    echo ""
-                                fi
-                            fi
-                        fi
-                    ''', returnStdout: true).trim()
+                    // Find Java location and set JAVA_HOME (info only, actual detection in shell script)
+                    def javaVersion = sh(returnStdout: true, script: 'java -version 2>&1 | head -1', ).trim()
+                    echo "Java Version: ${javaVersion}"
                     
-                    if (javaHome) {
-                        env.JAVA_HOME = javaHome
-                        echo "✅ JAVA_HOME set to: ${javaHome}"
-                    } else {
-                        echo "⚠️  Could not detect JAVA_HOME, using system Java"
+                    // For macOS, show detected Java home (info only)
+                    if (isUnix()) {
+                        def osType = sh(script: 'echo "$OSTYPE"', returnStdout: true).trim()
+                        if (osType.contains("darwin")) {
+                            def macJava = sh(script: '/usr/libexec/java_home 2>/dev/null || echo ""', returnStdout: true).trim()
+                            if (macJava) {
+                                echo "✅ macOS Java detected at: ${macJava}"
+                            }
+                        }
                     }
-                    
-                    echo "Java Version: ${sh(returnStdout: true, script: 'java -version 2>&1').trim()}"
+                    // Note: JAVA_HOME will be set in the actual build shell script for proper export
                 }
                 sh '''
                     # Find and set JAVA_HOME properly for macOS/Linux
