@@ -23,16 +23,16 @@ public class SimplePaymentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SimplePayment> getPaymentById(@PathVariable Long id) {
-        return paymentService.getPaymentById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        SimplePayment payment = paymentService.getPaymentById(id)
+                .orElseThrow(() -> new com.irctc.payment.exception.EntityNotFoundException("Payment", id));
+        return ResponseEntity.ok(payment);
     }
 
     @GetMapping("/transaction/{transactionId}")
     public ResponseEntity<SimplePayment> getPaymentByTransactionId(@PathVariable String transactionId) {
-        return paymentService.getPaymentByTransactionId(transactionId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        SimplePayment payment = paymentService.getPaymentByTransactionId(transactionId)
+                .orElseThrow(() -> new com.irctc.payment.exception.EntityNotFoundException("Payment", transactionId));
+        return ResponseEntity.ok(payment);
     }
 
     @GetMapping("/booking/{bookingId}")
@@ -74,7 +74,7 @@ public class SimplePaymentController {
     @PutMapping("/{id}/status")
     public ResponseEntity<SimplePayment> updatePaymentStatus(@PathVariable Long id, @RequestParam String status) {
         SimplePayment payment = paymentService.getPaymentById(id)
-                .orElseThrow(() -> new RuntimeException("Payment not found with id: " + id));
+                .orElseThrow(() -> new com.irctc.payment.exception.EntityNotFoundException("Payment", id));
         payment.setStatus(status);
         SimplePayment updatedPayment = paymentService.refundPayment(id); // Reuse existing method
         return ResponseEntity.ok(updatedPayment);
@@ -111,7 +111,7 @@ public class SimplePaymentController {
             Double refundAmount = Double.valueOf(refundData.get("refundAmount").toString());
             
             SimplePayment payment = paymentService.getPaymentById(paymentId)
-                    .orElseThrow(() -> new RuntimeException("Payment not found"));
+                    .orElseThrow(() -> new com.irctc.payment.exception.EntityNotFoundException("Payment", paymentId));
             
             if (payment.getAmount() < refundAmount) {
                 return ResponseEntity.badRequest().body(null);

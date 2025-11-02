@@ -33,16 +33,16 @@ public class MinimalUserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SimpleUser> getUserById(@PathVariable Long id) {
-        return userRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        SimpleUser user = userRepository.findById(id)
+                .orElseThrow(() -> new com.irctc.user.exception.EntityNotFoundException("User", id));
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/username/{username}")
     public ResponseEntity<SimpleUser> getUserByUsername(@PathVariable String username) {
-        return userRepository.findByUsername(username)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        SimpleUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new com.irctc.user.exception.EntityNotFoundException("User", username));
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping
@@ -54,7 +54,7 @@ public class MinimalUserController {
     @PutMapping("/{id}")
     public ResponseEntity<SimpleUser> updateUser(@PathVariable Long id, @RequestBody SimpleUser user) {
         SimpleUser existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new com.irctc.user.exception.EntityNotFoundException("User", id));
         
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());

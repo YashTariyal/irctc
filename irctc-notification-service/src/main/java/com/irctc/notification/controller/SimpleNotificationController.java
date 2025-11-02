@@ -24,7 +24,11 @@ public class SimpleNotificationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SimpleNotification> getNotificationById(@PathVariable Long id) {
-        return ResponseEntity.ok(notificationService.getNotificationById(id));
+        SimpleNotification notification = notificationService.getNotificationById(id);
+        if (notification == null) {
+            throw new com.irctc.notification.exception.EntityNotFoundException("Notification", id);
+        }
+        return ResponseEntity.ok(notification);
     }
 
     @GetMapping("/user/{userId}")

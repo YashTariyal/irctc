@@ -21,7 +21,7 @@ public class SimpleNotificationService {
 
     public SimpleNotification getNotificationById(Long id) {
         return notificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Notification not found with id: " + id));
+                .orElseThrow(() -> new com.irctc.notification.exception.EntityNotFoundException("Notification", id));
     }
 
     public List<SimpleNotification> getNotificationsByUserId(Long userId) {
@@ -47,7 +47,7 @@ public class SimpleNotificationService {
 
     public SimpleNotification updateNotification(Long id, SimpleNotification notificationDetails) {
         SimpleNotification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Notification not found with id: " + id));
+                .orElseThrow(() -> new com.irctc.notification.exception.EntityNotFoundException("Notification", id));
 
         notification.setUserId(notificationDetails.getUserId());
         notification.setType(notificationDetails.getType());

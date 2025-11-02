@@ -41,7 +41,7 @@ public class SimplePaymentService {
 
     public SimplePayment refundPayment(Long id) {
         SimplePayment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Payment not found with id: " + id));
+                .orElseThrow(() -> new com.irctc.payment.exception.EntityNotFoundException("Payment", id));
         payment.setStatus("REFUNDED");
         return paymentRepository.save(payment);
     }
