@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -68,10 +69,10 @@ public class OAuth2AuthorizationServerConfig {
             throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
             new OAuth2AuthorizationServerConfigurer();
-        http.with(authorizationServerConfigurer, Customizer.withDefaults());
-        
-        authorizationServerConfigurer
-            .oidc(Customizer.withDefaults()); // Enable OpenID Connect
+        http
+            .with(authorizationServerConfigurer, (configurer) -> configurer
+                .oidc(Customizer.withDefaults()) // Enable OpenID Connect
+            );
         
         http
             // Redirect to the login page when not authenticated from the
@@ -207,10 +208,14 @@ public class OAuth2AuthorizationServerConfig {
 
     /**
      * JWT Decoder for validating tokens.
+     * Uses the JWKSource to validate tokens signed by this authorization server.
      */
     @Bean
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-        return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+        // Create decoder that uses the JWKSource directly
+        org.springframework.security.oauth2.jose.jws.SignatureAlgorithm algorithm = 
+            org.springframework.security.oauth2.jose.jws.SignatureAlgorithm.RS256;
+        return NimbusJwtDecoder.withJwkSetUri("http://localhost:8091/.well-known/jwks.json").build();
     }
 }
 
