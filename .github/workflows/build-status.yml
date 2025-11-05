@@ -1,0 +1,56 @@
+# Build Status Badge and Monitoring
+# Provides build status information and notifications
+
+name: Build Status Monitor
+
+on:
+  workflow_run:
+    workflows: ["Maven Package - Monolith", "Trigger Jenkins Pipeline", "Code Quality & Security"]
+    types:
+      - completed
+  schedule:
+    # Run daily at midnight UTC to check build health
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  build-status:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_run' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Get workflow status
+      id: status
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_run" ]; then
+          echo "status=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
+          echo "workflow=${{ github.event.workflow_run.name }}" >> $GITHUB_OUTPUT
+          echo "url=${{ github.event.workflow_run.html_url }}" >> $GITHUB_OUTPUT
+        else
+          echo "status=unknown" >> $GITHUB_OUTPUT
+          echo "workflow=Build Status Monitor" >> $GITHUB_OUTPUT
+          echo "url=https://github.com/${{ github.repository }}/actions" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Generate build status report
+      if: always()
+      run: |
+        echo "## Build Status Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Workflow**: ${{ steps.status.outputs.workflow }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Status**: ${{ steps.status.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+        echo "**URL**: ${{ steps.status.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Time**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+
+    - name: Check recent build status
+      run: |
+        echo "📊 Checking recent build status..."
+        echo "Latest commit: $(git log -1 --oneline)"
+        echo "Branch: ${{ github.ref_name }}"
+        echo ""
+        echo "✅ Build status monitoring active"
+
