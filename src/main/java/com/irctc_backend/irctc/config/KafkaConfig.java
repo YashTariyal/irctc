@@ -41,6 +41,29 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory());
     }
     
+    /**
+     * Additional KafkaTemplate for services that need Object type (e.g., TicketConfirmationBatchService)
+     */
+    @Bean
+    public ProducerFactory<String, Object> objectProducerFactory() {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        configProps.put(ProducerConfig.ACKS_CONFIG, "all");
+        configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
+        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+        configProps.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        configProps.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+    
+    @Bean(name = "objectKafkaTemplate")
+    @org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean(name = "objectKafkaTemplate")
+    public KafkaTemplate<String, Object> objectKafkaTemplate() {
+        return new KafkaTemplate<>(objectProducerFactory());
+    }
+    
     @Bean
     public ConsumerFactory<String, BookingEvent> consumerFactory() {
         Map<String, Object> configProps = new HashMap<>();

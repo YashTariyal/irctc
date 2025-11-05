@@ -50,7 +50,7 @@ public class TicketConfirmationBatchService {
     @Autowired
     private BookingRepository bookingRepository;
     
-    @Autowired
+    @Autowired(required = false)
     private KafkaTemplate<String, Object> kafkaTemplate;
     
     @Autowired
@@ -371,6 +371,12 @@ public class TicketConfirmationBatchService {
      * Publish confirmation event to Kafka
      */
     private void publishConfirmationEvent(RacEntry racEntry, Seat seat, String pnrNumber, String requestId) {
+        if (kafkaTemplate == null) {
+            logger.warn("KafkaTemplate not available, skipping event publishing for PNR: {} - RequestId: {}", 
+                       pnrNumber, requestId);
+            return;
+        }
+        
         try {
             TicketConfirmationEvent event = TicketConfirmationEvent.fromRacEntry(racEntry, seat, pnrNumber);
             event.setRequestId(requestId);
@@ -398,6 +404,12 @@ public class TicketConfirmationBatchService {
      * Publish confirmation event to Kafka
      */
     private void publishConfirmationEvent(WaitlistEntry waitlistEntry, Seat seat, String pnrNumber, String requestId) {
+        if (kafkaTemplate == null) {
+            logger.warn("KafkaTemplate not available, skipping event publishing for PNR: {} - RequestId: {}", 
+                       pnrNumber, requestId);
+            return;
+        }
+        
         try {
             TicketConfirmationEvent event = TicketConfirmationEvent.fromWaitlistEntry(waitlistEntry, seat, pnrNumber);
             event.setRequestId(requestId);
