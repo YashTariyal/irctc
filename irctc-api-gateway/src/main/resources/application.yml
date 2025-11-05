@@ -193,3 +193,14 @@ management:
     metrics:
       export:
         enabled: true
+
+# OAuth2 Resource Server Configuration for Gateway
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Use Issuer URI from User Service (Authorization Server)
+          issuer-uri: http://localhost:8091
+          # Token validation settings
+          time-to-live: 3600 # 1 hour
