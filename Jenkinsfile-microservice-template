@@ -1,0 +1,269 @@
+// Microservice Pipeline Template for Jenkins
+// This is a reusable template for all microservices
+// Copy this file and customize for each service
+//
+// Usage:
+// 1. Copy this file to Jenkinsfile-{service-name}
+// 2. Replace {{SERVICE_NAME}} with actual service name
+// 3. Replace {{SERVICE_DIR}} with actual service directory
+// 4. Configure in Jenkins job
+
+pipeline {
+    agent any
+    
+    environment {
+        // Service configuration - CUSTOMIZE THESE
+        SERVICE_NAME = '{{SERVICE_NAME}}'
+        SERVICE_DIR = '{{SERVICE_DIR}}'
+        JAVA_VERSION = '21'
+        PATH = "${env.PATH}:${pwd()}"
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "🔄 Checking out code for ${env.SERVICE_NAME}..."
+                script {
+                    try {
+                        checkout scm
+                        echo "✅ Checked out using SCM"
+                    } catch (Exception e) {
+                        echo "⚠️  SCM checkout not available, using manual checkout"
+                        script {
+                            def repoUrl = env.GIT_URL ?: 'https://github.com/YashTariyal/irctc.git'
+                            def branch = env.GIT_BRANCH ?: 'main'
+                            sh """
+                                if [ -d .git ]; then
+                                    echo "Git repository already exists, pulling latest..."
+                                    git fetch --all || true
+                                    git reset --hard origin/${branch} || git reset --hard origin/main || true
+                                else
+                                    echo "No git repository found, cloning..."
+                                    git clone --depth 1 --branch ${branch} ${repoUrl} . || \
+                                    git clone --depth 1 ${repoUrl} . || \
+                                    echo "⚠️  Could not clone repository"
+                                fi
+                            """
+                        }
+                    }
+                    // Get git commit info
+                    try {
+                        def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short HEAD 2>/dev/null || echo "N/A"').trim()
+                        env.GIT_COMMIT_SHORT = gitCommit
+                        echo "📦 Git commit: ${gitCommit}"
+                    } catch (Exception e) {
+                        env.GIT_COMMIT_SHORT = "N/A"
+                    }
+                }
+            }
+        }
+        
+        stage('Build Shared Dependencies') {
+            when {
+                anyOf {
+                    changeset "irctc-shared-events/**"
+                    expression { fileExists('irctc-shared-events/pom.xml') }
+                }
+            }
+            steps {
+                echo "📦 Building shared dependencies..."
+                dir('irctc-shared-events') {
+                    sh '''
+                        # Find and set JAVA_HOME properly
+                        if [[ "$OSTYPE" == "darwin"* ]]; then
+                            MACOS_JAVA=$(/usr/libexec/java_home 2>/dev/null)
+                            if [ -n "$MACOS_JAVA" ] && [ -d "$MACOS_JAVA" ] && [ -f "$MACOS_JAVA/bin/java" ]; then
+                                export JAVA_HOME="$MACOS_JAVA"
+                                echo "✅ Using macOS Java: $JAVA_HOME"
+                            fi
+                        else
+                            JAVA_PATH=$(which java 2>/dev/null || readlink -f $(which java 2>/dev/null) 2>/dev/null || echo "")
+                            if [ -n "$JAVA_PATH" ]; then
+                                JAVA_REAL=$(readlink -f "$JAVA_PATH" 2>/dev/null || echo "$JAVA_PATH")
+                                JAVA_DIR=$(dirname "$JAVA_REAL")
+                                if [[ "$JAVA_DIR" == */bin ]]; then
+                                    LINUX_JAVA=$(dirname "$JAVA_DIR")
+                                    if [ -d "$LINUX_JAVA" ] && [ -f "$LINUX_JAVA/bin/java" ]; then
+                                        export JAVA_HOME="$LINUX_JAVA"
+                                        echo "✅ Using Linux Java: $JAVA_HOME"
+                                    fi
+                                fi
+                            fi
+                        fi
+                        
+                        if [ -n "$JAVA_HOME" ] && [ -d "$JAVA_HOME" ] && [ -f "$JAVA_HOME/bin/java" ]; then
+                            export JAVA_HOME
+                            $JAVA_HOME/bin/java -version 2>&1 | head -1 || echo "Java found"
+                        fi
+                        
+                        # Use root mvnw if local one doesn't exist
+                        if [ -f ./mvnw ]; then
+                            chmod +x ./mvnw
+                            ./mvnw clean install -DskipTests
+                        elif [ -f ../mvnw ]; then
+                            chmod +x ../mvnw
+                            ../mvnw -f pom.xml clean install -DskipTests
+                        else
+                            echo "⚠️  No Maven wrapper found, skipping shared dependencies build"
+                        fi
+                    '''
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo "🔨 Building ${env.SERVICE_NAME} service..."
+                dir(env.SERVICE_DIR) {
+                    sh '''
+                        # Find and set JAVA_HOME properly
+                        if [[ "$OSTYPE" == "darwin"* ]]; then
+                            MACOS_JAVA=$(/usr/libexec/java_home 2>/dev/null)
+                            if [ -n "$MACOS_JAVA" ] && [ -d "$MACOS_JAVA" ] && [ -f "$MACOS_JAVA/bin/java" ]; then
+                                export JAVA_HOME="$MACOS_JAVA"
+                                echo "✅ Using macOS Java: $JAVA_HOME"
+                            fi
+                        else
+                            JAVA_PATH=$(which java 2>/dev/null || readlink -f $(which java 2>/dev/null) 2>/dev/null || echo "")
+                            if [ -n "$JAVA_PATH" ]; then
+                                JAVA_REAL=$(readlink -f "$JAVA_PATH" 2>/dev/null || echo "$JAVA_PATH")
+                                JAVA_DIR=$(dirname "$JAVA_REAL")
+                                if [[ "$JAVA_DIR" == */bin ]]; then
+                                    LINUX_JAVA=$(dirname "$JAVA_DIR")
+                                    if [ -d "$LINUX_JAVA" ] && [ -f "$LINUX_JAVA/bin/java" ]; then
+                                        export JAVA_HOME="$LINUX_JAVA"
+                                        echo "✅ Using Linux Java: $JAVA_HOME"
+                                    fi
+                                fi
+                            fi
+                        fi
+                        
+                        if [ -n "$JAVA_HOME" ] && [ -d "$JAVA_HOME" ] && [ -f "$JAVA_HOME/bin/java" ]; then
+                            export JAVA_HOME
+                            $JAVA_HOME/bin/java -version 2>&1 | head -1 || echo "Java found"
+                        fi
+                        
+                        # Use local mvnw if available, otherwise use root mvnw
+                        if [ -f ./mvnw ]; then
+                            chmod +x ./mvnw
+                            ./mvnw clean compile -DskipTests
+                        elif [ -f ../mvnw ]; then
+                            chmod +x ../mvnw
+                            ../mvnw clean compile -DskipTests
+                        else
+                            echo "❌ Maven wrapper (mvnw) not found in current or parent directory"
+                            exit 1
+                        fi
+                    '''
+                }
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo "🧪 Running tests for ${env.SERVICE_NAME}..."
+                dir(env.SERVICE_DIR) {
+                    sh '''
+                        if [ -f ./mvnw ]; then
+                            ./mvnw test
+                        elif [ -f ../mvnw ]; then
+                            ../mvnw test
+                        else
+                            echo "⚠️  No Maven wrapper found, skipping tests"
+                        fi
+                    '''
+                }
+            }
+            post {
+                always {
+                    script {
+                        // Only publish test results if test reports exist
+                        def testReports = sh(
+                            script: "find ${env.SERVICE_DIR}/target/surefire-reports -name '*.xml' 2>/dev/null | head -1",
+                            returnStdout: true
+                        ).trim()
+                        
+                        if (testReports) {
+                            echo "📊 Publishing test results..."
+                            junit "${env.SERVICE_DIR}/target/surefire-reports/*.xml"
+                            archiveArtifacts artifacts: "${env.SERVICE_DIR}/target/surefire-reports/**/*", allowEmptyArchive: true
+                        } else {
+                            echo "ℹ️  No test reports found (service may have no tests)"
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Package') {
+            steps {
+                echo "📦 Packaging ${env.SERVICE_NAME} service..."
+                dir(env.SERVICE_DIR) {
+                    sh '''
+                        if [ -f ./mvnw ]; then
+                            ./mvnw package -DskipTests
+                        elif [ -f ../mvnw ]; then
+                            ../mvnw package -DskipTests
+                        else
+                            echo "❌ No Maven wrapper found, cannot package"
+                            exit 1
+                        fi
+                        echo "JAR files created:"
+                        ls -lh target/*.jar || echo "No JAR files found"
+                    '''
+                }
+            }
+            post {
+                success {
+                    echo "✅ ${env.SERVICE_NAME} packaged successfully"
+                    archiveArtifacts artifacts: "${env.SERVICE_DIR}/target/*.jar", fingerprint: true
+                }
+            }
+        }
+        
+        stage('Publish') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'release/*'
+                    expression { env.GITHUB_EVENT == 'release' }
+                }
+            }
+            steps {
+                echo "📤 Publishing ${env.SERVICE_NAME} to GitHub Packages..."
+                script {
+                    echo '⚠️  Deploy step requires GitHub Packages configuration'
+                    echo '📋 Artifacts are archived and available for download'
+                    // Uncomment when ready:
+                    // dir(env.SERVICE_DIR) {
+                    //     sh './mvnw deploy -DskipTests'
+                    // }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                echo "📊 ${env.SERVICE_NAME} Build Summary:"
+                echo "   Status: ${currentBuild.currentResult}"
+                echo "   Build Number: ${env.BUILD_NUMBER}"
+                echo "   Git Commit: ${env.GIT_COMMIT_SHORT ?: 'N/A'}"
+                echo "   Service: ${env.SERVICE_NAME}"
+                echo "   Directory: ${env.SERVICE_DIR}"
+            }
+        }
+        success {
+            echo "✅ ${env.SERVICE_NAME} pipeline completed successfully!"
+        }
+        failure {
+            echo "❌ ${env.SERVICE_NAME} pipeline failed!"
+            echo "Check console output for details."
+        }
+        unstable {
+            echo "⚠️  ${env.SERVICE_NAME} pipeline completed with warnings"
+        }
+    }
+}
+

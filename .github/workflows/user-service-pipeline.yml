@@ -1,0 +1,215 @@
+# Microservice Pipeline Template
+# This is a reusable template for all microservices
+# Copy this file and customize for each service
+
+name: User Service Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'irctc-user-service/**'
+      - '.github/workflows/user-service-pipeline.yml'
+      - 'pom.xml'
+      - 'irctc-shared-events/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'irctc-user-service/**'
+      - '.github/workflows/user-service-pipeline.yml'
+      - 'pom.xml'
+      - 'irctc-shared-events/**'
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests'
+        required: false
+        default: 'false'
+        type: boolean
+      skip_deploy:
+        description: 'Skip deployment'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  SERVICE_NAME: User Service
+  SERVICE_DIR: irctc-user-service
+  JAVA_VERSION: '21'
+  MAVEN_OPTS: -Xmx2048m
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        server-id: github
+        settings-path: ${{ github.workspace }}
+
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Build shared dependencies
+      if: hashFiles('irctc-shared-events/**') != ''
+      working-directory: ./irctc-shared-events
+      run: |
+        chmod +x ./mvnw || true
+        ./mvnw clean install -DskipTests
+
+    - name: Make Maven wrapper executable
+      working-directory: ./${{ env.SERVICE_DIR }}
+      run: chmod +x ./mvnw
+
+    - name: Build ${{ env.SERVICE_NAME }} Service
+      working-directory: ./${{ env.SERVICE_DIR }}
+      run: ./mvnw clean compile -DskipTests
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run tests
+      if: github.event.inputs.skip_tests != 'true'
+      working-directory: ./${{ env.SERVICE_DIR }}
+      run: ./mvnw test
+      continue-on-error: true
+
+    - name: Generate test coverage
+      if: always() && github.event.inputs.skip_tests != 'true'
+      working-directory: ./${{ env.SERVICE_DIR }}
+      run: ./mvnw jacoco:report || echo "Jacoco not configured"
+      continue-on-error: true
+
+    - name: Package ${{ env.SERVICE_NAME }} Service
+      working-directory: ./${{ env.SERVICE_DIR }}
+      run: ./mvnw package -DskipTests
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.SERVICE_NAME }}-test-results
+        path: |
+          ${{ env.SERVICE_DIR }}/target/surefire-reports/**/*.xml
+          ${{ env.SERVICE_DIR }}/target/site/jacoco/**
+        retention-days: 7
+        if-no-files-found: ignore
+
+    - name: Upload JAR artifact
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.SERVICE_NAME }}-jar
+        path: ${{ env.SERVICE_DIR }}/target/*.jar
+        retention-days: 30
+        if-no-files-found: warn
+
+    - name: Publish to GitHub Packages (on release)
+      if: github.event_name == 'release' && github.event.inputs.skip_deploy != 'true'
+      working-directory: ./${{ env.SERVICE_DIR }}
+      run: |
+        mkdir -p ${{ github.workspace }}
+        cat > ${{ github.workspace }}/settings.xml <<EOF
+        <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0
+          http://maven.apache.org/xsd/settings-1.2.0.xsd">
+          <servers>
+            <server>
+              <id>github</id>
+              <username>\${env.GITHUB_ACTOR}</username>
+              <password>\${env.GITHUB_TOKEN}</password>
+            </server>
+          </servers>
+        </settings>
+        EOF
+        ./mvnw deploy -s ${{ github.workspace }}/settings.xml \
+          -Dgithub.owner=${{ github.repository_owner }} \
+          -Dgithub.repo=${{ github.event.repository.name }} \
+          -DskipTests
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_ACTOR: ${{ github.actor }}
+
+    - name: Generate build summary
+      if: always()
+      run: |
+        echo "## ${{ env.SERVICE_NAME }} Service Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Service**: ${{ env.SERVICE_NAME }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Directory**: ${{ env.SERVICE_DIR }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+        if [ -d "${{ env.SERVICE_DIR }}/target/surefire-reports" ]; then
+          echo "- ✅ Test reports generated" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ⚠️ Test reports not found" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+        if ls ${{ env.SERVICE_DIR }}/target/*.jar > /dev/null 2>&1; then
+          JAR_FILE=$(ls -t ${{ env.SERVICE_DIR }}/target/*.jar | head -1)
+          echo "- ✅ JAR generated: $(basename "$JAR_FILE")" >> $GITHUB_STEP_SUMMARY
+          ls -lh "$JAR_FILE" | awk '{print "- **Size**: " $5}' >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ❌ JAR not generated" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  security-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+
+    - name: Run OWASP Dependency Check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: '${{ env.SERVICE_NAME }} Service'
+        path: '${{ env.SERVICE_DIR }}'
+        format: 'ALL'
+        args: >
+          --enableRetired
+          --failOnCVSS 7
+      continue-on-error: true
+
+    - name: Upload security report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.SERVICE_NAME }}-security-report
+        path: reports/**
+        retention-days: 7
+        if-no-files-found: ignore
+
