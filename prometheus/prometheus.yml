@@ -1,0 +1,87 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'irctc-microservices'
+    environment: 'development'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - '/etc/prometheus/rules/*.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Eureka Server
+  - job_name: 'eureka-server'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8761']
+        labels:
+          service: 'eureka-server'
+          application: 'irctc-eureka-server'
+
+  # API Gateway
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8090']
+        labels:
+          service: 'api-gateway'
+          application: 'irctc-api-gateway'
+
+  # User Service
+  - job_name: 'user-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8091']
+        labels:
+          service: 'user-service'
+          application: 'irctc-user-service'
+
+  # Train Service
+  - job_name: 'train-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8092']
+        labels:
+          service: 'train-service'
+          application: 'irctc-train-service'
+
+  # Booking Service
+  - job_name: 'booking-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8093']
+        labels:
+          service: 'booking-service'
+          application: 'irctc-booking-service'
+
+  # Payment Service
+  - job_name: 'payment-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8094']
+        labels:
+          service: 'payment-service'
+          application: 'irctc-payment-service'
+
+  # Notification Service
+  - job_name: 'notification-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8095']
+        labels:
+          service: 'notification-service'
+          application: 'irctc-notification-service'
+
