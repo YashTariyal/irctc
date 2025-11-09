@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payments")
+@EntityListeners(com.irctc.payment.audit.EntityAuditListener.class)
 @Data
 public class SimplePayment {
     @Id

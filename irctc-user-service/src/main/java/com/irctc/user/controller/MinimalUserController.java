@@ -3,6 +3,7 @@ package com.irctc.user.controller;
 import com.irctc.user.entity.SimpleUser;
 import com.irctc.user.repository.SimpleUserRepository;
 import com.irctc.user.service.EventPublisherService;
+import com.irctc.user.service.SimpleUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,9 @@ public class MinimalUserController {
     private SimpleUserRepository userRepository;
     
     @Autowired
+    private SimpleUserService userService;
+    
+    @Autowired
     private EventPublisherService eventPublisherService;
     
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -33,41 +37,33 @@ public class MinimalUserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SimpleUser> getUserById(@PathVariable Long id) {
-        SimpleUser user = userRepository.findById(id)
+        SimpleUser user = userService.getUserById(id)
                 .orElseThrow(() -> new com.irctc.user.exception.EntityNotFoundException("User", id));
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/username/{username}")
     public ResponseEntity<SimpleUser> getUserByUsername(@PathVariable String username) {
-        SimpleUser user = userRepository.findByUsername(username)
+        SimpleUser user = userService.getUserByUsername(username)
                 .orElseThrow(() -> new com.irctc.user.exception.EntityNotFoundException("User", username));
         return ResponseEntity.ok(user);
     }
 
     @PostMapping
     public ResponseEntity<SimpleUser> createUser(@RequestBody SimpleUser user) {
-        SimpleUser newUser = userRepository.save(user);
+        SimpleUser newUser = userService.createUser(user);
         return ResponseEntity.ok(newUser);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<SimpleUser> updateUser(@PathVariable Long id, @RequestBody SimpleUser user) {
-        SimpleUser existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new com.irctc.user.exception.EntityNotFoundException("User", id));
-        
-        existingUser.setFirstName(user.getFirstName());
-        existingUser.setLastName(user.getLastName());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setPhoneNumber(user.getPhoneNumber());
-        
-        SimpleUser updatedUser = userRepository.save(existingUser);
+        SimpleUser updatedUser = userService.updateUser(id, user);
         return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userRepository.deleteById(id);
+        userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -180,7 +176,7 @@ public class MinimalUserController {
     
     @GetMapping("/email/{email}")
     public ResponseEntity<SimpleUser> getUserByEmail(@PathVariable String email) {
-        return userRepository.findByEmail(email)
+        return userService.getUserByEmail(email)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

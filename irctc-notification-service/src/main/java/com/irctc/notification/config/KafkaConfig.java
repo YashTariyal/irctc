@@ -17,6 +17,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.util.backoff.FixedBackOff;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
@@ -25,10 +26,17 @@ import java.util.Map;
 
 /**
  * Kafka Configuration for Notification Service
+ * Includes Dead Letter Queue (DLQ) configuration
+ * 
+ * @author IRCTC Development Team
+ * @version 2.0.0
  */
 @Configuration
 @EnableKafka
 public class KafkaConfig {
+
+    private static final org.slf4j.Logger logger = 
+        org.slf4j.LoggerFactory.getLogger(KafkaConfig.class);
 
     @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
@@ -64,14 +72,30 @@ public class KafkaConfig {
 
     @Bean
     public CommonErrorHandler errorHandler(KafkaTemplate<String, Object> kafkaTemplate) {
+        // Configure Dead Letter Topic (DLT) recoverer
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
             (record, ex) -> {
-                // Route to <topic>.DLT
-                return new TopicPartition(record.topic() + ".DLT", record.partition());
+                // Route to <topic>.DLT (Dead Letter Topic)
+                String dltTopic = record.topic() + ".DLT";
+                logger.warn("📨 Routing failed message to DLQ: {} -> {}", record.topic(), dltTopic);
+                logger.warn("   Error: {}", ex.getMessage());
+                return new TopicPartition(dltTopic, record.partition());
             }
         );
-        DefaultErrorHandler handler = new DefaultErrorHandler(recoverer);
-        // Let the producer/consumer level retries handle transient issues; send to DLT on failure
+        
+        // Configure error handler with retry logic
+        // Retry 3 times with fixed backoff before sending to DLQ
+        DefaultErrorHandler handler = new DefaultErrorHandler(
+            recoverer,
+            new FixedBackOff(1000L, 3) // 1 second delay, 3 retries
+        );
+        
+        // Add exception classifier to skip certain exceptions from retry
+        handler.addNotRetryableExceptions(
+            java.lang.IllegalArgumentException.class,
+            java.lang.NullPointerException.class
+        );
+        
         return handler;
     }
 

@@ -15,6 +15,9 @@ spring:
             redis-rate-limiter.replenishRate: 30
             redis-rate-limiter.burstCapacity: 60
             redis-rate-limiter.requestedTokens: 1
+        - name: ApiVersion
+          args:
+            enabled: true
       routes:
         # User Service Routes
         - id: user-service
@@ -23,6 +26,10 @@ spring:
             - Path=/api/users/**
           filters:
             - RewritePath=/api/users/(?<segment>.*), /api/users/${segment}
+            - name: CircuitBreaker
+              args:
+                name: user-service
+                fallbackUri: forward:/fallback/user
             - name: RequestRateLimiter
               args:
                 key-resolver: '#{@userKeyResolver}'
@@ -36,6 +43,10 @@ spring:
             - Path=/api/v1/trains/**
           filters:
             - RewritePath=/api/v1/trains/(?<segment>.*), /api/trains/${segment}
+            - name: CircuitBreaker
+              args:
+                name: train-service
+                fallbackUri: forward:/fallback/train
             - name: RequestRateLimiter
               args:
                 key-resolver: '#{@userKeyResolver}'
@@ -48,6 +59,10 @@ spring:
             - Path=/api/trains/**
           filters:
             - RewritePath=/api/trains/(?<segment>.*), /api/trains/${segment}
+            - name: CircuitBreaker
+              args:
+                name: train-service
+                fallbackUri: forward:/fallback/train
             - name: RequestRateLimiter
               args:
                 key-resolver: '#{@userKeyResolver}'
@@ -61,6 +76,10 @@ spring:
             - Path=/api/v1/bookings/**
           filters:
             - RewritePath=/api/v1/bookings/(?<segment>.*), /api/bookings/${segment}
+            - name: CircuitBreaker
+              args:
+                name: booking-service
+                fallbackUri: forward:/fallback/booking
             - name: RequestRateLimiter
               args:
                 key-resolver: '#{@userKeyResolver}'
@@ -73,6 +92,10 @@ spring:
             - Path=/api/bookings/**
           filters:
             - RewritePath=/api/bookings/(?<segment>.*), /api/bookings/${segment}
+            - name: CircuitBreaker
+              args:
+                name: booking-service
+                fallbackUri: forward:/fallback/booking
             - name: RequestRateLimiter
               args:
                 key-resolver: '#{@userKeyResolver}'
@@ -86,6 +109,10 @@ spring:
             - Path=/api/payments/**
           filters:
             - RewritePath=/api/payments/(?<segment>.*), /api/payments/${segment}
+            - name: CircuitBreaker
+              args:
+                name: payment-service
+                fallbackUri: forward:/fallback/payment
             - name: RequestRateLimiter
               args:
                 key-resolver: '#{@userKeyResolver}'
@@ -99,6 +126,10 @@ spring:
             - Path=/api/notifications/**
           filters:
             - RewritePath=/api/notifications/(?<segment>.*), /api/notifications/${segment}
+            - name: CircuitBreaker
+              args:
+                name: notification-service
+                fallbackUri: forward:/fallback/notification
             - name: RequestRateLimiter
               args:
                 key-resolver: '#{@userKeyResolver}'
@@ -158,6 +189,51 @@ resilience4j:
         minimum-number-of-calls: 5
         permitted-number-of-calls-in-half-open-state: 3
         automatic-transition-from-open-to-half-open-enabled: true
+      booking-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
+        permitted-number-of-calls-in-half-open-state: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        slow-call-rate-threshold: 80
+        slow-call-duration-threshold: 5s
+      payment-service:
+        failure-rate-threshold: 40
+        wait-duration-in-open-state: 60s
+        sliding-window-size: 15
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        slow-call-rate-threshold: 70
+        slow-call-duration-threshold: 10s
+      train-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 20s
+        sliding-window-size: 15
+        minimum-number-of-calls: 8
+        permitted-number-of-calls-in-half-open-state: 4
+        automatic-transition-from-open-to-half-open-enabled: true
+        slow-call-rate-threshold: 75
+        slow-call-duration-threshold: 3s
+      user-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        sliding-window-size: 12
+        minimum-number-of-calls: 6
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        slow-call-rate-threshold: 70
+        slow-call-duration-threshold: 2s
+      notification-service:
+        failure-rate-threshold: 60
+        wait-duration-in-open-state: 20s
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        slow-call-rate-threshold: 80
+        slow-call-duration-threshold: 5s
   
   retry:
     instances:
@@ -228,3 +304,10 @@ spring:
           issuer-uri: http://localhost:8091
           # Token validation settings
           time-to-live: 3600 # 1 hour
+
+# API Versioning Configuration
+api:
+  versioning:
+    default-version: v1
+    enable-deprecation-warnings: true
+    supported-versions: v1,v2

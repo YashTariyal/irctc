@@ -13,7 +13,15 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
-
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: notification-service
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    producer:
+      acks: all
+      retries: 3
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
@@ -63,6 +71,13 @@ management:
   endpoint:
     health:
       show-details: always
+      probes:
+        enabled: true
+  health:
+    liveness-state:
+      enabled: true
+    readiness-state:
+      enabled: true
   prometheus:
     metrics:
       export:
@@ -119,10 +134,32 @@ twilio:
   phone:
     number: "+1234567890"
 
+# DLQ Configuration
+dlq:
+  alerting:
+    enabled: true
+    threshold: 10  # Alert if DLQ has more than 10 messages
+    check-interval: 300000  # Check every 5 minutes (in milliseconds)
+
 # Logging Configuration
 logging:
+  request-response:
+    enabled: true
+    log-request-body: true
+    log-response-body: true
+    max-body-size: 10000
+    slow-request-threshold: 2000
+    mask-pii: true
+
+# Distributed Locking Configuration
+distributed-lock:
+  default-timeout: 30
+  default-wait-time: 5
+  enable-metrics: true
+
   level:
     com.irctc.notification: DEBUG
     org.springframework.web: DEBUG
+    org.springframework.kafka: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

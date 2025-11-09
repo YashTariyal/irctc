@@ -13,7 +13,20 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
-
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10 minutes default
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
@@ -63,6 +76,13 @@ management:
   endpoint:
     health:
       show-details: always
+      probes:
+        enabled: true
+  health:
+    liveness-state:
+      enabled: true
+    readiness-state:
+      enabled: true
   prometheus:
     metrics:
       export:
@@ -112,6 +132,20 @@ resilience4j:
 
 # Logging Configuration
 logging:
+  request-response:
+    enabled: true
+    log-request-body: true
+    log-response-body: true
+    max-body-size: 10000
+    slow-request-threshold: 2000
+    mask-pii: true
+
+# Distributed Locking Configuration
+distributed-lock:
+  default-timeout: 30
+  default-wait-time: 5
+  enable-metrics: true
+
   level:
     com.irctc.payment: DEBUG
     org.springframework.web: DEBUG

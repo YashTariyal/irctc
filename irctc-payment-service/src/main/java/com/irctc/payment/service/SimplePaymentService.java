@@ -8,6 +8,8 @@ import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -31,21 +33,25 @@ public class SimplePaymentService {
         return paymentRepository.findAll();
     }
 
+    @Cacheable(value = "payments", key = "#id", unless = "#result.isEmpty()")
     public Optional<SimplePayment> getPaymentById(Long id) {
         return paymentRepository.findById(id);
     }
 
+    @Cacheable(value = "payments-by-transaction", key = "#transactionId", unless = "#result.isEmpty()")
     public Optional<SimplePayment> getPaymentByTransactionId(String transactionId) {
         return paymentRepository.findByTransactionId(transactionId);
     }
 
     @Bulkhead(name = "payment-query", type = Bulkhead.Type.SEMAPHORE)
+    @Cacheable(value = "payments-by-booking", key = "#bookingId")
     public List<SimplePayment> getPaymentsByBookingId(Long bookingId) {
         return paymentRepository.findByBookingId(bookingId);
     }
 
     @Bulkhead(name = "payment-processing", type = Bulkhead.Type.SEMAPHORE)
     @TimeLimiter(name = "payment-processing")
+    @CacheEvict(value = {"payments-by-booking"}, key = "#payment.bookingId", allEntries = false)
     public SimplePayment processPayment(SimplePayment payment) {
         payment.setTransactionId(UUID.randomUUID().toString());
         payment.setPaymentTime(LocalDateTime.now());
@@ -80,6 +86,8 @@ public class SimplePaymentService {
 
     @Bulkhead(name = "payment-refund", type = Bulkhead.Type.SEMAPHORE)
     @TimeLimiter(name = "payment-refund")
+    @CacheEvict(value = {"payments", "payments-by-transaction", "payments-by-booking"}, 
+                key = "#id", allEntries = false)
     public SimplePayment refundPayment(Long id) {
         SimplePayment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new com.irctc.payment.exception.EntityNotFoundException("Payment", id));

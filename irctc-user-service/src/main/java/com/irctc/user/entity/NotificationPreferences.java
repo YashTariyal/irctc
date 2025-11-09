@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notification_preferences")
+@EntityListeners(com.irctc.user.audit.EntityAuditListener.class)
 public class NotificationPreferences {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

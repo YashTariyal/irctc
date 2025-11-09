@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "simple_users")
+@EntityListeners(com.irctc.user.audit.EntityAuditListener.class)
 public class SimpleUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -13,6 +13,10 @@ import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.irctc.booking.lock.DistributedLock;
+import com.irctc.booking.performance.PerformanceMonitoringService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,9 @@ public class SimpleBookingService {
 
     @Autowired
     private SimpleBookingRepository bookingRepository;
+    
+    @Autowired(required = false)
+    private PerformanceMonitoringService performanceMonitoringService;
 
     @Autowired(required = false)
     private BookingCacheService cacheService;
@@ -57,67 +64,31 @@ public class SimpleBookingService {
     }
 
     @Bulkhead(name = "booking-query", type = Bulkhead.Type.SEMAPHORE)
+    @Cacheable(value = "bookings", key = "#id", unless = "#result.isEmpty()")
     public Optional<SimpleBooking> getBookingById(Long id) {
-        // Try cache first
-        if (cacheService != null) {
-            Optional<SimpleBooking> cached = cacheService.getCachedBooking(id);
-            if (cached.isPresent()) {
-                return cached;
-            }
-        }
-        
-        Optional<SimpleBooking> booking = bookingRepository.findById(id);
-        
-        // Cache the result
-        if (booking.isPresent() && cacheService != null) {
-            cacheService.cacheBooking(id, booking.get());
-        }
-        
-        return booking;
+        logger.debug("Fetching booking from database: {}", id);
+        return bookingRepository.findById(id);
     }
 
+    @Cacheable(value = "bookings-by-pnr", key = "#pnrNumber", unless = "#result.isEmpty()")
     public Optional<SimpleBooking> getBookingByPnr(String pnrNumber) {
-        // Try cache first
-        if (cacheService != null) {
-            Optional<SimpleBooking> cached = cacheService.getCachedBookingByPnr(pnrNumber);
-            if (cached.isPresent()) {
-                return cached;
-            }
-        }
-        
-        Optional<SimpleBooking> booking = bookingRepository.findByPnrNumber(pnrNumber);
-        
-        // Cache the result
-        if (booking.isPresent() && cacheService != null) {
-            cacheService.cacheBookingByPnr(pnrNumber, booking.get());
-        }
-        
-        return booking;
+        logger.debug("Fetching booking from database by PNR: {}", pnrNumber);
+        return bookingRepository.findByPnrNumber(pnrNumber);
     }
 
     @Bulkhead(name = "booking-query", type = Bulkhead.Type.SEMAPHORE)
+    @Cacheable(value = "bookings-by-user", key = "#userId")
     public List<SimpleBooking> getBookingsByUserId(Long userId) {
-        // Try cache first
-        if (cacheService != null) {
-            Optional<List<SimpleBooking>> cached = cacheService.getCachedUserBookings(userId);
-            if (cached.isPresent()) {
-                return cached.get();
-            }
-        }
-        
-        List<SimpleBooking> bookings = bookingRepository.findByUserId(userId);
-        
-        // Cache the result
-        if (cacheService != null) {
-            cacheService.cacheUserBookings(userId, bookings);
-        }
-        
-        return bookings;
+        logger.debug("Fetching bookings from database for user: {}", userId);
+        return bookingRepository.findByUserId(userId);
     }
 
     @Bulkhead(name = "booking-creation", type = Bulkhead.Type.SEMAPHORE)
+    @CacheEvict(value = {"bookings-by-user"}, key = "#booking.userId", allEntries = false)
+    @DistributedLock(key = "booking:#{#booking.trainId}", timeout = 30, waitTime = 5)
     public SimpleBooking createBooking(SimpleBooking booking) {
         Timer.Sample timer = bookingMetrics != null ? bookingMetrics.startBookingCreationTimer() : null;
+        long startTime = System.currentTimeMillis();
         
         try {
             booking.setPnrNumber(generatePnr());
@@ -193,6 +164,14 @@ public class SimpleBookingService {
                 }
             }
             
+            // Record slow query if applicable
+            long duration = System.currentTimeMillis() - startTime;
+            if (performanceMonitoringService != null && duration > 1000) {
+                performanceMonitoringService.recordSlowQuery(
+                    "createBooking", duration, "booking_creation"
+                );
+            }
+            
             // Invalidate user bookings cache
             if (cacheService != null) {
                 cacheService.invalidateUserBookings(saved.getUserId());
@@ -213,6 +192,8 @@ public class SimpleBookingService {
     }
 
     @Bulkhead(name = "booking-update", type = Bulkhead.Type.SEMAPHORE)
+    @CacheEvict(value = {"bookings", "bookings-by-pnr", "bookings-by-user"}, 
+                key = "#id", allEntries = false)
     public SimpleBooking updateBooking(Long id, SimpleBooking bookingDetails) {
         SimpleBooking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Booking", id));
@@ -324,10 +305,37 @@ public class SimpleBookingService {
             if (bookingMetrics != null) {
                 bookingMetrics.incrementBookingsFailed();
             }
+            logger.error("Error cancelling booking: {}", id, e);
             throw e;
         }
     }
-
+    
+    /**
+     * Actually delete a booking from the database (hard delete)
+     * This will trigger @PreRemove audit listener
+     * Use with caution - this permanently removes the booking
+     */
+    public void deleteBooking(Long id) {
+        try {
+            SimpleBooking booking = bookingRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Booking", id));
+            
+            // Invalidate cache before deletion
+            if (cacheService != null) {
+                cacheService.invalidateBooking(id, booking.getPnrNumber());
+                cacheService.invalidateUserBookings(booking.getUserId());
+            }
+            
+            // Actually delete the entity - this will trigger @PreRemove audit listener
+            bookingRepository.delete(booking);
+            
+            logger.info("✅ Booking deleted: {}", id);
+        } catch (Exception e) {
+            logger.error("Error deleting booking: {}", id, e);
+            throw e;
+        }
+    }
+    
     /**
      * Broadcast booking update via WebSocket asynchronously
      */

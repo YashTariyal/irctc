@@ -5,6 +5,7 @@ import com.irctc.booking.entity.SimpleBooking;
 import com.irctc.booking.service.SimpleBookingService;
 import com.irctc.booking.service.IdempotencyService;
 import com.irctc.booking.service.AsyncBookingService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +54,7 @@ public class SimpleBookingController {
     @Auditable(entityType = "Booking", action = "CREATE", logRequestBody = true)
     public ResponseEntity<SimpleBooking> createBooking(@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
                                                        @RequestParam(value = "useSaga", defaultValue = "false") boolean useSaga,
-                                                       @RequestBody SimpleBooking booking) {
+                                                       @Valid @RequestBody SimpleBooking booking) {
         if (useSaga) {
             // Use saga pattern for distributed transaction
             // This will be handled by SagaController
@@ -73,7 +74,7 @@ public class SimpleBookingController {
 
     @PutMapping("/{id}")
     @Auditable(entityType = "Booking", action = "UPDATE", logRequestBody = true)
-    public ResponseEntity<SimpleBooking> updateBooking(@PathVariable Long id, @RequestBody SimpleBooking booking) {
+    public ResponseEntity<SimpleBooking> updateBooking(@PathVariable Long id, @Valid @RequestBody SimpleBooking booking) {
         SimpleBooking updatedBooking = bookingService.updateBooking(id, booking);
         return ResponseEntity.ok(updatedBooking);
     }
@@ -82,6 +83,18 @@ public class SimpleBookingController {
     @Auditable(entityType = "Booking", action = "DELETE")
     public ResponseEntity<Void> cancelBooking(@PathVariable Long id) {
         bookingService.cancelBooking(id);
+        return ResponseEntity.noContent().build();
+    }
+    
+    /**
+     * Hard delete endpoint - actually removes booking from database
+     * This will trigger @PreRemove audit listener
+     * Use with caution - this permanently deletes the booking
+     */
+    @DeleteMapping("/{id}/hard")
+    @Auditable(entityType = "Booking", action = "DELETE")
+    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
+        bookingService.deleteBooking(id);
         return ResponseEntity.noContent().build();
     }
 

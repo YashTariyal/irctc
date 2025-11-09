@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "passengers")
+@EntityListeners(com.irctc.booking.audit.EntityAuditListener.class)
 @Data
 public class SimplePassenger {
     @Id
