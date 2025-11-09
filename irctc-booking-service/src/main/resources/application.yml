@@ -106,10 +106,34 @@ springdoc:
     showExtensions: true
     showCommonExtensions: true
 
+# Resilience4j Bulkhead Configuration
+resilience4j:
+  bulkhead:
+    instances:
+      booking-creation:
+        max-concurrent-calls: 10
+        max-wait-duration: 5s
+      booking-update:
+        max-concurrent-calls: 15
+        max-wait-duration: 3s
+      booking-query:
+        max-concurrent-calls: 20
+        max-wait-duration: 2s
+      payment-processing:
+        max-concurrent-calls: 5
+        max-wait-duration: 10s
+  timelimiter:
+    instances:
+      booking-creation:
+        timeout-duration: 30s
+      payment-processing:
+        timeout-duration: 15s
+
 # Logging Configuration
 logging:
   level:
     com.irctc.booking: DEBUG
     org.springframework.web: DEBUG
+    io.github.resilience4j: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

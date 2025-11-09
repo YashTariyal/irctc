@@ -5,6 +5,8 @@ import com.irctc.booking.exception.EntityNotFoundException;
 import com.irctc.booking.metrics.BookingMetrics;
 import com.irctc.booking.repository.SimpleBookingRepository;
 import com.irctc.booking.websocket.BookingStatusHandler;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -35,6 +37,7 @@ public class SimpleBookingService {
         return bookingRepository.findAll();
     }
 
+    @Bulkhead(name = "booking-query", type = Bulkhead.Type.SEMAPHORE)
     public Optional<SimpleBooking> getBookingById(Long id) {
         // Try cache first
         if (cacheService != null) {
@@ -73,6 +76,7 @@ public class SimpleBookingService {
         return booking;
     }
 
+    @Bulkhead(name = "booking-query", type = Bulkhead.Type.SEMAPHORE)
     public List<SimpleBooking> getBookingsByUserId(Long userId) {
         // Try cache first
         if (cacheService != null) {
@@ -92,6 +96,8 @@ public class SimpleBookingService {
         return bookings;
     }
 
+    @Bulkhead(name = "booking-creation", type = Bulkhead.Type.SEMAPHORE)
+    @TimeLimiter(name = "booking-creation")
     public SimpleBooking createBooking(SimpleBooking booking) {
         Timer.Sample timer = bookingMetrics != null ? bookingMetrics.startBookingCreationTimer() : null;
         
@@ -134,6 +140,7 @@ public class SimpleBookingService {
         }
     }
 
+    @Bulkhead(name = "booking-update", type = Bulkhead.Type.SEMAPHORE)
     public SimpleBooking updateBooking(Long id, SimpleBooking bookingDetails) {
         SimpleBooking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Booking", id));

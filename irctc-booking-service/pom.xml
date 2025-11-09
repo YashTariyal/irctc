@@ -146,6 +146,16 @@
             <artifactId>opentelemetry-exporter-otlp</artifactId>
         </dependency>
 
+        <!-- Resilience4j for Bulkhead Pattern -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-bulkhead</artifactId>
+        </dependency>
+
         <!-- Logstash Logback Encoder for JSON Logging -->
         <dependency>
             <groupId>net.logstash.logback</groupId>

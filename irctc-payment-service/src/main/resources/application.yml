@@ -90,10 +90,31 @@ springdoc:
     showExtensions: true
     showCommonExtensions: true
 
+# Resilience4j Bulkhead Configuration
+resilience4j:
+  bulkhead:
+    instances:
+      payment-processing:
+        max-concurrent-calls: 5
+        max-wait-duration: 10s
+      payment-refund:
+        max-concurrent-calls: 3
+        max-wait-duration: 15s
+      payment-query:
+        max-concurrent-calls: 20
+        max-wait-duration: 2s
+  timelimiter:
+    instances:
+      payment-processing:
+        timeout-duration: 15s
+      payment-refund:
+        timeout-duration: 20s
+
 # Logging Configuration
 logging:
   level:
     com.irctc.payment: DEBUG
     org.springframework.web: DEBUG
+    io.github.resilience4j: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

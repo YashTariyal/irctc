@@ -2,6 +2,8 @@ package com.irctc.payment.service;
 
 import com.irctc.payment.entity.SimplePayment;
 import com.irctc.payment.repository.SimplePaymentRepository;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -27,10 +29,13 @@ public class SimplePaymentService {
         return paymentRepository.findByTransactionId(transactionId);
     }
 
+    @Bulkhead(name = "payment-query", type = Bulkhead.Type.SEMAPHORE)
     public List<SimplePayment> getPaymentsByBookingId(Long bookingId) {
         return paymentRepository.findByBookingId(bookingId);
     }
 
+    @Bulkhead(name = "payment-processing", type = Bulkhead.Type.SEMAPHORE)
+    @TimeLimiter(name = "payment-processing")
     public SimplePayment processPayment(SimplePayment payment) {
         payment.setTransactionId(UUID.randomUUID().toString());
         payment.setPaymentTime(LocalDateTime.now());
@@ -39,6 +44,8 @@ public class SimplePaymentService {
         return paymentRepository.save(payment);
     }
 
+    @Bulkhead(name = "payment-refund", type = Bulkhead.Type.SEMAPHORE)
+    @TimeLimiter(name = "payment-refund")
     public SimplePayment refundPayment(Long id) {
         SimplePayment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new com.irctc.payment.exception.EntityNotFoundException("Payment", id));
