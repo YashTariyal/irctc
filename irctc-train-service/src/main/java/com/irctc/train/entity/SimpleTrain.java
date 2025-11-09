@@ -1,14 +1,25 @@
 package com.irctc.train.entity;
 
+import com.irctc.train.tenant.TenantAware;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "trains")
+@Table(name = "trains", indexes = {
+    @Index(name = "idx_trains_tenant_id", columnList = "tenantId")
+})
+@org.hibernate.annotations.FilterDef(
+    name = "tenantFilter",
+    parameters = @org.hibernate.annotations.ParamDef(name = "tenantId", type = String.class)
+)
+@org.hibernate.annotations.Filter(
+    name = "tenantFilter",
+    condition = "tenant_id = :tenantId"
+)
 @Data
-public class SimpleTrain {
+public class SimpleTrain implements TenantAware {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -67,6 +78,9 @@ public class SimpleTrain {
     
     @Column(nullable = false)
     private Integer duration;
+    
+    @Column(name = "tenant_id", length = 50)
+    private String tenantId;
     
     @PrePersist
     protected void onCreate() {

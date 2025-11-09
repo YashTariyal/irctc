@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.irctc.booking.lock.DistributedLock;
 import com.irctc.booking.performance.PerformanceMonitoringService;
+import com.irctc.booking.tenant.TenantContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -91,6 +92,11 @@ public class SimpleBookingService {
         long startTime = System.currentTimeMillis();
         
         try {
+            // Set tenant ID from context
+            if (TenantContext.hasTenant()) {
+                booking.setTenantId(TenantContext.getTenantId());
+            }
+            
             booking.setPnrNumber(generatePnr());
             booking.setBookingTime(LocalDateTime.now());
             booking.setStatus("CONFIRMED");

@@ -1,6 +1,7 @@
 package com.irctc.train.service;
 
 import com.irctc.train.entity.SimpleTrain;
+import com.irctc.train.tenant.TenantContext;
 import com.irctc.train.repository.SimpleTrainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,12 +22,28 @@ public class SimpleTrainService {
 
     @Cacheable(value = "all-trains")
     public List<SimpleTrain> getAllTrains() {
-        return trainRepository.findAll();
+        List<SimpleTrain> trains = trainRepository.findAll();
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return trains.stream()
+                .filter(t -> tenantId.equals(t.getTenantId()))
+                .toList();
+        }
+        return trains;
     }
 
     @Cacheable(value = "trains", key = "#id", unless = "#result.isEmpty()")
     public Optional<SimpleTrain> getTrainById(Long id) {
-        return trainRepository.findById(id);
+        Optional<SimpleTrain> train = trainRepository.findById(id);
+        // Validate tenant access
+        if (train.isPresent() && TenantContext.hasTenant()) {
+            SimpleTrain t = train.get();
+            if (!TenantContext.getTenantId().equals(t.getTenantId())) {
+                return Optional.empty();
+            }
+        }
+        return train;
     }
 
     @Cacheable(value = "trains-by-number", key = "#trainNumber", unless = "#result.isEmpty()")
@@ -36,11 +53,23 @@ public class SimpleTrainService {
 
     @Cacheable(value = "train-search", key = "#source + ':' + #destination")
     public List<SimpleTrain> searchTrains(String source, String destination) {
-        return trainRepository.findBySourceStationAndDestinationStation(source, destination);
+        List<SimpleTrain> trains = trainRepository.findBySourceStationAndDestinationStation(source, destination);
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return trains.stream()
+                .filter(t -> tenantId.equals(t.getTenantId()))
+                .toList();
+        }
+        return trains;
     }
 
     @CacheEvict(value = {"all-trains", "train-search"}, allEntries = true)
     public SimpleTrain createTrain(SimpleTrain train) {
+        // Set tenant ID from context
+        if (TenantContext.hasTenant()) {
+            train.setTenantId(TenantContext.getTenantId());
+        }
         // createdAt will be set automatically by @PrePersist
         train.setStatus("ACTIVE");
         SimpleTrain saved = trainRepository.save(train);

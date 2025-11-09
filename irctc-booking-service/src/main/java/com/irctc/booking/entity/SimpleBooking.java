@@ -1,5 +1,6 @@
 package com.irctc.booking.entity;
 
+import com.irctc.booking.tenant.TenantAware;
 import com.irctc.booking.validation.ValidPnr;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -15,12 +16,13 @@ import java.util.List;
         @Index(name = "idx_bookings_pnr", columnList = "pnrNumber"),
         @Index(name = "idx_bookings_user", columnList = "userId"),
         @Index(name = "idx_bookings_train", columnList = "trainId"),
-        @Index(name = "idx_bookings_status", columnList = "status")
+        @Index(name = "idx_bookings_status", columnList = "status"),
+        @Index(name = "idx_bookings_tenant_id", columnList = "tenantId")
     }
 )
 @EntityListeners(com.irctc.booking.audit.EntityAuditListener.class)
 @Data
-public class SimpleBooking {
+public class SimpleBooking implements TenantAware {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -60,6 +62,9 @@ public class SimpleBooking {
     @JoinColumn(name = "booking_id")
     private List<SimplePassenger> passengers;
     
+    @Column(name = "tenant_id", length = 50)
+    private String tenantId;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     

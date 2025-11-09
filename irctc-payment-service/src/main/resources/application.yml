@@ -67,6 +67,14 @@ eureka:
       service-name: ${spring.application.name}
       service-description: Payment Processing and Management Service
 
+# Multi-Tenancy Configuration
+multi-tenancy:
+  enabled: true  # Enable multi-tenancy support
+  required: true  # Require tenant context for all requests
+  header-tenant-id: "X-Tenant-Id"  # Header name for tenant ID
+  header-tenant-code: "X-Tenant-Code"  # Header name for tenant code
+  subdomain-extraction: true  # Extract tenant from subdomain
+
 # Management endpoints
 management:
   endpoints:

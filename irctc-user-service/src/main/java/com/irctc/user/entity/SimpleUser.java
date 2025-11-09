@@ -1,12 +1,23 @@
 package com.irctc.user.entity;
 
+import com.irctc.user.tenant.TenantAware;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "simple_users")
+@Table(name = "simple_users", indexes = {
+    @Index(name = "idx_users_tenant_id", columnList = "tenantId")
+})
+@org.hibernate.annotations.FilterDef(
+    name = "tenantFilter",
+    parameters = @org.hibernate.annotations.ParamDef(name = "tenantId", type = String.class)
+)
+@org.hibernate.annotations.Filter(
+    name = "tenantFilter",
+    condition = "tenant_id = :tenantId"
+)
 @EntityListeners(com.irctc.user.audit.EntityAuditListener.class)
-public class SimpleUser {
+public class SimpleUser implements TenantAware {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,6 +35,9 @@ public class SimpleUser {
     private String lastName;
     private String phoneNumber;
     private String roles;
+    
+    @Column(name = "tenant_id", length = 50)
+    private String tenantId;
     
     @Column(nullable = false)
     private LocalDateTime createdAt;

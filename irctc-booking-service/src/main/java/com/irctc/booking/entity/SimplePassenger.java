@@ -1,5 +1,6 @@
 package com.irctc.booking.entity;
 
+import com.irctc.booking.tenant.TenantAware;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -8,7 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "passengers")
 @EntityListeners(com.irctc.booking.audit.EntityAuditListener.class)
 @Data
-public class SimplePassenger {
+public class SimplePassenger implements TenantAware {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,6 +31,9 @@ public class SimplePassenger {
     
     @Column(nullable = false)
     private String idProofNumber;
+    
+    @Column(name = "tenant_id", length = 50)
+    private String tenantId;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

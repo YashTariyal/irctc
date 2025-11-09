@@ -3,6 +3,7 @@ package com.irctc.payment.service;
 import com.irctc.payment.entity.SimplePayment;
 import com.irctc.payment.eventsourcing.PaymentEventStore;
 import com.irctc.payment.repository.SimplePaymentRepository;
+import com.irctc.payment.tenant.TenantContext;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.slf4j.Logger;
@@ -30,12 +31,28 @@ public class SimplePaymentService {
     private PaymentEventStore eventStore;
 
     public List<SimplePayment> getAllPayments() {
-        return paymentRepository.findAll();
+        List<SimplePayment> payments = paymentRepository.findAll();
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return payments.stream()
+                .filter(p -> tenantId.equals(p.getTenantId()))
+                .toList();
+        }
+        return payments;
     }
 
     @Cacheable(value = "payments", key = "#id", unless = "#result.isEmpty()")
     public Optional<SimplePayment> getPaymentById(Long id) {
-        return paymentRepository.findById(id);
+        Optional<SimplePayment> payment = paymentRepository.findById(id);
+        // Validate tenant access
+        if (payment.isPresent() && TenantContext.hasTenant()) {
+            SimplePayment p = payment.get();
+            if (!TenantContext.getTenantId().equals(p.getTenantId())) {
+                return Optional.empty();
+            }
+        }
+        return payment;
     }
 
     @Cacheable(value = "payments-by-transaction", key = "#transactionId", unless = "#result.isEmpty()")
@@ -46,13 +63,25 @@ public class SimplePaymentService {
     @Bulkhead(name = "payment-query", type = Bulkhead.Type.SEMAPHORE)
     @Cacheable(value = "payments-by-booking", key = "#bookingId")
     public List<SimplePayment> getPaymentsByBookingId(Long bookingId) {
-        return paymentRepository.findByBookingId(bookingId);
+        List<SimplePayment> payments = paymentRepository.findByBookingId(bookingId);
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return payments.stream()
+                .filter(p -> tenantId.equals(p.getTenantId()))
+                .toList();
+        }
+        return payments;
     }
 
     @Bulkhead(name = "payment-processing", type = Bulkhead.Type.SEMAPHORE)
     @TimeLimiter(name = "payment-processing")
     @CacheEvict(value = {"payments-by-booking"}, key = "#payment.bookingId", allEntries = false)
     public SimplePayment processPayment(SimplePayment payment) {
+        // Set tenant ID from context
+        if (TenantContext.hasTenant()) {
+            payment.setTenantId(TenantContext.getTenantId());
+        }
         payment.setTransactionId(UUID.randomUUID().toString());
         payment.setPaymentTime(LocalDateTime.now());
         payment.setStatus("COMPLETED");

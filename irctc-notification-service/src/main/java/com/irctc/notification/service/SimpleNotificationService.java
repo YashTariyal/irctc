@@ -2,6 +2,7 @@ package com.irctc.notification.service;
 
 import com.irctc.notification.entity.SimpleNotification;
 import com.irctc.notification.repository.SimpleNotificationRepository;
+import com.irctc.notification.tenant.TenantContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +17,37 @@ public class SimpleNotificationService {
     private SimpleNotificationRepository notificationRepository;
 
     public List<SimpleNotification> getAllNotifications() {
-        return notificationRepository.findAll();
+        List<SimpleNotification> notifications = notificationRepository.findAll();
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return notifications.stream()
+                .filter(n -> tenantId.equals(n.getTenantId()))
+                .toList();
+        }
+        return notifications;
     }
 
     public SimpleNotification getNotificationById(Long id) {
-        return notificationRepository.findById(id)
+        SimpleNotification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new com.irctc.notification.exception.EntityNotFoundException("Notification", id));
+        // Validate tenant access
+        if (TenantContext.hasTenant() && !TenantContext.getTenantId().equals(notification.getTenantId())) {
+            throw new com.irctc.notification.exception.EntityNotFoundException("Notification", id);
+        }
+        return notification;
     }
 
     public List<SimpleNotification> getNotificationsByUserId(Long userId) {
-        return notificationRepository.findByUserId(userId);
+        List<SimpleNotification> notifications = notificationRepository.findByUserId(userId);
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return notifications.stream()
+                .filter(n -> tenantId.equals(n.getTenantId()))
+                .toList();
+        }
+        return notifications;
     }
 
     public List<SimpleNotification> getNotificationsByType(String type) {
@@ -39,6 +61,10 @@ public class SimpleNotificationService {
     }
 
     public SimpleNotification createNotification(SimpleNotification notification) {
+        // Set tenant ID from context
+        if (TenantContext.hasTenant()) {
+            notification.setTenantId(TenantContext.getTenantId());
+        }
         notification.setSentTime(LocalDateTime.now());
         notification.setStatus("SENT");
         notification.setCreatedAt(LocalDateTime.now());

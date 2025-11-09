@@ -1,12 +1,15 @@
 package com.irctc.user.entity;
 
+import com.irctc.user.tenant.TenantAware;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notification_preferences")
+@Table(name = "notification_preferences", indexes = {
+    @Index(name = "idx_notification_prefs_tenant_id", columnList = "tenantId")
+})
 @EntityListeners(com.irctc.user.audit.EntityAuditListener.class)
-public class NotificationPreferences {
+public class NotificationPreferences implements TenantAware {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -25,6 +28,9 @@ public class NotificationPreferences {
 
 	@Column
 	private String quietHours; // e.g. "22:00-07:00" (local time)
+	
+	@Column(name = "tenant_id", length = 50)
+	private String tenantId;
 
 	@Column(nullable = false)
 	private LocalDateTime updatedAt = LocalDateTime.now();

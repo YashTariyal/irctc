@@ -2,6 +2,7 @@ package com.irctc.user.service;
 
 import com.irctc.user.entity.SimpleUser;
 import com.irctc.user.repository.SimpleUserRepository;
+import com.irctc.user.tenant.TenantContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,7 +25,15 @@ public class SimpleUserService {
 
     @Cacheable(value = "users", key = "#id", unless = "#result.isEmpty()")
     public Optional<SimpleUser> getUserById(Long id) {
-        return userRepository.findById(id);
+        Optional<SimpleUser> user = userRepository.findById(id);
+        // Validate tenant access
+        if (user.isPresent() && TenantContext.hasTenant()) {
+            SimpleUser u = user.get();
+            if (!TenantContext.getTenantId().equals(u.getTenantId())) {
+                return Optional.empty();
+            }
+        }
+        return user;
     }
 
     @Cacheable(value = "users-by-email", key = "#email", unless = "#result.isEmpty()")
@@ -38,11 +47,23 @@ public class SimpleUserService {
     }
 
     public List<SimpleUser> getAllUsers() {
-        return userRepository.findAll();
+        List<SimpleUser> users = userRepository.findAll();
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return users.stream()
+                .filter(u -> tenantId.equals(u.getTenantId()))
+                .toList();
+        }
+        return users;
     }
 
     @CacheEvict(value = {"users", "users-by-email"}, allEntries = false)
     public SimpleUser createUser(SimpleUser user) {
+        // Set tenant ID from context
+        if (TenantContext.hasTenant()) {
+            user.setTenantId(TenantContext.getTenantId());
+        }
         return userRepository.save(user);
     }
 
