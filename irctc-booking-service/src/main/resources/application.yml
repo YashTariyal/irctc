@@ -43,14 +43,18 @@ spring:
   # Redis Configuration
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
       timeout: 2000ms
       lettuce:
         pool:
           max-active: 8
           max-idle: 8
           min-idle: 0
+  cache:
+    type: redis
+    redis:
+      time-to-live: 900000  # 15 minutes default
 
 # Eureka Client Configuration
 eureka:
@@ -75,10 +79,19 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus,flyway
   endpoint:
     health:
       show-details: always
+      probes:
+        enabled: true  # Enable Kubernetes readiness/liveness probes
+    flyway:
+      enabled: true  # Enable Flyway endpoint
+  health:
+    liveness-state:
+      enabled: true
+    readiness-state:
+      enabled: true
   prometheus:
     metrics:
       export:
@@ -130,6 +143,37 @@ resilience4j:
         timeout-duration: 15s
 
 # Logging Configuration
+logging:
+  request-response:
+    enabled: true
+    log-request-body: true
+    log-response-body: true
+    max-body-size: 10000  # Maximum body size to log (characters)
+    slow-request-threshold: 2000  # Log warning if request takes longer than this (ms)
+    mask-pii: true  # Mask personally identifiable information
+
+# Distributed Locking Configuration
+distributed-lock:
+  default-timeout: 30  # Default lock timeout in seconds
+  default-wait-time: 5  # Default wait time to acquire lock in seconds
+  enable-metrics: true  # Enable Prometheus metrics for locks
+
+# Validation & Sanitization Configuration
+validation:
+  sanitization:
+    enabled: true  # Enable input sanitization
+    block-on-violation: true  # Block requests with malicious input
+    log-violations: true  # Log security violations
+
+# Performance Monitoring & APM Configuration
+performance:
+  monitoring:
+    enabled: true  # Enable performance monitoring
+    slow-query-threshold: 1000  # Slow query threshold in milliseconds
+    memory-leak-threshold: 80  # Memory leak threshold percentage
+    cpu-threshold: 80  # CPU threshold percentage
+
+# Application Logging Configuration
 logging:
   level:
     com.irctc.booking: DEBUG
