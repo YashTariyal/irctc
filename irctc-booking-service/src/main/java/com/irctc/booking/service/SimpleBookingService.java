@@ -61,7 +61,15 @@ public class SimpleBookingService {
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     public List<SimpleBooking> getAllBookings() {
-        return bookingRepository.findAll();
+        List<SimpleBooking> bookings = bookingRepository.findAll();
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return bookings.stream()
+                .filter(b -> tenantId.equals(b.getTenantId()))
+                .toList();
+        }
+        return bookings;
     }
 
     @Bulkhead(name = "booking-query", type = Bulkhead.Type.SEMAPHORE)
