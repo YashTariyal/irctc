@@ -20,7 +20,7 @@ public class AuditLog {
     @Column(nullable = false, length = 100)
     private String entityType; // e.g., "Booking", "Payment"
     
-    @Column(nullable = false)
+    @Column(nullable = true) // Nullable for CREATE operations before entity is saved
     private Long entityId;
     
     @Column(nullable = false, length = 50)

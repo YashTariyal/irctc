@@ -1,6 +1,7 @@
 package com.irctc.booking.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.irctc.booking.entity.SimpleBooking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,12 @@ public class BookingStatusHandler extends TextWebSocketHandler {
     
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final Map<String, Long> userSubscriptions = new ConcurrentHashMap<>(); // sessionId -> userId
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+    
+    public BookingStatusHandler() {
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new JavaTimeModule());
+    }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {

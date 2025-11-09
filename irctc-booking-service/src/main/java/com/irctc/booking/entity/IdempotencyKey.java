@@ -7,35 +7,35 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "idempotency_keys", indexes = {
-    @Index(name = "idx_idemp_key", columnList = "idempotencyKey", unique = true)
+    @Index(name = "idx_idemp_key", columnList = "idempotency_key", unique = true)
 })
 public class IdempotencyKey {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 128)
+    @Column(name = "idempotency_key", nullable = false, unique = true, length = 128)
     private String idempotencyKey;
 
-    @Column(nullable = false, length = 16)
+    @Column(name = "http_method", nullable = false, length = 16)
     private String httpMethod;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "request_path", nullable = false, length = 255)
     private String requestPath;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "request_hash", columnDefinition = "TEXT")
     private String requestHash;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "response_body", columnDefinition = "TEXT")
     private String responseBody;
 
-    @Column(length = 64)
+    @Column(name = "response_status", length = 64)
     private String responseStatus;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column
+    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
     @PrePersist

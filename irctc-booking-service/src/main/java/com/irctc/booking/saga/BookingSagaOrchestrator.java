@@ -3,6 +3,7 @@ package com.irctc.booking.saga;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.irctc.booking.entity.SimpleBooking;
+import com.irctc.booking.eventtracking.TrackedEventPublisher;
 import com.irctc.booking.repository.SimpleBookingRepository;
 import com.irctc.booking.service.SimpleBookingService;
 import com.irctc.shared.events.BookingEvents;
@@ -48,6 +49,9 @@ public class BookingSagaOrchestrator {
     
     @Autowired(required = false)
     private KafkaTemplate<String, Object> kafkaTemplate;
+    
+    @Autowired(required = false)
+    private TrackedEventPublisher trackedEventPublisher;
     
     private final ObjectMapper objectMapper = new ObjectMapper();
     
@@ -183,15 +187,19 @@ public class BookingSagaOrchestrator {
                 null, // paymentId - will be set by payment service
                 bookingId,
                 booking.getUserId(),
-                BigDecimal.valueOf(booking.getTotalFare()),
+                booking.getTotalFare(),
                 "INR",
                 "CREDIT_CARD"
             );
             
-            if (kafkaTemplate != null) {
-                kafkaTemplate.send("payment-initiated", paymentEvent);
-                logger.info("📤 Published payment initiated event for booking: {}", bookingId);
-            }
+                   // Use TrackedEventPublisher if available, fallback to kafkaTemplate
+                   if (trackedEventPublisher != null) {
+                       trackedEventPublisher.publishEvent("payment-initiated", paymentEvent);
+                       logger.info("📤 Published payment initiated event (tracked) for booking: {}", bookingId);
+                   } else if (kafkaTemplate != null) {
+                       kafkaTemplate.send("payment-initiated", paymentEvent);
+                       logger.info("📤 Published payment initiated event for booking: {}", bookingId);
+                   }
             
             // In a real implementation, we would wait for payment completion event
             // For now, we'll simulate payment success
@@ -235,10 +243,14 @@ public class BookingSagaOrchestrator {
                 booking.getPnrNumber()
             );
             
-            if (kafkaTemplate != null) {
-                kafkaTemplate.send("booking-confirmed", confirmedEvent);
-                logger.info("📤 Published booking confirmed event for booking: {}", bookingId);
-            }
+                   // Use TrackedEventPublisher if available, fallback to kafkaTemplate
+                   if (trackedEventPublisher != null) {
+                       trackedEventPublisher.publishEvent("booking-confirmed", confirmedEvent);
+                       logger.info("📤 Published booking confirmed event (tracked) for booking: {}", bookingId);
+                   } else if (kafkaTemplate != null) {
+                       kafkaTemplate.send("booking-confirmed", confirmedEvent);
+                       logger.info("📤 Published booking confirmed event for booking: {}", bookingId);
+                   }
             
             logger.info("✅ Step 3 completed: Notification sent");
             return sagaRepository.save(saga);
@@ -284,7 +296,7 @@ public class BookingSagaOrchestrator {
                     null, // paymentId - would be actual payment ID
                     Long.valueOf(sagaData.get("bookingId").toString()),
                     null, // userId
-                    BigDecimal.valueOf(Double.parseDouble(sagaData.get("totalFare").toString())),
+                    new BigDecimal(sagaData.get("totalFare").toString()),
                     "Saga compensation"
                 );
                 

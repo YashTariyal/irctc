@@ -138,8 +138,13 @@ public class AuditAspect {
             throw throwable; // Re-throw the exception
         } finally {
             // Save audit log asynchronously to avoid blocking
+            // Only save if entityId is set or if this is a CREATE operation (entityId may be null initially)
             try {
-                auditLogRepository.save(auditLog);
+                if (auditLog.getEntityId() != null || "CREATE".equals(auditable.action())) {
+                    auditLogRepository.save(auditLog);
+                } else {
+                    logger.warn("Skipping audit log save: entityId is null and action is not CREATE");
+                }
             } catch (Exception e) {
                 logger.error("Failed to save audit log", e);
             }

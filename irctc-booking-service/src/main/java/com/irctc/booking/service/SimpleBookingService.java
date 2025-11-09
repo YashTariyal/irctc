@@ -1,20 +1,23 @@
 package com.irctc.booking.service;
 
 import com.irctc.booking.entity.SimpleBooking;
+import com.irctc.booking.eventtracking.TrackedEventPublisher;
 import com.irctc.booking.exception.EntityNotFoundException;
 import com.irctc.booking.eventsourcing.BookingEventStore;
 import com.irctc.booking.metrics.BookingMetrics;
 import com.irctc.booking.repository.SimpleBookingRepository;
 import com.irctc.booking.websocket.BookingStatusHandler;
+import com.irctc.shared.events.BookingEvents;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +45,12 @@ public class SimpleBookingService {
     
     @Autowired(required = false)
     private BookingEventStore eventStore;
+    
+    @Autowired(required = false)
+    private TrackedEventPublisher trackedEventPublisher;
+    
+    @Autowired(required = false)
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     public List<SimpleBooking> getAllBookings() {
         return bookingRepository.findAll();
@@ -107,7 +116,6 @@ public class SimpleBookingService {
     }
 
     @Bulkhead(name = "booking-creation", type = Bulkhead.Type.SEMAPHORE)
-    @TimeLimiter(name = "booking-creation")
     public SimpleBooking createBooking(SimpleBooking booking) {
         Timer.Sample timer = bookingMetrics != null ? bookingMetrics.startBookingCreationTimer() : null;
         
@@ -120,23 +128,56 @@ public class SimpleBookingService {
             
             // Store event in event store (Event Sourcing)
             if (eventStore != null) {
-                Map<String, Object> eventData = new HashMap<>();
-                eventData.put("bookingId", saved.getId());
-                eventData.put("userId", saved.getUserId());
-                eventData.put("trainId", saved.getTrainId());
-                eventData.put("pnrNumber", saved.getPnrNumber());
-                eventData.put("totalFare", saved.getTotalFare());
-                eventData.put("status", saved.getStatus());
-                eventData.put("bookingTime", saved.getBookingTime());
-                
-                eventStore.appendEvent(
-                    saved.getId().toString(),
-                    "BOOKING_CREATED",
-                    eventData,
-                    UUID.randomUUID().toString(), // correlationId
-                    saved.getUserId().toString()
+                try {
+                    Map<String, Object> eventData = new HashMap<>();
+                    eventData.put("bookingId", saved.getId());
+                    eventData.put("userId", saved.getUserId());
+                    eventData.put("trainId", saved.getTrainId());
+                    eventData.put("pnrNumber", saved.getPnrNumber());
+                    eventData.put("totalFare", saved.getTotalFare());
+                    eventData.put("status", saved.getStatus());
+                    // Convert LocalDateTime to String to avoid serialization issues
+                    eventData.put("bookingTime", saved.getBookingTime() != null ? saved.getBookingTime().toString() : null);
+                    
+                    eventStore.appendEvent(
+                        saved.getId().toString(),
+                        "BOOKING_CREATED",
+                        eventData,
+                        UUID.randomUUID().toString(), // correlationId
+                        saved.getUserId().toString()
+                    );
+                    logger.info("📝 Event stored: BOOKING_CREATED for booking: {}", saved.getId());
+                } catch (Exception e) {
+                    logger.error("Failed to store event for booking: {}", saved.getId(), e);
+                    // Don't fail the booking creation if event storage fails
+                }
+            }
+            
+            // Publish event to Kafka (for event tracking and downstream services)
+            try {
+                BookingEvents.BookingCreatedEvent bookingEvent = new BookingEvents.BookingCreatedEvent(
+                    saved.getId(),
+                    saved.getUserId(),
+                    saved.getTrainId(),
+                    saved.getPnrNumber(),
+                    saved.getTotalFare(),
+                    saved.getPassengers() != null ? saved.getPassengers().size() : 0,
+                    saved.getBookingTime()
                 );
-                logger.info("📝 Event stored: BOOKING_CREATED for booking: {}", saved.getId());
+                
+                // Use TrackedEventPublisher if available (for event tracking), fallback to kafkaTemplate
+                if (trackedEventPublisher != null) {
+                    trackedEventPublisher.publishEvent("booking-created", bookingEvent);
+                    logger.info("📤 Published booking created event (tracked) for booking: {}", saved.getId());
+                } else if (kafkaTemplate != null) {
+                    kafkaTemplate.send("booking-created", bookingEvent);
+                    logger.info("📤 Published booking created event for booking: {}", saved.getId());
+                } else {
+                    logger.debug("Kafka not available, skipping event publication for booking: {}", saved.getId());
+                }
+            } catch (Exception e) {
+                logger.error("Failed to publish booking created event for booking: {}", saved.getId(), e);
+                // Don't fail the booking creation if event publishing fails
             }
             
             // Metrics

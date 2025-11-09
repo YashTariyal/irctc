@@ -4,6 +4,8 @@ import com.irctc.shared.events.BookingEvents;
 import com.irctc.notification.entity.SimpleNotification;
 import com.irctc.notification.repository.SimpleNotificationRepository;
 import com.irctc.notification.metrics.NotificationMetrics;
+import com.irctc.notification.eventtracking.TrackedEventConsumer;
+import com.irctc.notification.eventtracking.TrackedEventConsumer.TrackedEventResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,21 +48,43 @@ public class TicketConfirmationConsumer {
     @Autowired(required = false)
     private Tracer tracer;
     
+    @Autowired
+    private TrackedEventConsumer trackedEventConsumer;
+    
     /**
-     * Consume ticket confirmation events from Kafka
+     * Consume ticket confirmation events from Kafka with idempotency checks
      */
     @KafkaListener(topics = {"ticket-confirmation-events", "ticket-confirmation-events.DLT"}, groupId = "notification-service")
     @Transactional
     public void handleTicketConfirmation(BookingEvents.TicketConfirmationEvent event,
-                                         @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
+                                         @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                                         @Header(KafkaHeaders.RECEIVED_PARTITION) Integer partition,
+                                         @Header(KafkaHeaders.OFFSET) Long offset) {
         Span span = startSpan("notification.consume.ticket_confirmation");
+        TrackedEventResult trackingResult = null;
+        
         try (SpanInScope ignored = span != null && tracer != null ? tracer.withSpan(span) : null) {
+            // Track event consumption with idempotency check
+            trackingResult = trackedEventConsumer.trackConsumption(
+                topic, partition, offset, "notification-service", event
+            );
+            
+            // Check if already processed (idempotency)
+            if (trackingResult.isAlreadyProcessed()) {
+                logger.info("⚠️ Ticket confirmation event {} already processed, skipping duplicate - PNR: {}", 
+                           trackingResult.getEventId(), event.getPnrNumber());
+                return; // Skip duplicate processing
+            }
+            
             String requestId = event.getRequestId() != null ? event.getRequestId() : "unknown";
             String traceId = tracer != null && tracer.currentSpan() != null ? tracer.currentSpan().context().traceId() : "no-trace";
             logger.info("Consuming ticket confirmation event topic={}, user: {}, PNR: {}, traceId: {} - RequestId: {}",
                        topic, event.getUserId(), event.getPnrNumber(), traceId, requestId);
 
             metrics.incrementConsumedEvent(topic != null ? topic : "unknown");
+            
+            // Mark as processing
+            trackingResult.markProcessing();
 
             boolean simulateDlq = Boolean.getBoolean("simulate.dlq");
             if (simulateDlq && (topic == null || !topic.endsWith(".DLT"))) {
@@ -73,13 +97,29 @@ public class TicketConfirmationConsumer {
                 sendSmsNotification(event, requestId);
                 sendPushNotification(event, requestId);
                 storeNotificationRecord(event, requestId);
+                
+                // Mark as processed (success)
+                trackingResult.markProcessed();
+                
                 logger.info("Successfully processed confirmation event for PNR: {} - RequestId: {}", 
                            event.getPnrNumber(), requestId);
             } catch (Exception e) {
+                // Mark as failed
+                if (trackingResult != null) {
+                    trackingResult.markFailed(e);
+                }
                 metrics.incrementConsumerError(topic != null ? topic : "unknown");
                 logger.error("Error processing confirmation event for PNR: {} - RequestId: {}", 
                             event.getPnrNumber(), requestId, e);
+                throw e; // Re-throw to trigger retry/DLQ
             }
+        } catch (Exception e) {
+            // Mark as failed if not already marked
+            if (trackingResult != null && trackingResult.getLog().getStatus() != 
+                com.irctc.notification.eventtracking.EventConsumptionLog.ConsumptionStatus.FAILED) {
+                trackingResult.markFailed(e);
+            }
+            throw e; // Re-throw to trigger retry/DLQ
         } finally {
             endSpan(span);
         }

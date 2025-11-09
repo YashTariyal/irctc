@@ -6,6 +6,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -127,9 +128,9 @@ public class BookingMetrics {
         bookingsFailed.increment();
     }
 
-    public void recordRevenue(Double amount) {
-        if (amount != null && amount > 0) {
-            revenueGenerated.increment(amount);
+    public void recordRevenue(BigDecimal amount) {
+        if (amount != null && amount.compareTo(BigDecimal.ZERO) > 0) {
+            revenueGenerated.increment(amount.doubleValue());
             totalRevenue.addAndGet(amount.longValue());
         }
     }

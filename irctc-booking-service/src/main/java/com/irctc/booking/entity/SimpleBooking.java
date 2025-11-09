@@ -2,6 +2,7 @@ package com.irctc.booking.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,8 +37,8 @@ public class SimpleBooking {
     @Column(nullable = false)
     private String status;
     
-    @Column(nullable = false)
-    private Double totalFare;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalFare;
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "booking_id")

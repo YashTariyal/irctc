@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +103,7 @@ public class BookingEventReplayService {
             booking.setPnrNumber(eventData.get("pnrNumber").toString());
         }
         if (booking.getTotalFare() == null) {
-            booking.setTotalFare(Double.valueOf(eventData.get("totalFare").toString()));
+            booking.setTotalFare(new BigDecimal(eventData.get("totalFare").toString()));
         }
         booking.setStatus("PENDING");
         if (booking.getBookingTime() == null && eventData.containsKey("bookingTime")) {
@@ -116,7 +117,7 @@ public class BookingEventReplayService {
             booking.setStatus(eventData.get("status").toString());
         }
         if (eventData.containsKey("totalFare")) {
-            booking.setTotalFare(Double.valueOf(eventData.get("totalFare").toString()));
+            booking.setTotalFare(new BigDecimal(eventData.get("totalFare").toString()));
         }
         return booking;
     }
@@ -140,7 +141,7 @@ public class BookingEventReplayService {
     
     private SimpleBooking applyFareUpdated(SimpleBooking booking, Map<String, Object> eventData) {
         if (eventData.containsKey("newFare")) {
-            booking.setTotalFare(Double.valueOf(eventData.get("newFare").toString()));
+            booking.setTotalFare(new BigDecimal(eventData.get("newFare").toString()));
         }
         return booking;
     }

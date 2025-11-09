@@ -27,17 +27,17 @@ CREATE INDEX IF NOT EXISTS idx_outbox_status_created ON outbox_events(status, cr
 -- Idempotency Keys table
 CREATE TABLE IF NOT EXISTS idempotency_keys (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  idempotencyKey VARCHAR(128) NOT NULL UNIQUE,
-  httpMethod VARCHAR(16) NOT NULL,
-  requestPath VARCHAR(255) NOT NULL,
-  requestHash TEXT,
-  responseBody TEXT,
-  responseStatus VARCHAR(64),
-  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  completedAt TIMESTAMP
+  idempotency_key VARCHAR(128) NOT NULL UNIQUE,
+  http_method VARCHAR(16) NOT NULL,
+  request_path VARCHAR(255) NOT NULL,
+  request_hash TEXT,
+  response_body TEXT,
+  response_status VARCHAR(64),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  completed_at TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_idemp_key ON idempotency_keys(idempotencyKey);
+CREATE INDEX IF NOT EXISTS idx_idemp_key ON idempotency_keys(idempotency_key);
 
 -- Passengers table
 CREATE TABLE IF NOT EXISTS passengers (
