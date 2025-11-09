@@ -38,9 +38,9 @@ spring:
             - RewritePath=/api/v1/trains/(?<segment>.*), /api/trains/${segment}
             - name: RequestRateLimiter
               args:
-                key-resolver: '#{@ipKeyResolver}'
-                redis-rate-limiter.replenishRate: 15
-                redis-rate-limiter.burstCapacity: 30
+                key-resolver: '#{@userKeyResolver}'
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
         # Train Service Routes (legacy)
         - id: train-service
           uri: lb://IRCTC-TRAIN-SERVICE
@@ -50,9 +50,9 @@ spring:
             - RewritePath=/api/trains/(?<segment>.*), /api/trains/${segment}
             - name: RequestRateLimiter
               args:
-                key-resolver: '#{@ipKeyResolver}'
-                redis-rate-limiter.replenishRate: 15
-                redis-rate-limiter.burstCapacity: 30
+                key-resolver: '#{@userKeyResolver}'
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
         
         # Booking Service Routes (v1)
         - id: booking-service-v1
@@ -75,9 +75,9 @@ spring:
             - RewritePath=/api/bookings/(?<segment>.*), /api/bookings/${segment}
             - name: RequestRateLimiter
               args:
-                key-resolver: '#{@ipKeyResolver}'
-                redis-rate-limiter.replenishRate: 5
-                redis-rate-limiter.burstCapacity: 10
+                key-resolver: '#{@userKeyResolver}'
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
         
         # Payment Service Routes
         - id: payment-service
@@ -88,9 +88,9 @@ spring:
             - RewritePath=/api/payments/(?<segment>.*), /api/payments/${segment}
             - name: RequestRateLimiter
               args:
-                key-resolver: '#{@ipKeyResolver}'
-                redis-rate-limiter.replenishRate: 3
-                redis-rate-limiter.burstCapacity: 6
+                key-resolver: '#{@userKeyResolver}'
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
         
         # Notification Service Routes
         - id: notification-service
@@ -101,9 +101,9 @@ spring:
             - RewritePath=/api/notifications/(?<segment>.*), /api/notifications/${segment}
             - name: RequestRateLimiter
               args:
-                key-resolver: '#{@ipKeyResolver}'
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 20
+                key-resolver: '#{@userKeyResolver}'
+                redis-rate-limiter.replenishRate: 15
+                redis-rate-limiter.burstCapacity: 30
         
         # Swagger Hub Routes
         - id: swagger-hub
