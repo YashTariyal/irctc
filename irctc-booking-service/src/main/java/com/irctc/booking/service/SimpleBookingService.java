@@ -2,24 +2,31 @@ package com.irctc.booking.service;
 
 import com.irctc.booking.entity.SimpleBooking;
 import com.irctc.booking.exception.EntityNotFoundException;
+import com.irctc.booking.eventsourcing.BookingEventStore;
 import com.irctc.booking.metrics.BookingMetrics;
 import com.irctc.booking.repository.SimpleBookingRepository;
 import com.irctc.booking.websocket.BookingStatusHandler;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.micrometer.core.instrument.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
 public class SimpleBookingService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SimpleBookingService.class);
 
     @Autowired
     private SimpleBookingRepository bookingRepository;
@@ -32,6 +39,9 @@ public class SimpleBookingService {
 
     @Autowired(required = false)
     private BookingStatusHandler bookingStatusHandler;
+    
+    @Autowired(required = false)
+    private BookingEventStore eventStore;
 
     public List<SimpleBooking> getAllBookings() {
         return bookingRepository.findAll();
@@ -108,6 +118,27 @@ public class SimpleBookingService {
             booking.setCreatedAt(LocalDateTime.now());
             SimpleBooking saved = bookingRepository.save(booking);
             
+            // Store event in event store (Event Sourcing)
+            if (eventStore != null) {
+                Map<String, Object> eventData = new HashMap<>();
+                eventData.put("bookingId", saved.getId());
+                eventData.put("userId", saved.getUserId());
+                eventData.put("trainId", saved.getTrainId());
+                eventData.put("pnrNumber", saved.getPnrNumber());
+                eventData.put("totalFare", saved.getTotalFare());
+                eventData.put("status", saved.getStatus());
+                eventData.put("bookingTime", saved.getBookingTime());
+                
+                eventStore.appendEvent(
+                    saved.getId().toString(),
+                    "BOOKING_CREATED",
+                    eventData,
+                    UUID.randomUUID().toString(), // correlationId
+                    saved.getUserId().toString()
+                );
+                logger.info("📝 Event stored: BOOKING_CREATED for booking: {}", saved.getId());
+            }
+            
             // Metrics
             if (bookingMetrics != null) {
                 bookingMetrics.incrementBookingsCreated();
@@ -155,6 +186,31 @@ public class SimpleBookingService {
 
         SimpleBooking saved = bookingRepository.save(booking);
         
+        // Store event in event store (Event Sourcing)
+        if (eventStore != null && !oldStatus.equals(saved.getStatus())) {
+            Map<String, Object> eventData = new HashMap<>();
+            eventData.put("bookingId", saved.getId());
+            eventData.put("oldStatus", oldStatus);
+            eventData.put("newStatus", saved.getStatus());
+            eventData.put("userId", saved.getUserId());
+            
+            String eventType = "BOOKING_STATUS_CHANGED";
+            if ("CANCELLED".equals(saved.getStatus())) {
+                eventType = "BOOKING_CANCELLED";
+            } else if ("CONFIRMED".equals(saved.getStatus())) {
+                eventType = "BOOKING_CONFIRMED";
+            }
+            
+            eventStore.appendEvent(
+                saved.getId().toString(),
+                eventType,
+                eventData,
+                UUID.randomUUID().toString(),
+                saved.getUserId().toString()
+            );
+            logger.info("📝 Event stored: {} for booking: {}", eventType, saved.getId());
+        }
+        
         // Metrics - track status changes
         if (bookingMetrics != null && !oldStatus.equals(saved.getStatus())) {
             if ("CONFIRMED".equals(saved.getStatus())) {
@@ -186,6 +242,24 @@ public class SimpleBookingService {
                     .orElseThrow(() -> new EntityNotFoundException("Booking", id));
             booking.setStatus("CANCELLED");
             SimpleBooking saved = bookingRepository.save(booking);
+            
+            // Store event in event store (Event Sourcing)
+            if (eventStore != null) {
+                Map<String, Object> eventData = new HashMap<>();
+                eventData.put("bookingId", saved.getId());
+                eventData.put("userId", saved.getUserId());
+                eventData.put("pnrNumber", saved.getPnrNumber());
+                eventData.put("cancellationTime", LocalDateTime.now());
+                
+                eventStore.appendEvent(
+                    saved.getId().toString(),
+                    "BOOKING_CANCELLED",
+                    eventData,
+                    UUID.randomUUID().toString(),
+                    saved.getUserId().toString()
+                );
+                logger.info("📝 Event stored: BOOKING_CANCELLED for booking: {}", saved.getId());
+            }
             
             // Metrics
             if (bookingMetrics != null) {
