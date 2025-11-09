@@ -52,7 +52,14 @@ public class SimpleBookingController {
     @PostMapping
     @Auditable(entityType = "Booking", action = "CREATE", logRequestBody = true)
     public ResponseEntity<SimpleBooking> createBooking(@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+                                                       @RequestParam(value = "useSaga", defaultValue = "false") boolean useSaga,
                                                        @RequestBody SimpleBooking booking) {
+        if (useSaga) {
+            // Use saga pattern for distributed transaction
+            // This will be handled by SagaController
+            return ResponseEntity.badRequest().build();
+        }
+        
         SimpleBooking newBooking = idempotencyService.process(
                 idempotencyKey,
                 "POST",
