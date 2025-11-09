@@ -140,6 +140,15 @@ management:
     export:
       prometheus:
         enabled: true
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0  # 100% sampling for development
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces  # Jaeger OTLP HTTP endpoint
+      export:
+        enabled: true
 
 # Swagger Configuration
 springdoc:
