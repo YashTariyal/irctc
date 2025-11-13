@@ -518,12 +518,6 @@ public class EnhancedRequestResponseLoggingFilter implements Filter {
         }
         
         @Override
-        // Removed deprecated setStatus method {
-            this.status = sc;
-            super.setStatus(sc, sm);
-        }
-        
-        @Override
         public int getStatus() {
             return status;
         }

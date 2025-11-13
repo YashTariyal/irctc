@@ -84,4 +84,11 @@ public class SimpleUser implements TenantAware {
     
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    
+    // TenantAware interface methods
+    @Override
+    public String getTenantId() { return tenantId; }
+    
+    @Override
+    public void setTenantId(String tenantId) { this.tenantId = tenantId; }
 }
