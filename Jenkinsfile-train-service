@@ -35,8 +35,10 @@ pipeline {
                             sh """
                                 if [ -d .git ]; then
                                     echo "Git repository already exists, pulling latest..."
-                                    git fetch --all || true
+                                    git fetch --all --prune || true
+                                    git fetch origin ${branch}:${branch} --force || git fetch origin main:main --force || true
                                     git reset --hard origin/${branch} || git reset --hard origin/main || true
+                                    git clean -fd || true
                                 else
                                     echo "No git repository found, cloning..."
                                     git clone --depth 1 --branch ${branch} ${repoUrl} . || \
