@@ -236,6 +236,11 @@ public class SimpleBookingService {
         SimpleBooking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Booking", id));
 
+        // Validate tenant access
+        if (TenantContext.hasTenant() && !TenantContext.getTenantId().equals(booking.getTenantId())) {
+            throw new EntityNotFoundException("Booking", id);
+        }
+
         String oldStatus = booking.getStatus();
         
         booking.setUserId(bookingDetails.getUserId());
@@ -300,6 +305,12 @@ public class SimpleBookingService {
         try {
             SimpleBooking booking = bookingRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Booking", id));
+            
+            // Validate tenant access
+            if (TenantContext.hasTenant() && !TenantContext.getTenantId().equals(booking.getTenantId())) {
+                throw new EntityNotFoundException("Booking", id);
+            }
+            
             booking.setStatus("CANCELLED");
             SimpleBooking saved = bookingRepository.save(booking);
             
@@ -357,6 +368,11 @@ public class SimpleBookingService {
         try {
             SimpleBooking booking = bookingRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Booking", id));
+            
+            // Validate tenant access
+            if (TenantContext.hasTenant() && !TenantContext.getTenantId().equals(booking.getTenantId())) {
+                throw new EntityNotFoundException("Booking", id);
+            }
             
             // Invalidate cache before deletion
             if (cacheService != null) {
