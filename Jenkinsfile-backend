@@ -1,0 +1,227 @@
+pipeline {
+    agent any
+    tools {
+        maven 'maven'
+    }
+    
+    // Define environment variables for the pipeline
+    environment {
+        // Path to your Tomcat installation directory.
+        // Replace with the actual path on your Jenkins agent.
+        TOMCAT_HOME = '/opt/homebrew/opt/tomcat@9/libexec'
+        
+        // Name of the artifact produced by the build, based on your pom.xml
+        APP_NAME = 'irctc-0.0.1-SNAPSHOT'
+        
+        APP_PORT = '8082'
+        
+        // Health check configuration
+        HEALTH_CHECK_URL = "http://localhost:${APP_PORT}/actuator/health"
+        HEALTH_CHECK_MAX_RETRIES = '15'
+        HEALTH_CHECK_RETRY_DELAY = '10'
+        HEALTH_CHECK_INITIAL_WAIT = '20'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo '🔄 Cloning the Git repository...'
+                git url: 'https://github.com/YashTariyal/irctc.git',
+                    branch: 'main'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo '🔨 Building the application with Maven...'
+                sh 'mvn clean package -DskipTests'
+            }
+            post {
+                success {
+                    echo '✅ Build completed successfully'
+                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                }
+            }
+        }
+        
+        stage('Run Application') {
+            steps {
+                echo '🚀 Starting the application as a standalone JAR...'
+                script {
+                    // Find and kill any existing process running on the specified port
+                    sh """
+                        echo "Checking for existing processes on port ${env.APP_PORT}..."
+                        PID=\$(sudo lsof -t -i tcp:${env.APP_PORT} 2>/dev/null || echo "")
+                        if [ -n "\$PID" ]; then
+                            echo "Found existing process \$PID, killing it..."
+                            sudo kill -9 \$PID || true
+                            sleep 2
+                        else
+                            echo "No existing process found on port ${env.APP_PORT}"
+                        fi
+                    """
+                    
+                    // Run the JAR file in the background using nohup
+                    sh """
+                        echo "Starting application..."
+                        nohup java -jar target/${env.APP_NAME}.jar > app.log 2>&1 &
+                        echo \$! > app.pid
+                        echo "Application started with PID: \$(cat app.pid)"
+                        echo "Application started in the background. Check 'app.log' for logs."
+                    """
+                    
+                    // Wait a bit for the application to start
+                    echo "Waiting ${env.HEALTH_CHECK_INITIAL_WAIT} seconds for application to initialize..."
+                    sleep(time: env.HEALTH_CHECK_INITIAL_WAIT.toInteger(), unit: 'SECONDS')
+                    
+                    // Show initial logs
+                    sh """
+                        echo "=== Initial Application Logs (last 20 lines) ==="
+                        tail -20 app.log || echo "No logs yet"
+                        echo "============================================="
+                    """
+                }
+            }
+        }
+        
+        stage('Deploy to Tomcat') {
+            steps {
+                echo '📦 Deploying the JAR file to Tomcat...'
+                script {
+                    def sourceJar = "target/${env.APP_NAME}.jar"
+                    def tomcatWebapps = "${env.TOMCAT_HOME}/webapps"
+                    def destinationJar = "${tomcatWebapps}/${env.APP_NAME}.jar"
+                    
+                    if (fileExists(sourceJar)) {
+                        echo "✅ Source JAR file found at: ${sourceJar}"
+                        sh "cp ${sourceJar} ${destinationJar}"
+                        echo "✅ Deployment successful! The application has been deployed to Tomcat."
+                    } else {
+                        error "❌ Build failed! The JAR file was not found at ${sourceJar}."
+                    }
+                }
+            }
+        }
+        
+        stage('Health Check') {
+            steps {
+                echo '🏥 Starting health check...'
+                script {
+                    def maxRetries = env.HEALTH_CHECK_MAX_RETRIES.toInteger()
+                    def retryDelay = env.HEALTH_CHECK_RETRY_DELAY.toInteger()
+                    def healthCheckPassed = false
+                    
+                    for (int i = 0; i < maxRetries; i++) {
+                        echo "Health check attempt ${i + 1}/${maxRetries}..."
+                        
+                        try {
+                            // First, check if the application process is still running
+                            def pid = sh(script: 'cat app.pid 2>/dev/null || echo ""', returnStdout: true).trim()
+                            if (pid && sh(script: "ps -p ${pid} > /dev/null 2>&1", returnStatus: true) != 0) {
+                                echo "⚠️  Application process (PID: ${pid}) is not running!"
+                                sh """
+                                    echo "=== Last 50 lines of app.log ==="
+                                    tail -50 app.log || echo "No logs available"
+                                    echo "================================"
+                                """
+                                error "Application process died. Check app.log for errors."
+                            }
+                            
+                            // Try to get the health check response
+                            def httpCode = sh(
+                                script: "curl -s -o /tmp/health_response.json -w '%{http_code}' ${env.HEALTH_CHECK_URL} || echo '000'",
+                                returnStdout: true
+                            ).trim()
+                            
+                            echo "HTTP Status Code: ${httpCode}"
+                            
+                            // Show health check response for debugging
+                            if (httpCode != '000') {
+                                sh """
+                                    echo "=== Health Check Response ==="
+                                    cat /tmp/health_response.json | head -50 || echo "No response body"
+                                    echo "============================="
+                                """
+                            }
+                            
+                            // Check if we got a successful response
+                            if (httpCode == '200') {
+                                echo "✅ Health check passed! Application is healthy."
+                                healthCheckPassed = true
+                                break
+                            } else if (httpCode == '503') {
+                                echo "⚠️  Health check returned 503 (Service Unavailable). This might be normal during startup."
+                                if (i < maxRetries - 1) {
+                                    echo "Retrying in ${retryDelay} seconds... (${i + 1}/${maxRetries})"
+                                    sleep(time: retryDelay, unit: 'SECONDS')
+                                }
+                            } else if (httpCode == '000') {
+                                echo "⚠️  Could not connect to application (connection refused or timeout)."
+                                if (i < maxRetries - 1) {
+                                    echo "Retrying in ${retryDelay} seconds... (${i + 1}/${maxRetries})"
+                                    sleep(time: retryDelay, unit: 'SECONDS')
+                                }
+                            } else {
+                                echo "⚠️  Unexpected HTTP status code: ${httpCode}"
+                                if (i < maxRetries - 1) {
+                                    echo "Retrying in ${retryDelay} seconds... (${i + 1}/${maxRetries})"
+                                    sleep(time: retryDelay, unit: 'SECONDS')
+                                }
+                            }
+                            
+                        } catch (Exception e) {
+                            echo "⚠️  Health check error: ${e.getMessage()}"
+                            if (i < maxRetries - 1) {
+                                echo "Retrying in ${retryDelay} seconds... (${i + 1}/${maxRetries})"
+                                sleep(time: retryDelay, unit: 'SECONDS')
+                            }
+                        }
+                    }
+                    
+                    if (!healthCheckPassed) {
+                        // Show final diagnostic information
+                        sh """
+                            echo "=== Final Diagnostics ==="
+                            echo "Application PID: \$(cat app.pid 2>/dev/null || echo 'N/A')"
+                            echo "Process status:"
+                            ps aux | grep -i "${env.APP_NAME}" | grep -v grep || echo "No process found"
+                            echo ""
+                            echo "Port ${env.APP_PORT} status:"
+                            sudo lsof -i tcp:${env.APP_PORT} || echo "Port not in use"
+                            echo ""
+                            echo "=== Last 100 lines of app.log ==="
+                            tail -100 app.log || echo "No logs available"
+                            echo "=================================="
+                        """
+                        error "❌ Health check failed after ${maxRetries} retries. The application is not responding correctly."
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                // Archive logs for debugging
+                if (fileExists('app.log')) {
+                    archiveArtifacts artifacts: 'app.log', allowEmptyArchive: true
+                }
+                if (fileExists('app.pid')) {
+                    def pid = sh(script: 'cat app.pid 2>/dev/null || echo ""', returnStdout: true).trim()
+                    if (pid) {
+                        echo "Application PID was: ${pid}"
+                    }
+                }
+            }
+        }
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed!'
+            echo "Check console output and app.log for details."
+        }
+    }
+}
+
