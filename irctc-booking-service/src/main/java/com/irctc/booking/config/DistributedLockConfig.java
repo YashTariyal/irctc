@@ -19,8 +19,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @ConditionalOnProperty(name = "spring.data.redis.host")
 public class DistributedLockConfig {
 
-    @Bean(name = "stringRedisTemplate")
-    public RedisTemplate<String, String> stringRedisTemplate(RedisConnectionFactory connectionFactory) {
+    @Bean(name = "distributedLockRedisTemplate")
+    public RedisTemplate<String, String> distributedLockRedisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());

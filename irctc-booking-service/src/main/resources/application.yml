@@ -10,6 +10,8 @@ server:
 spring:
   application:
     name: irctc-booking-service
+  main:
+    allow-bean-definition-overriding: true
   cloud:
     compatibility-verifier:
       enabled: false
@@ -151,6 +153,12 @@ logging:
     max-body-size: 10000  # Maximum body size to log (characters)
     slow-request-threshold: 2000  # Log warning if request takes longer than this (ms)
     mask-pii: true  # Mask personally identifiable information
+  level:
+    com.irctc.booking: DEBUG
+    org.springframework.web: DEBUG
+    io.github.resilience4j: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
 # Distributed Locking Configuration
 distributed-lock:
@@ -180,12 +188,3 @@ multi-tenancy:
   header-tenant-id: "X-Tenant-Id"  # Header name for tenant ID
   header-tenant-code: "X-Tenant-Code"  # Header name for tenant code
   subdomain-extraction: true  # Extract tenant from subdomain
-
-# Application Logging Configuration
-logging:
-  level:
-    com.irctc.booking: DEBUG
-    org.springframework.web: DEBUG
-    io.github.resilience4j: DEBUG
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
