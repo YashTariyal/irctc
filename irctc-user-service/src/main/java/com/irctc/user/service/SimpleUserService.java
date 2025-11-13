@@ -38,12 +38,28 @@ public class SimpleUserService {
 
     @Cacheable(value = "users-by-email", key = "#email", unless = "#result.isEmpty()")
     public Optional<SimpleUser> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        Optional<SimpleUser> user = userRepository.findByEmail(email);
+        // Validate tenant access
+        if (user.isPresent() && TenantContext.hasTenant()) {
+            SimpleUser u = user.get();
+            if (!TenantContext.getTenantId().equals(u.getTenantId())) {
+                return Optional.empty();
+            }
+        }
+        return user;
     }
 
     @Cacheable(value = "users", key = "#username", unless = "#result.isEmpty()")
     public Optional<SimpleUser> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+        Optional<SimpleUser> user = userRepository.findByUsername(username);
+        // Validate tenant access
+        if (user.isPresent() && TenantContext.hasTenant()) {
+            SimpleUser u = user.get();
+            if (!TenantContext.getTenantId().equals(u.getTenantId())) {
+                return Optional.empty();
+            }
+        }
+        return user;
     }
 
     public List<SimpleUser> getAllUsers() {

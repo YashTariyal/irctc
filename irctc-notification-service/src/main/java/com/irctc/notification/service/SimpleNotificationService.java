@@ -51,13 +51,29 @@ public class SimpleNotificationService {
     }
 
     public List<SimpleNotification> getNotificationsByType(String type) {
-        return notificationRepository.findByType(type);
+        List<SimpleNotification> notifications = notificationRepository.findByType(type);
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return notifications.stream()
+                .filter(n -> tenantId.equals(n.getTenantId()))
+                .toList();
+        }
+        return notifications;
     }
 
     public List<SimpleNotification> getRecentNotificationsByUserId(Long userId, int limit) {
         int pageSize = Math.max(1, Math.min(limit, 100));
         Pageable pageable = PageRequest.of(0, pageSize);
-        return notificationRepository.findByUserIdOrderBySentTimeDesc(userId, pageable).getContent();
+        List<SimpleNotification> notifications = notificationRepository.findByUserIdOrderBySentTimeDesc(userId, pageable).getContent();
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return notifications.stream()
+                .filter(n -> tenantId.equals(n.getTenantId()))
+                .toList();
+        }
+        return notifications;
     }
 
     public SimpleNotification createNotification(SimpleNotification notification) {

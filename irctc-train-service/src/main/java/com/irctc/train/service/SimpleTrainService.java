@@ -48,7 +48,15 @@ public class SimpleTrainService {
 
     @Cacheable(value = "trains-by-number", key = "#trainNumber", unless = "#result.isEmpty()")
     public Optional<SimpleTrain> getTrainByNumber(String trainNumber) {
-        return trainRepository.findByTrainNumber(trainNumber);
+        Optional<SimpleTrain> train = trainRepository.findByTrainNumber(trainNumber);
+        // Validate tenant access
+        if (train.isPresent() && TenantContext.hasTenant()) {
+            SimpleTrain t = train.get();
+            if (!TenantContext.getTenantId().equals(t.getTenantId())) {
+                return Optional.empty();
+            }
+        }
+        return train;
     }
 
     @Cacheable(value = "train-search", key = "#source + ':' + #destination")

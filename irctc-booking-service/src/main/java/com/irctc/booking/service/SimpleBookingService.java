@@ -76,20 +76,44 @@ public class SimpleBookingService {
     @Cacheable(value = "bookings", key = "#id", unless = "#result.isEmpty()")
     public Optional<SimpleBooking> getBookingById(Long id) {
         logger.debug("Fetching booking from database: {}", id);
-        return bookingRepository.findById(id);
+        Optional<SimpleBooking> booking = bookingRepository.findById(id);
+        // Validate tenant access
+        if (booking.isPresent() && TenantContext.hasTenant()) {
+            SimpleBooking b = booking.get();
+            if (!TenantContext.getTenantId().equals(b.getTenantId())) {
+                return Optional.empty();
+            }
+        }
+        return booking;
     }
 
     @Cacheable(value = "bookings-by-pnr", key = "#pnrNumber", unless = "#result.isEmpty()")
     public Optional<SimpleBooking> getBookingByPnr(String pnrNumber) {
         logger.debug("Fetching booking from database by PNR: {}", pnrNumber);
-        return bookingRepository.findByPnrNumber(pnrNumber);
+        Optional<SimpleBooking> booking = bookingRepository.findByPnrNumber(pnrNumber);
+        // Validate tenant access
+        if (booking.isPresent() && TenantContext.hasTenant()) {
+            SimpleBooking b = booking.get();
+            if (!TenantContext.getTenantId().equals(b.getTenantId())) {
+                return Optional.empty();
+            }
+        }
+        return booking;
     }
 
     @Bulkhead(name = "booking-query", type = Bulkhead.Type.SEMAPHORE)
     @Cacheable(value = "bookings-by-user", key = "#userId")
     public List<SimpleBooking> getBookingsByUserId(Long userId) {
         logger.debug("Fetching bookings from database for user: {}", userId);
-        return bookingRepository.findByUserId(userId);
+        List<SimpleBooking> bookings = bookingRepository.findByUserId(userId);
+        // Filter by tenant if context is set
+        if (TenantContext.hasTenant()) {
+            String tenantId = TenantContext.getTenantId();
+            return bookings.stream()
+                .filter(b -> tenantId.equals(b.getTenantId()))
+                .toList();
+        }
+        return bookings;
     }
 
     @Bulkhead(name = "booking-creation", type = Bulkhead.Type.SEMAPHORE)

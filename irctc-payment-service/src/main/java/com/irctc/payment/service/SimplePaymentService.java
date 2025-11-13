@@ -57,7 +57,15 @@ public class SimplePaymentService {
 
     @Cacheable(value = "payments-by-transaction", key = "#transactionId", unless = "#result.isEmpty()")
     public Optional<SimplePayment> getPaymentByTransactionId(String transactionId) {
-        return paymentRepository.findByTransactionId(transactionId);
+        Optional<SimplePayment> payment = paymentRepository.findByTransactionId(transactionId);
+        // Validate tenant access
+        if (payment.isPresent() && TenantContext.hasTenant()) {
+            SimplePayment p = payment.get();
+            if (!TenantContext.getTenantId().equals(p.getTenantId())) {
+                return Optional.empty();
+            }
+        }
+        return payment;
     }
 
     @Bulkhead(name = "payment-query", type = Bulkhead.Type.SEMAPHORE)
