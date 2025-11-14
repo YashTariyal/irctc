@@ -2,9 +2,12 @@ package com.irctc.notification.repository;
 
 import com.irctc.notification.entity.SimpleNotification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -12,4 +15,11 @@ public interface SimpleNotificationRepository extends JpaRepository<SimpleNotifi
     List<SimpleNotification> findByUserId(Long userId);
     List<SimpleNotification> findByType(String type);
     Page<SimpleNotification> findByUserIdOrderBySentTimeDesc(Long userId, Pageable pageable);
+    
+    @Query("SELECT n FROM SimpleNotification n WHERE n.userId = :userId AND n.sentTime BETWEEN :start AND :end")
+    List<SimpleNotification> findByUserIdAndSentTimeBetween(
+        @Param("userId") Long userId,
+        @Param("start") LocalDateTime start,
+        @Param("end") LocalDateTime end
+    );
 }

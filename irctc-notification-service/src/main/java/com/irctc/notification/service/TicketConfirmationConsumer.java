@@ -212,21 +212,20 @@ public class TicketConfirmationConsumer {
                 "journeyDate", event.getJourneyDate().toString()
             );
             
-            pushNotificationService.sendPushNotification(
+            com.irctc.notification.dto.NotificationResponse response = pushNotificationService.sendPushNotification(
                 event.getUserId(),
                 title,
                 body,
                 data
-            ).subscribe(
-                response -> {
-                    logger.info("Confirmation push notification sent for PNR: {} - RequestId: {}", 
-                               event.getPnrNumber(), requestId);
-                },
-                error -> {
-                    logger.error("Failed to send push notification for PNR: {} - RequestId: {}, Error: {}", 
-                               event.getPnrNumber(), requestId, error.getMessage());
-                }
             );
+            
+            if ("SUCCESS".equals(response.getStatus())) {
+                logger.info("Confirmation push notification sent for PNR: {} - RequestId: {}", 
+                           event.getPnrNumber(), requestId);
+            } else {
+                logger.error("Failed to send push notification for PNR: {} - RequestId: {}, Error: {}", 
+                           event.getPnrNumber(), requestId, response.getErrorMessage());
+            }
             
         } catch (Exception e) {
             logger.error("Error sending push notification for PNR: {} - RequestId: {}", 
