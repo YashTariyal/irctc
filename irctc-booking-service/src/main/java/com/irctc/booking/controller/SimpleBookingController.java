@@ -1,10 +1,12 @@
 package com.irctc.booking.controller;
 
 import com.irctc.booking.annotation.Auditable;
+import com.irctc.booking.dto.*;
 import com.irctc.booking.entity.SimpleBooking;
 import com.irctc.booking.service.SimpleBookingService;
 import com.irctc.booking.service.IdempotencyService;
 import com.irctc.booking.service.AsyncBookingService;
+import com.irctc.booking.service.BookingModificationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,9 @@ public class SimpleBookingController {
 
     @Autowired(required = false)
     private AsyncBookingService asyncBookingService;
+    
+    @Autowired
+    private BookingModificationService modificationService;
 
     @GetMapping
     public ResponseEntity<List<SimpleBooking>> getAllBookings() {
@@ -210,5 +215,64 @@ public class SimpleBookingController {
         booking.setStatus("CANCELLED");
         SimpleBooking updatedBooking = bookingService.updateBooking(id, booking);
         return ResponseEntity.ok(updatedBooking);
+    }
+    
+    // ===== BOOKING MODIFICATION APIs =====
+    
+    /**
+     * Get available modification options for a booking
+     */
+    @GetMapping("/{id}/modification-options")
+    public ResponseEntity<ModificationOptionsResponse> getModificationOptions(@PathVariable Long id) {
+        ModificationOptionsResponse options = modificationService.getModificationOptions(id);
+        return ResponseEntity.ok(options);
+    }
+    
+    /**
+     * Modify booking date
+     */
+    @PutMapping("/{id}/modify-date")
+    @Auditable(entityType = "Booking", action = "MODIFY_DATE", logRequestBody = true)
+    public ResponseEntity<ModificationResponse> modifyDate(@PathVariable Long id, 
+                                                             @Valid @RequestBody DateChangeRequest request) {
+        request.setBookingId(id);
+        ModificationResponse response = modificationService.modifyDate(request);
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Upgrade or downgrade seat class
+     */
+    @PutMapping("/{id}/upgrade-seat")
+    @Auditable(entityType = "Booking", action = "UPGRADE_SEAT", logRequestBody = true)
+    public ResponseEntity<ModificationResponse> upgradeSeat(@PathVariable Long id,
+                                                            @Valid @RequestBody SeatUpgradeRequest request) {
+        request.setBookingId(id);
+        ModificationResponse response = modificationService.upgradeSeat(request);
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Modify passengers (add/remove)
+     */
+    @PutMapping("/{id}/modify-passengers")
+    @Auditable(entityType = "Booking", action = "MODIFY_PASSENGERS", logRequestBody = true)
+    public ResponseEntity<ModificationResponse> modifyPassengers(@PathVariable Long id,
+                                                                 @Valid @RequestBody PassengerModificationRequest request) {
+        request.setBookingId(id);
+        ModificationResponse response = modificationService.modifyPassengers(request);
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Change route (source/destination)
+     */
+    @PutMapping("/{id}/change-route")
+    @Auditable(entityType = "Booking", action = "CHANGE_ROUTE", logRequestBody = true)
+    public ResponseEntity<ModificationResponse> changeRoute(@PathVariable Long id,
+                                                             @Valid @RequestBody RouteChangeRequest request) {
+        request.setBookingId(id);
+        ModificationResponse response = modificationService.changeRoute(request);
+        return ResponseEntity.ok(response);
     }
 }
