@@ -41,8 +41,9 @@ public class SimplePaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<SimplePayment> processPayment(@RequestBody SimplePayment payment) {
-        SimplePayment newPayment = paymentService.processPayment(payment);
+    public ResponseEntity<SimplePayment> processPayment(@RequestBody SimplePayment payment,
+                                                         @RequestParam(value = "gateway", required = false) String preferredGateway) {
+        SimplePayment newPayment = paymentService.processPaymentWithGateway(payment, preferredGateway);
         return ResponseEntity.ok(newPayment);
     }
 
@@ -64,7 +65,9 @@ public class SimplePaymentController {
             payment.setPaymentMethod(paymentData.get("paymentMethod").toString());
             payment.setStatus("PENDING");
             
-            SimplePayment processedPayment = paymentService.processPayment(payment);
+            String preferredGateway = paymentData.containsKey("gateway") ? 
+                paymentData.get("gateway").toString() : null;
+            SimplePayment processedPayment = paymentService.processPaymentWithGateway(payment, preferredGateway);
             return ResponseEntity.ok(processedPayment);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);

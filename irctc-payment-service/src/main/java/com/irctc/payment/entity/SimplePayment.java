@@ -42,6 +42,15 @@ public class SimplePayment implements TenantAware {
     @Column(nullable = false)
     private String status;
     
+    @Column(name = "gateway_name", length = 50)
+    private String gatewayName; // RAZORPAY, STRIPE, PAYU, etc.
+    
+    @Column(name = "gateway_transaction_id")
+    private String gatewayTransactionId; // Gateway's transaction ID
+    
+    @Column(name = "gateway_fee", precision = 10, scale = 2)
+    private Double gatewayFee; // Fee charged by gateway
+    
     private LocalDateTime paymentTime;
     @Column(name = "tenant_id", length = 50)
     private String tenantId;
