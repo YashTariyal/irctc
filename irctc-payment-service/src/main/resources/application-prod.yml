@@ -1,0 +1,119 @@
+# Production Configuration for Payment Service
+spring:
+  application:
+    name: irctc-payment-service
+  
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/irctc_payment}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  cache:
+    type: redis
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+
+# Payment Gateway Configuration
+payment:
+  gateway:
+    razorpay:
+      enabled: ${RAZORPAY_ENABLED:true}
+      use-real-sdk: ${PAYMENT_GATEWAY_RAZORPAY_USE_REAL_SDK:true}
+      key-id: ${RAZORPAY_KEY_ID:}
+      key-secret: ${RAZORPAY_KEY_SECRET:}
+      webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
+      fee-percentage: 2.0
+      fixed-fee: 0.0
+    
+    stripe:
+      enabled: ${STRIPE_ENABLED:false}
+      use-real-sdk: ${PAYMENT_GATEWAY_STRIPE_USE_REAL_SDK:false}
+      secret-key: ${STRIPE_SECRET_KEY:}
+      publishable-key: ${STRIPE_PUBLISHABLE_KEY:}
+      webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+      fee-percentage: 2.9
+      fixed-fee: 0.30
+    
+    payu:
+      enabled: ${PAYU_ENABLED:false}
+      merchant-key: ${PAYU_MERCHANT_KEY:}
+      merchant-salt: ${PAYU_MERCHANT_SALT:}
+      fee-percentage: 1.8
+      fixed-fee: 0.0
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8083}
+  error:
+    include-message: always
+    include-stacktrace: never
+
+# Eureka Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: ${HOSTNAME:localhost}
+    prefer-ip-address: true
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,gateway-stats
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT:INFO}
+    com.irctc.payment: ${LOGGING_LEVEL_COM_IRCTC_PAYMENT:INFO}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/payment-service.log
+    max-size: 10MB
+    max-history: 30
+
+# Resilience4j Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      payment-gateway:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+  bulkhead:
+    instances:
+      payment-processing:
+        maxConcurrentCalls: 10
+        maxWaitDuration: 0ms
+
