@@ -1,5 +1,7 @@
 package com.irctc.booking.service;
 
+import com.irctc.booking.client.PaymentServiceClient;
+import com.irctc.booking.client.TrainServiceClient;
 import com.irctc.booking.dto.*;
 import com.irctc.booking.entity.SimpleBooking;
 import com.irctc.booking.entity.SimplePassenger;
@@ -8,6 +10,7 @@ import com.irctc.booking.exception.EntityNotFoundException;
 import com.irctc.booking.repository.SimpleBookingRepository;
 import com.irctc.booking.tenant.TenantContext;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +39,12 @@ public class BookingModificationService {
     
     @Autowired
     private ModificationChargeCalculator chargeCalculator;
+    
+    @Autowired(required = false)
+    private TrainServiceClient trainServiceClient;
+    
+    @Autowired(required = false)
+    private PaymentServiceClient paymentServiceClient;
     
     /**
      * Get available modification options for a booking
@@ -115,19 +125,88 @@ public class BookingModificationService {
         BigDecimal modificationCharge = chargeCalculator.calculateDateChangeCharge(
             booking.getBookingTime(), LocalDateTime.now());
         
-        // For now, assume fare remains same (in real implementation, fetch from Train Service)
+        // Fetch new fare from Train Service if train changed or date changed
         BigDecimal newFare = booking.getTotalFare();
-        if (request.getNewTrainId() != null && !request.getNewTrainId().equals(booking.getTrainId())) {
-            // Train changed - would need to fetch new fare from Train Service
-            // For now, keep same fare
-            booking.setTrainId(request.getNewTrainId());
+        Long trainIdToUse = request.getNewTrainId() != null ? request.getNewTrainId() : booking.getTrainId();
+        
+        if (trainServiceClient != null) {
+            try {
+                // Get train information
+                TrainServiceClient.TrainResponse train = trainServiceClient.getTrainById(trainIdToUse);
+                if (train != null && train.getBaseFare() != null) {
+                    // Use base fare from train service
+                    newFare = BigDecimal.valueOf(train.getBaseFare());
+                    
+                    // If we have source/destination, calculate actual fare
+                    // For now, use base fare multiplied by passenger count
+                    int passengerCount = booking.getPassengers() != null ? booking.getPassengers().size() : 1;
+                    newFare = newFare.multiply(BigDecimal.valueOf(passengerCount));
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to fetch fare from Train Service, using existing fare: {}", e.getMessage());
+            }
         }
         
         BigDecimal fareDifference = chargeCalculator.calculateFareDifference(booking.getTotalFare(), newFare);
         BigDecimal totalAmount = chargeCalculator.calculateTotalAmount(fareDifference, modificationCharge);
         
+        // Process payment if amount is positive (user needs to pay)
+        String paymentStatus = "PENDING";
+        if (totalAmount.compareTo(BigDecimal.ZERO) > 0 && paymentServiceClient != null) {
+            try {
+                PaymentServiceClient.PaymentRequest paymentRequest = new PaymentServiceClient.PaymentRequest();
+                paymentRequest.setBookingId(booking.getId());
+                paymentRequest.setAmount(totalAmount);
+                paymentRequest.setCurrency("INR");
+                paymentRequest.setPaymentMethod("ONLINE");
+                paymentRequest.setDescription("Booking modification - Date change");
+                paymentRequest.setModificationId("MOD_" + System.currentTimeMillis() + "_" + booking.getId());
+                
+                PaymentServiceClient.PaymentResponse paymentResponse = paymentServiceClient.processPayment(paymentRequest);
+                if (paymentResponse != null && "COMPLETED".equals(paymentResponse.getStatus())) {
+                    paymentStatus = "COMPLETED";
+                    logger.info("✅ Payment processed for modification: {}", paymentResponse.getTransactionId());
+                } else {
+                    logger.warn("⚠️ Payment processing failed or pending: {}", 
+                        paymentResponse != null ? paymentResponse.getMessage() : "No response");
+                }
+            } catch (Exception e) {
+                logger.error("Failed to process payment for modification: {}", e.getMessage());
+            }
+        }
+        
+        // Process refund if amount is negative (user gets refund)
+        if (totalAmount.compareTo(BigDecimal.ZERO) < 0 && paymentServiceClient != null) {
+            try {
+                // Get existing payment for this booking
+                List<PaymentServiceClient.PaymentResponse> existingPayments = 
+                    paymentServiceClient.getPaymentsByBookingId(booking.getId());
+                
+                if (!existingPayments.isEmpty()) {
+                    PaymentServiceClient.PaymentResponse lastPayment = existingPayments.get(existingPayments.size() - 1);
+                    
+                    PaymentServiceClient.RefundRequest refundRequest = new PaymentServiceClient.RefundRequest();
+                    refundRequest.setPaymentId(lastPayment.getId());
+                    refundRequest.setRefundAmount(totalAmount.abs());
+                    refundRequest.setReason("Booking modification - Date change refund");
+                    refundRequest.setModificationId("MOD_" + System.currentTimeMillis() + "_" + booking.getId());
+                    
+                    PaymentServiceClient.PaymentResponse refundResponse = paymentServiceClient.processRefund(refundRequest);
+                    if (refundResponse != null && "REFUNDED".equals(refundResponse.getStatus())) {
+                        paymentStatus = "REFUNDED";
+                        logger.info("✅ Refund processed for modification: {}", refundResponse.getTransactionId());
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Failed to process refund for modification: {}", e.getMessage());
+            }
+        }
+        
         // Update booking
         booking.setBookingTime(request.getNewJourneyDate());
+        if (request.getNewTrainId() != null) {
+            booking.setTrainId(request.getNewTrainId());
+        }
         booking.setTotalFare(newFare);
         booking.setUpdatedAt(LocalDateTime.now());
         
@@ -136,7 +215,9 @@ public class BookingModificationService {
         logger.info("✅ Date modified for booking {}: {} -> {}", 
             booking.getId(), booking.getBookingTime(), request.getNewJourneyDate());
         
-        return buildModificationResponse(saved, "DATE_CHANGE", fareDifference, modificationCharge, totalAmount);
+        ModificationResponse response = buildModificationResponse(saved, "DATE_CHANGE", fareDifference, modificationCharge, totalAmount);
+        response.setRefundStatus(paymentStatus);
+        return response;
     }
     
     /**
@@ -166,6 +247,9 @@ public class BookingModificationService {
             booking.getTotalFare(), request.getNewFare());
         BigDecimal totalAmount = chargeCalculator.calculateTotalAmount(fareDifference, modificationCharge);
         
+        // Process payment/refund
+        String paymentStatus = processPaymentForModification(booking.getId(), totalAmount, "Seat upgrade");
+        
         // Update booking fare
         booking.setTotalFare(request.getNewFare());
         booking.setUpdatedAt(LocalDateTime.now());
@@ -180,7 +264,9 @@ public class BookingModificationService {
         logger.info("✅ Seat upgraded for booking {}: New class {}, New fare {}", 
             booking.getId(), request.getNewSeatClass(), request.getNewFare());
         
-        return buildModificationResponse(saved, "SEAT_UPGRADE", fareDifference, modificationCharge, totalAmount);
+        ModificationResponse response = buildModificationResponse(saved, "SEAT_UPGRADE", fareDifference, modificationCharge, totalAmount);
+        response.setRefundStatus(paymentStatus);
+        return response;
     }
     
     /**
@@ -249,7 +335,12 @@ public class BookingModificationService {
         BigDecimal fareDifference = additionalFare;
         BigDecimal totalAmount = chargeCalculator.calculateTotalAmount(fareDifference, modificationCharge);
         
-        return buildModificationResponse(saved, "PASSENGER_MODIFICATION", fareDifference, modificationCharge, totalAmount);
+        // Process payment/refund
+        String paymentStatus = processPaymentForModification(booking.getId(), totalAmount, "Passenger modification");
+        
+        ModificationResponse response = buildModificationResponse(saved, "PASSENGER_MODIFICATION", fareDifference, modificationCharge, totalAmount);
+        response.setRefundStatus(paymentStatus);
+        return response;
     }
     
     /**
@@ -279,6 +370,9 @@ public class BookingModificationService {
             booking.getTotalFare(), request.getNewFare());
         BigDecimal totalAmount = chargeCalculator.calculateTotalAmount(fareDifference, modificationCharge);
         
+        // Process payment/refund
+        String paymentStatus = processPaymentForModification(booking.getId(), totalAmount, "Route change");
+        
         // Update booking
         if (request.getNewTrainId() != null) {
             booking.setTrainId(request.getNewTrainId());
@@ -291,7 +385,9 @@ public class BookingModificationService {
         logger.info("✅ Route changed for booking {}: {} -> {}", 
             booking.getId(), booking.getBookingTime(), request.getNewSourceStation() + " to " + request.getNewDestinationStation());
         
-        return buildModificationResponse(saved, "ROUTE_CHANGE", fareDifference, modificationCharge, totalAmount);
+        ModificationResponse response = buildModificationResponse(saved, "ROUTE_CHANGE", fareDifference, modificationCharge, totalAmount);
+        response.setRefundStatus(paymentStatus);
+        return response;
     }
     
     /**
@@ -343,6 +439,69 @@ public class BookingModificationService {
         }
         // Can modify passengers if journey is at least 4 hours away
         return booking.getBookingTime().isAfter(LocalDateTime.now().plusHours(4));
+    }
+    
+    /**
+     * Process payment or refund for modification
+     */
+    @CircuitBreaker(name = "payment-service", fallbackMethod = "processPaymentFallback")
+    String processPaymentForModification(Long bookingId, BigDecimal totalAmount, String description) {
+        if (paymentServiceClient == null) {
+            return "PAYMENT_SERVICE_UNAVAILABLE";
+        }
+        
+        try {
+            if (totalAmount.compareTo(BigDecimal.ZERO) > 0) {
+                // Process payment
+                PaymentServiceClient.PaymentRequest paymentRequest = new PaymentServiceClient.PaymentRequest();
+                paymentRequest.setBookingId(bookingId);
+                paymentRequest.setAmount(totalAmount);
+                paymentRequest.setCurrency("INR");
+                paymentRequest.setPaymentMethod("ONLINE");
+                paymentRequest.setDescription("Booking modification - " + description);
+                paymentRequest.setModificationId("MOD_" + System.currentTimeMillis() + "_" + bookingId);
+                
+                PaymentServiceClient.PaymentResponse paymentResponse = paymentServiceClient.processPayment(paymentRequest);
+                if (paymentResponse != null && "COMPLETED".equals(paymentResponse.getStatus())) {
+                    logger.info("✅ Payment processed for modification: {}", paymentResponse.getTransactionId());
+                    return "COMPLETED";
+                }
+                return paymentResponse != null ? paymentResponse.getStatus() : "PENDING";
+            } else if (totalAmount.compareTo(BigDecimal.ZERO) < 0) {
+                // Process refund
+                List<PaymentServiceClient.PaymentResponse> existingPayments = 
+                    paymentServiceClient.getPaymentsByBookingId(bookingId);
+                
+                if (!existingPayments.isEmpty()) {
+                    PaymentServiceClient.PaymentResponse lastPayment = existingPayments.get(existingPayments.size() - 1);
+                    
+                    PaymentServiceClient.RefundRequest refundRequest = new PaymentServiceClient.RefundRequest();
+                    refundRequest.setPaymentId(lastPayment.getId());
+                    refundRequest.setRefundAmount(totalAmount.abs());
+                    refundRequest.setReason("Booking modification - " + description + " refund");
+                    refundRequest.setModificationId("MOD_" + System.currentTimeMillis() + "_" + bookingId);
+                    
+                    PaymentServiceClient.PaymentResponse refundResponse = paymentServiceClient.processRefund(refundRequest);
+                    if (refundResponse != null && "REFUNDED".equals(refundResponse.getStatus())) {
+                        logger.info("✅ Refund processed for modification: {}", refundResponse.getTransactionId());
+                        return "REFUNDED";
+                    }
+                    return refundResponse != null ? refundResponse.getStatus() : "PENDING";
+                }
+            }
+            return "NO_PAYMENT_REQUIRED";
+        } catch (Exception e) {
+            logger.error("Failed to process payment/refund for modification: {}", e.getMessage());
+            return "FAILED";
+        }
+    }
+    
+    /**
+     * Fallback for payment processing
+     */
+    private String processPaymentFallback(Long bookingId, BigDecimal totalAmount, String description, Exception e) {
+        logger.warn("Payment processing fallback triggered: {}", e.getMessage());
+        return "PAYMENT_SERVICE_UNAVAILABLE";
     }
     
     /**
