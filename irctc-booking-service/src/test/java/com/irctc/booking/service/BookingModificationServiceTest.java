@@ -66,7 +66,7 @@ class BookingModificationServiceTest {
         passenger.setAge(30);
         passenger.setGender("MALE");
         passenger.setSeatNumber("A1");
-        testBooking.setPassengers(Arrays.asList(passenger));
+        testBooking.setPassengers(new ArrayList<>(Arrays.asList(passenger)));
     }
     
     @Test

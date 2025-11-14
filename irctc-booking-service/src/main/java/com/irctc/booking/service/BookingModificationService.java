@@ -288,6 +288,13 @@ public class BookingModificationService {
             throw new BusinessException("Passenger modification is not allowed for this booking");
         }
         
+        // Ensure passengers list is mutable
+        if (booking.getPassengers() == null) {
+            booking.setPassengers(new ArrayList<>());
+        } else if (!(booking.getPassengers() instanceof ArrayList)) {
+            booking.setPassengers(new ArrayList<>(booking.getPassengers()));
+        }
+        
         // Remove passengers
         if (request.getPassengerIdsToRemove() != null && !request.getPassengerIdsToRemove().isEmpty()) {
             List<SimplePassenger> passengersToRemove = booking.getPassengers().stream()
