@@ -4,6 +4,8 @@ import com.irctc.payment.dto.PaymentRequest;
 import com.irctc.payment.dto.PaymentResponse;
 import com.irctc.payment.dto.RefundRequest;
 import com.irctc.payment.dto.RefundResponse;
+import com.irctc.payment.dto.WalletPaymentRequest;
+import com.irctc.payment.dto.WalletTransactionResponse;
 import com.irctc.payment.entity.SimplePayment;
 import com.irctc.payment.eventsourcing.PaymentEventStore;
 import com.irctc.payment.gateway.PaymentGateway;
@@ -42,6 +44,9 @@ public class SimplePaymentService {
     
     @Autowired(required = false)
     private GatewayStatisticsService statisticsService;
+    
+    @Autowired(required = false)
+    private WalletService walletService;
 
     public List<SimplePayment> getAllPayments() {
         List<SimplePayment> payments = paymentRepository.findAll();
@@ -113,6 +118,11 @@ public class SimplePaymentService {
         // Set tenant ID from context
         if (TenantContext.hasTenant()) {
             payment.setTenantId(TenantContext.getTenantId());
+        }
+        
+        // Check if payment method is WALLET
+        if ("WALLET".equalsIgnoreCase(payment.getPaymentMethod()) && walletService != null) {
+            return processWalletPayment(payment);
         }
         
         // Convert to PaymentRequest
@@ -275,6 +285,76 @@ public class SimplePaymentService {
     }
     
     /**
+     * Process payment using wallet
+     */
+    private SimplePayment processWalletPayment(SimplePayment payment) {
+        logger.info("Processing wallet payment for booking: {}, amount: {}", 
+            payment.getBookingId(), payment.getAmount());
+        
+        try {
+            // Extract user ID from tenant context or use booking ID as fallback
+            // In a real implementation, this would come from the authenticated user context
+            String userId = TenantContext.hasTenant() ? 
+                TenantContext.getTenantId() : "user-" + payment.getBookingId();
+            
+            // Create wallet payment request
+            WalletPaymentRequest walletRequest = new WalletPaymentRequest();
+            walletRequest.setBookingId(payment.getBookingId());
+            walletRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
+            walletRequest.setCurrency(payment.getCurrency());
+            walletRequest.setDescription("Payment for booking " + payment.getBookingId());
+            
+            // Process wallet payment
+            WalletTransactionResponse walletTransaction = walletService.makePayment(userId, walletRequest);
+            
+            // Update payment with wallet transaction details
+            payment.setTransactionId(walletTransaction.getTransactionId());
+            payment.setGatewayName("WALLET");
+            payment.setGatewayTransactionId(walletTransaction.getTransactionId());
+            payment.setGatewayFee(0.0);
+            payment.setPaymentTime(LocalDateTime.now());
+            payment.setStatus("SUCCESS");
+            payment.setCreatedAt(LocalDateTime.now());
+            
+            SimplePayment saved = paymentRepository.save(payment);
+            
+            // Store event in event store
+            if (eventStore != null) {
+                Map<String, Object> eventData = new HashMap<>();
+                eventData.put("paymentId", saved.getId());
+                eventData.put("bookingId", saved.getBookingId());
+                eventData.put("amount", saved.getAmount());
+                eventData.put("currency", saved.getCurrency());
+                eventData.put("paymentMethod", saved.getPaymentMethod());
+                eventData.put("transactionId", saved.getTransactionId());
+                eventData.put("gatewayName", "WALLET");
+                eventData.put("status", saved.getStatus());
+                eventData.put("paymentTime", saved.getPaymentTime());
+                
+                eventStore.appendEvent(
+                    saved.getId().toString(),
+                    "PAYMENT_COMPLETED",
+                    eventData,
+                    UUID.randomUUID().toString(),
+                    saved.getBookingId().toString()
+                );
+                logger.info("📝 Wallet payment event stored for payment: {}", saved.getId());
+            }
+            
+            logger.info("✅ Wallet payment successful. Transaction ID: {}", walletTransaction.getTransactionId());
+            return saved;
+            
+        } catch (Exception e) {
+            logger.error("Error processing wallet payment: {}", e.getMessage(), e);
+            payment.setStatus("FAILED");
+            payment.setTransactionId(UUID.randomUUID().toString());
+            payment.setPaymentTime(LocalDateTime.now());
+            payment.setCreatedAt(LocalDateTime.now());
+            return paymentRepository.save(payment);
+        }
+    }
+    
+    /**
      * Fallback method for circuit breaker
      */
     private SimplePayment processPaymentFallback(SimplePayment payment, String preferredGateway, Exception e) {
@@ -298,8 +378,28 @@ public class SimplePaymentService {
         SimplePayment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new com.irctc.payment.exception.EntityNotFoundException("Payment", id));
         
+        // Process wallet refund
+        if ("WALLET".equals(payment.getGatewayName()) && walletService != null) {
+            try {
+                String userId = TenantContext.hasTenant() ? 
+                    TenantContext.getTenantId() : "user-" + payment.getBookingId();
+                
+                walletService.addRefund(
+                    userId,
+                    BigDecimal.valueOf(payment.getAmount()),
+                    payment.getTransactionId(),
+                    "Refund for booking " + payment.getBookingId()
+                );
+                
+                payment.setStatus("REFUNDED");
+                logger.info("✅ Refund processed via wallet for payment: {}", payment.getId());
+            } catch (Exception e) {
+                logger.error("Error processing wallet refund: {}", e.getMessage(), e);
+                payment.setStatus("REFUND_FAILED");
+            }
+        }
         // Process refund through gateway if available
-        if (payment.getGatewayName() != null && !payment.getGatewayName().equals("INTERNAL") 
+        else if (payment.getGatewayName() != null && !payment.getGatewayName().equals("INTERNAL") 
             && !payment.getGatewayName().equals("FALLBACK") && gatewaySelectorService != null) {
             try {
                 PaymentGateway gateway = gatewaySelectorService.getGatewayByName(payment.getGatewayName());
