@@ -64,7 +64,10 @@ class GatewayStatisticsServiceTest {
             BigDecimal.valueOf(1000), 
             BigDecimal.valueOf(20));
         
-        verify(repository, times(1)).save(any(GatewayStatistics.class));
+        // When creating new statistics, save is called twice:
+        // 1. In getOrCreateStatistics() to create the new record
+        // 2. In recordSuccess() to update the record with transaction data
+        verify(repository, times(2)).save(any(GatewayStatistics.class));
     }
     
     @Test

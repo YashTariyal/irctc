@@ -68,6 +68,8 @@ class SimplePaymentServiceGatewayTest {
         
         when(gatewaySelectorService.selectGateway(any(PaymentRequest.class)))
             .thenReturn(paymentGateway);
+        when(paymentGateway.getGatewayName())
+            .thenReturn("RAZORPAY");
         when(paymentGateway.processPayment(any(PaymentRequest.class)))
             .thenReturn(gatewayResponse);
         when(paymentRepository.save(any(SimplePayment.class)))

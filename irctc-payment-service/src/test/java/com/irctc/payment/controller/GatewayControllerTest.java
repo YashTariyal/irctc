@@ -64,7 +64,8 @@ class GatewayControllerTest {
         when(statisticsService.calculateAverageFee("RAZORPAY"))
             .thenReturn(BigDecimal.valueOf(20.0));
         
-        mockMvc.perform(get("/api/payments/gateways"))
+        mockMvc.perform(get("/api/payments/gateways")
+                .header("X-Tenant-Id", "test-tenant-1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].name").value("RAZORPAY"))
             .andExpect(jsonPath("$[0].enabled").value(true));
@@ -75,7 +76,8 @@ class GatewayControllerTest {
         when(statisticsService.getAllStatistics())
             .thenReturn(Arrays.asList(mockStats));
         
-        mockMvc.perform(get("/api/payments/gateways/stats"))
+        mockMvc.perform(get("/api/payments/gateways/stats")
+                .header("X-Tenant-Id", "test-tenant-1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].gatewayName").value("RAZORPAY"));
     }
@@ -89,7 +91,8 @@ class GatewayControllerTest {
         when(statisticsService.calculateAverageFee("RAZORPAY"))
             .thenReturn(BigDecimal.valueOf(20.0));
         
-        mockMvc.perform(get("/api/payments/gateways/stats/RAZORPAY"))
+        mockMvc.perform(get("/api/payments/gateways/stats/RAZORPAY")
+                .header("X-Tenant-Id", "test-tenant-1"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.gatewayName").value("RAZORPAY"))
             .andExpect(jsonPath("$.successRate").value(90.0));
@@ -109,6 +112,7 @@ class GatewayControllerTest {
             .thenReturn(BigDecimal.valueOf(20.0));
         
         mockMvc.perform(get("/api/payments/gateways/compare")
+                .header("X-Tenant-Id", "test-tenant-1")
                 .param("currency", "INR")
                 .param("paymentMethod", "CARD"))
             .andExpect(status().isOk())
