@@ -1,5 +1,6 @@
 package com.irctc.notification.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.irctc.notification.dto.NotificationRequest;
 import com.irctc.notification.dto.NotificationResponse;
 import com.irctc.notification.dto.PushNotificationRequest;
@@ -8,11 +9,14 @@ import com.irctc.notification.entity.UserDeviceToken;
 import com.irctc.notification.service.PushNotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -23,14 +27,18 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(PushNotificationController.class)
+@ExtendWith(MockitoExtension.class)
 class PushNotificationControllerTest {
     
-    @Autowired
     private MockMvc mockMvc;
     
-    @MockBean
+    @Mock
     private PushNotificationService pushNotificationService;
+    
+    @InjectMocks
+    private PushNotificationController pushNotificationController;
+    
+    private ObjectMapper objectMapper;
     
     private PushNotificationResponse pushResponse;
     private NotificationResponse notificationResponse;
@@ -38,6 +46,11 @@ class PushNotificationControllerTest {
     
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
+        mockMvc = MockMvcBuilders.standaloneSetup(pushNotificationController)
+                .setMessageConverters(new MappingJackson2HttpMessageConverter())
+                .build();
+        
         pushResponse = new PushNotificationResponse();
         pushResponse.setNotificationId("notif_123");
         pushResponse.setMessageId("fcm_123");
@@ -60,12 +73,19 @@ class PushNotificationControllerTest {
     
     @Test
     void testSendPushNotification() throws Exception {
+        // Service is injected via @InjectMocks, so it's not null
         when(pushNotificationService.sendPushNotification(any(NotificationRequest.class)))
             .thenReturn(notificationResponse);
         
+        NotificationRequest request = new NotificationRequest();
+        request.setUserId(123L);
+        request.setSubject("Test");
+        request.setMessage("Test message");
+        request.setNotificationType("PUSH");
+        
         mockMvc.perform(post("/api/notifications/push")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"userId\":123,\"subject\":\"Test\",\"message\":\"Test message\",\"notificationType\":\"PUSH\"}"))
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.channel").value("PUSH"))
                 .andExpect(jsonPath("$.status").value("SUCCESS"));
@@ -76,9 +96,15 @@ class PushNotificationControllerTest {
         when(pushNotificationService.sendRichPushNotification(any(PushNotificationRequest.class)))
             .thenReturn(pushResponse);
         
+        PushNotificationRequest request = new PushNotificationRequest();
+        request.setUserId(123L);
+        request.setTitle("Test");
+        request.setBody("Test body");
+        request.setImageUrl("https://example.com/image.jpg");
+        
         mockMvc.perform(post("/api/notifications/push/rich")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"userId\":123,\"title\":\"Test\",\"body\":\"Test body\",\"imageUrl\":\"https://example.com/image.jpg\"}"))
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SUCCESS"))
                 .andExpect(jsonPath("$.successCount").value(1));
