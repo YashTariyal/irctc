@@ -66,6 +66,7 @@ class RefundControllerTest {
             .thenReturn(refundStatus);
         
         mockMvc.perform(post("/api/payments/1/initiate-refund")
+                .header("X-Tenant-Id", "test-tenant-1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"refundAmount\":1000,\"reason\":\"Test refund\"}"))
                 .andExpect(status().isOk())
@@ -78,7 +79,8 @@ class RefundControllerTest {
         when(automatedRefundService.getRefundStatusByPaymentId(1L))
             .thenReturn(Arrays.asList(refundStatus));
         
-        mockMvc.perform(get("/api/payments/1/refund-status"))
+        mockMvc.perform(get("/api/payments/1/refund-status")
+                .header("X-Tenant-Id", "test-tenant-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].refundId").value("REFUND123"))
                 .andExpect(jsonPath("$[0].status").value("INITIATED"));
@@ -89,7 +91,8 @@ class RefundControllerTest {
         when(automatedRefundService.getRefundStatusByRefundId("REFUND123"))
             .thenReturn(Optional.of(refundStatus));
         
-        mockMvc.perform(get("/api/payments/refund-status/REFUND123"))
+        mockMvc.perform(get("/api/payments/refund-status/REFUND123")
+                .header("X-Tenant-Id", "test-tenant-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.refundId").value("REFUND123"))
                 .andExpect(jsonPath("$.status").value("INITIATED"));
@@ -104,6 +107,7 @@ class RefundControllerTest {
             .thenReturn(Optional.of(refundPolicy));
         
         mockMvc.perform(get("/api/payments/refund-policy")
+                .header("X-Tenant-Id", "test-tenant-1")
                 .param("cancellationTime", cancellationTime.toString())
                 .param("departureTime", departureTime.toString()))
                 .andExpect(status().isOk())
@@ -116,7 +120,8 @@ class RefundControllerTest {
         when(refundReconciliationService.reconcileRefund(1L))
             .thenReturn(refundStatus);
         
-        mockMvc.perform(post("/api/payments/1/reconcile-refund"))
+        mockMvc.perform(post("/api/payments/1/reconcile-refund")
+                .header("X-Tenant-Id", "test-tenant-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.reconciliationStatus").value("RECONCILED"));
     }
@@ -128,6 +133,7 @@ class RefundControllerTest {
             .thenReturn(refundStatus);
         
         mockMvc.perform(post("/api/payments/1/partial-refund")
+                .header("X-Tenant-Id", "test-tenant-1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"refundAmount\":500,\"reason\":\"Partial refund\",\"passengerIds\":[1,2]}"))
                 .andExpect(status().isOk())
@@ -139,7 +145,8 @@ class RefundControllerTest {
         when(refundPolicyService.getActivePolicies())
             .thenReturn(Arrays.asList(refundPolicy));
         
-        mockMvc.perform(get("/api/payments/refund-policies"))
+        mockMvc.perform(get("/api/payments/refund-policies")
+                .header("X-Tenant-Id", "test-tenant-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Full Refund - 48 hours before"));
     }

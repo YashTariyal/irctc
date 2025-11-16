@@ -81,6 +81,11 @@ public class AutomatedRefundService {
             policy, originalAmount, gatewayFee
         );
         
+        // Ensure refundAmount is not null
+        if (refundAmount == null) {
+            refundAmount = BigDecimal.ZERO;
+        }
+        
         if (refundAmount.compareTo(BigDecimal.ZERO) <= 0) {
             logger.warn("No refund applicable for booking: {} based on policy", bookingId);
             return createRefundStatus(payment, refundAmount, "FAILED", 
