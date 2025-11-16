@@ -156,13 +156,16 @@ public class RazorpayGateway implements PaymentGateway {
     private PaymentResponse processPaymentSimulated(PaymentRequest request, PaymentResponse response) {
         String razorpayOrderId = "order_" + UUID.randomUUID().toString().replace("-", "");
         String razorpayPaymentId = "pay_" + UUID.randomUUID().toString().replace("-", "");
+        String transactionId = UUID.randomUUID().toString();
         
         // Simulate success (90% success rate for demo)
         boolean success = Math.random() > 0.1;
         
+        // Always set transaction ID for tracking purposes, even on failure
+        response.setTransactionId(transactionId);
+        
         if (success) {
             response.setStatus("SUCCESS");
-            response.setTransactionId(UUID.randomUUID().toString());
             response.setGatewayTransactionId(razorpayPaymentId);
             
             Map<String, String> gatewayResponse = new HashMap<>();
