@@ -3,6 +3,8 @@ package com.irctc.booking;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * IRCTC Booking Service - Microservice for Ticket Booking
@@ -19,6 +21,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication
 @EnableFeignClients
+@EnableAsync
+@EnableScheduling
 public class BookingServiceApplication {
 
     public static void main(String[] args) {

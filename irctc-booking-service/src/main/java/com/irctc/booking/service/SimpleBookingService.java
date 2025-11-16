@@ -59,6 +59,9 @@ public class SimpleBookingService {
     
     @Autowired(required = false)
     private KafkaTemplate<String, Object> kafkaTemplate;
+    
+    @Autowired(required = false)
+    private com.irctc.booking.service.CheckInService checkInService;
 
     public List<SimpleBooking> getAllBookings() {
         List<SimpleBooking> bookings = bookingRepository.findAll();
@@ -187,6 +190,17 @@ public class SimpleBookingService {
             } catch (Exception e) {
                 logger.error("Failed to publish booking created event for booking: {}", saved.getId(), e);
                 // Don't fail the booking creation if event publishing fails
+            }
+            
+            // Schedule automatic check-in for confirmed bookings
+            if (checkInService != null && "CONFIRMED".equals(saved.getStatus())) {
+                try {
+                    checkInService.scheduleAutoCheckIn(saved.getId());
+                    logger.info("✅ Auto check-in scheduled for booking: {}", saved.getId());
+                } catch (Exception e) {
+                    logger.error("Failed to schedule auto check-in for booking: {}", saved.getId(), e);
+                    // Don't fail the booking creation if check-in scheduling fails
+                }
             }
             
             // Metrics
