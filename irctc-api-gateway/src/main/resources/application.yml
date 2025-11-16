@@ -136,6 +136,23 @@ spring:
                 redis-rate-limiter.replenishRate: 15
                 redis-rate-limiter.burstCapacity: 30
         
+        # Analytics Service Routes
+        - id: analytics-service
+          uri: lb://IRCTC-ANALYTICS-SERVICE
+          predicates:
+            - Path=/api/analytics/**
+          filters:
+            - RewritePath=/api/analytics/(?<segment>.*), /api/analytics/${segment}
+            - name: CircuitBreaker
+              args:
+                name: analytics-service
+                fallbackUri: forward:/fallback/analytics
+            - name: RequestRateLimiter
+              args:
+                key-resolver: '#{@userKeyResolver}'
+                redis-rate-limiter.replenishRate: 15
+                redis-rate-limiter.burstCapacity: 30
+        
         # Swagger Hub Routes
         - id: swagger-hub
           uri: lb://IRCTC-SWAGGER-HUB
@@ -233,6 +250,15 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
         automatic-transition-from-open-to-half-open-enabled: true
         slow-call-rate-threshold: 80
+        slow-call-duration-threshold: 5s
+      analytics-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 20s
+        sliding-window-size: 15
+        minimum-number-of-calls: 8
+        permitted-number-of-calls-in-half-open-state: 4
+        automatic-transition-from-open-to-half-open-enabled: true
+        slow-call-rate-threshold: 75
         slow-call-duration-threshold: 5s
   
   retry:
