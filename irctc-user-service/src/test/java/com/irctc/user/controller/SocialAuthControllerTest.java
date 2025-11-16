@@ -1,5 +1,7 @@
 package com.irctc.user.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.irctc.user.dto.LinkSocialAccountRequest;
 import com.irctc.user.dto.LinkedAccountResponse;
 import com.irctc.user.dto.SocialLoginRequest;
@@ -8,15 +10,14 @@ import com.irctc.user.entity.SocialAccount;
 import com.irctc.user.service.SocialLoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -27,22 +28,18 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = SocialAuthController.class, 
-    excludeAutoConfiguration = {
-        OAuth2ClientAutoConfiguration.class,
-        OAuth2ResourceServerAutoConfiguration.class
-    })
-@TestPropertySource(properties = {
-    "spring.security.oauth2.resourceserver.jwt.issuer-uri=",
-    "security.simple.enabled=true"
-})
+@ExtendWith(MockitoExtension.class)
 class SocialAuthControllerTest {
     
-    @Autowired
     private MockMvc mockMvc;
     
-    @MockBean
+    @Mock
     private SocialLoginService socialLoginService;
+    
+    @InjectMocks
+    private SocialAuthController socialAuthController;
+    
+    private ObjectMapper objectMapper;
     
     private SocialLoginResponse socialLoginResponse;
     private LinkedAccountResponse linkedAccountResponse;
@@ -50,6 +47,16 @@ class SocialAuthControllerTest {
     
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setObjectMapper(objectMapper);
+        
+        mockMvc = MockMvcBuilders.standaloneSetup(socialAuthController)
+                .setMessageConverters(converter)
+                .build();
+        
         socialLoginResponse = new SocialLoginResponse();
         socialLoginResponse.setUserId(1L);
         socialLoginResponse.setUsername("testuser");
@@ -120,7 +127,7 @@ class SocialAuthControllerTest {
         when(socialLoginService.linkSocialAccount(eq(1L), any(LinkSocialAccountRequest.class)))
             .thenReturn(socialAccount);
         
-        mockMvc.perform(post("/api/users/1/link-social-account")
+        mockMvc.perform(post("/api/auth/users/1/link-social-account")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"accessToken\":\"token\",\"provider\":\"GOOGLE\"}"))
                 .andExpect(status().isOk())
@@ -132,7 +139,7 @@ class SocialAuthControllerTest {
         when(socialLoginService.getLinkedAccounts(1L))
             .thenReturn(Arrays.asList(linkedAccountResponse));
         
-        mockMvc.perform(get("/api/users/1/linked-accounts"))
+        mockMvc.perform(get("/api/auth/users/1/linked-accounts"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].provider").value("GOOGLE"))
                 .andExpect(jsonPath("$[0].providerEmail").value("test@gmail.com"));
@@ -140,7 +147,7 @@ class SocialAuthControllerTest {
     
     @Test
     void testUnlinkSocialAccount() throws Exception {
-        mockMvc.perform(delete("/api/users/1/linked-accounts/GOOGLE"))
+        mockMvc.perform(delete("/api/auth/users/1/linked-accounts/GOOGLE"))
                 .andExpect(status().isNoContent());
     }
 }
