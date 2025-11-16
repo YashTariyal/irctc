@@ -26,6 +26,15 @@ public class SimpleSecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
+                // Explicitly allow social login endpoints
+                .requestMatchers(
+                    "/api/auth/google",
+                    "/api/auth/facebook",
+                    "/api/auth/apple",
+                    "/actuator/**",
+                    "/swagger-ui/**",
+                    "/api-docs/**"
+                ).permitAll()
                 .anyRequest().permitAll()
             )
             .httpBasic(httpBasic -> httpBasic.disable())
