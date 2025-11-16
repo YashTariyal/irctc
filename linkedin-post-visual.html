@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRCTC Microservices Architecture - LinkedIn Visual</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            color: #1E3A8A;
+            margin-bottom: 15px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header .subtitle {
+            font-size: 1.5rem;
+            color: #6B7280;
+            font-weight: 500;
+        }
+        
+        .migration-timeline {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .before-after {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .before-after h3 {
+            color: #1E3A8A;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .architecture-diagram {
+            background: #f8fafc;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .arch-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .layer {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .layer-header {
+            font-weight: 700;
+            color: #1E3A8A;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .service-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .service-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-box.primary {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .service-box.secondary {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        
+        .features-section {
+            margin: 40px 0;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+        }
+        
+        .feature-card h4 {
+            color: #1E3A8A;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            color: #6B7280;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-list li:before {
+            content: "✅";
+            font-size: 1.2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .tech-badge {
+            background: #f0f9ff;
+            color: #0ea5e9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            border: 2px solid #0ea5e9;
+        }
+        
+        .microservices-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .flow-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .flow-arrow {
+            font-size: 2rem;
+            color: #667eea;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-weight: 700;
+        }
+        
+        .comparison-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .migration-timeline {
+                grid-template-columns: 1fr;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚂 IRCTC Microservices Architecture</h1>
+            <p class="subtitle">From Monolith to Distributed Excellence</p>
+        </div>
+        
+        <div class="migration-timeline">
+            <div class="before-after">
+                <h3>📦 Before: Monolith</h3>
+                <ul style="list-style: none; color: #6B7280;">
+                    <li>❌ Single application</li>
+                    <li>❌ Tightly coupled</li>
+                    <li>❌ Difficult to scale</li>
+                    <li>❌ Single point of failure</li>
+                    <li>❌ Long deployment cycles</li>
+                </ul>
+            </div>
+            
+            <div class="before-after">
+                <h3>✨ After: Microservices</h3>
+                <ul style="list-style: none; color: #6B7280;">
+                    <li>✅ 7+ independent services</li>
+                    <li>✅ Loosely coupled</li>
+                    <li>✅ Independent scaling</li>
+                    <li>✅ Fault isolation</li>
+                    <li>✅ Fast deployments</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="architecture-diagram">
+            <h2 style="color: #1E3A8A; margin-bottom: 30px; text-align: center; font-size: 2rem;">🏗️ Microservices Architecture</h2>
+            
+            <div class="arch-layers">
+                <div class="layer">
+                    <div class="layer-header">🌐 Client Layer</div>
+                    <div class="services-grid">
+                        <div class="service-box secondary">React Frontend</div>
+                        <div class="service-box secondary">Mobile Apps</div>
+                        <div class="service-box secondary">Third-party APIs</div>
+                    </div>
+                </div>
+                
+                <div class="layer">
+                    <div class="layer-header">🚪 API Gateway & Discovery</div>
+                    <div class="services-grid">
+                        <div class="service-box primary">API Gateway (8090)</div>
+                        <div class="service-box primary">Eureka Server (8761)</div>
+                        <div class="service-box primary">Config Server</div>
+                    </div>
+                </div>
+                
+                <div class="layer">
+                    <div class="layer-header">🔧 Business Services</div>
+                    <div class="services-grid">
+                        <div class="service-box">User Service (8091)</div>
+                        <div class="service-box">Train Service (8092)</div>
+                        <div class="service-box">Booking Service (8093)</div>
+                        <div class="service-box">Payment Service (8094)</div>
+                        <div class="service-box">Notification Service (8095)</div>
+                        <div class="service-box">External APIs</div>
+                    </div>
+                </div>
+                
+                <div class="layer">
+                    <div class="layer-header">💾 Data & Messaging Layer</div>
+                    <div class="services-grid">
+                        <div class="service-box secondary">PostgreSQL</div>
+                        <div class="service-box secondary">Redis Cache</div>
+                        <div class="service-box secondary">Apache Kafka</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">7+</div>
+                <div class="stat-label">Microservices</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">API Endpoints</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">99.9%</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">45ms</div>
+                <div class="stat-label">Avg Response Time</div>
+            </div>
+        </div>
+        
+        <div class="features-section">
+            <h2 style="color: #1E3A8A; margin-bottom: 30px; text-align: center; font-size: 2rem;">✨ Key Features Implemented</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>🔐 Security & Auth</h4>
+                    <ul class="feature-list">
+                        <li>JWT Authentication</li>
+                        <li>OAuth2/OIDC</li>
+                        <li>Role-based Access</li>
+                        <li>Security Headers</li>
+                        <li>Data Masking</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>🚂 Train Management</h4>
+                    <ul class="feature-list">
+                        <li>Advanced Search</li>
+                        <li>Multi-city Planning</li>
+                        <li>Real-time Availability</li>
+                        <li>Dynamic Pricing</li>
+                        <li>Route Optimization</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>🎫 Booking System</h4>
+                    <ul class="feature-list">
+                        <li>Seat Selection</li>
+                        <li>PNR Tracking</li>
+                        <li>Waitlist/RAC</li>
+                        <li>Modifications</li>
+                        <li>Batch Processing</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>💳 Payment Gateway</h4>
+                    <ul class="feature-list">
+                        <li>Multiple Gateways</li>
+                        <li>Secure Processing</li>
+                        <li>Auto Refunds</li>
+                        <li>Webhooks</li>
+                        <li>Idempotency</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>📊 Observability</h4>
+                    <ul class="feature-list">
+                        <li>Distributed Tracing</li>
+                        <li>Prometheus Metrics</li>
+                        <li>Health Checks</li>
+                        <li>Centralized Logging</li>
+                        <li>Performance Monitoring</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>🔄 Resilience</h4>
+                    <ul class="feature-list">
+                        <li>Circuit Breaker</li>
+                        <li>Retry with Backoff</li>
+                        <li>Bulkhead Pattern</li>
+                        <li>Dead Letter Queue</li>
+                        <li>Graceful Degradation</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>🏆 Loyalty System</h4>
+                    <ul class="feature-list">
+                        <li>Tier-based Rewards</li>
+                        <li>Points Management</li>
+                        <li>Redemption</li>
+                        <li>Progress Tracking</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>📱 Real-time Features</h4>
+                    <ul class="feature-list">
+                        <li>WebSocket Support</li>
+                        <li>Kafka Events</li>
+                        <li>Live Notifications</li>
+                        <li>Event Streaming</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin: 40px 0;">
+            <h2 style="color: #1E3A8A; margin-bottom: 30px; text-align: center; font-size: 2rem;">🛠️ Technology Stack</h2>
+            <div class="tech-stack">
+                <div class="tech-badge">Java 21</div>
+                <div class="tech-badge">Spring Boot 3.5.6</div>
+                <div class="tech-badge">Spring Cloud</div>
+                <div class="tech-badge">React 19</div>
+                <div class="tech-badge">TypeScript</div>
+                <div class="tech-badge">PostgreSQL</div>
+                <div class="tech-badge">Redis</div>
+                <div class="tech-badge">Apache Kafka</div>
+                <div class="tech-badge">Docker</div>
+                <div class="tech-badge">Eureka</div>
+                <div class="tech-badge">API Gateway</div>
+                <div class="tech-badge">Prometheus</div>
+                <div class="tech-badge">OpenTelemetry</div>
+                <div class="tech-badge">Razorpay</div>
+                <div class="tech-badge">Jenkins</div>
+            </div>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 40px; border-radius: 15px; margin: 40px 0; text-align: center;">
+            <h2 style="font-size: 2rem; margin-bottom: 20px;">🎯 Key Achievements</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
+                <div>
+                    <div style="font-size: 2.5rem; font-weight: 900; margin-bottom: 10px;">⚡</div>
+                    <div style="font-size: 1.2rem; font-weight: 600;">45ms Response Time</div>
+                </div>
+                <div>
+                    <div style="font-size: 2.5rem; font-weight: 900; margin-bottom: 10px;">🚀</div>
+                    <div style="font-size: 1.2rem; font-weight: 600;">99.9% Uptime</div>
+                </div>
+                <div>
+                    <div style="font-size: 2.5rem; font-weight: 900; margin-bottom: 10px;">📦</div>
+                    <div style="font-size: 1.2rem; font-weight: 600;">Independent Scaling</div>
+                </div>
+                <div>
+                    <div style="font-size: 2.5rem; font-weight: 900; margin-bottom: 10px;">🔄</div>
+                    <div style="font-size: 1.2rem; font-weight: 600;">Event-Driven</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 50px; padding-top: 30px; border-top: 2px solid #e5e7eb; color: #6B7280;">
+            <p style="font-size: 1.2rem; margin-bottom: 15px;">
+                <strong>#Java #SpringBoot #Microservices #SpringCloud #Docker #Kafka #PostgreSQL #Redis #React #TypeScript</strong>
+            </p>
+            <p style="font-size: 1rem;">
+                Transforming railway booking systems, one microservice at a time! 🚂✨
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
