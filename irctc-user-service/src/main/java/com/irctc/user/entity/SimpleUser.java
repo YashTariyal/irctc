@@ -36,6 +36,15 @@ public class SimpleUser implements TenantAware {
     private String phoneNumber;
     private String roles;
     
+    @Column(name = "referral_code", unique = true, length = 32)
+    private String referralCode;
+    
+    @Column(name = "referred_by_user_id")
+    private Long referredByUserId;
+    
+    @Column(name = "referral_points")
+    private Integer referralPoints = 0;
+    
     @Column(name = "tenant_id", length = 50)
     private String tenantId;
     
@@ -78,6 +87,15 @@ public class SimpleUser implements TenantAware {
     
     public String getRoles() { return roles; }
     public void setRoles(String roles) { this.roles = roles; }
+    
+    public String getReferralCode() { return referralCode; }
+    public void setReferralCode(String referralCode) { this.referralCode = referralCode; }
+    
+    public Long getReferredByUserId() { return referredByUserId; }
+    public void setReferredByUserId(Long referredByUserId) { this.referredByUserId = referredByUserId; }
+    
+    public Integer getReferralPoints() { return referralPoints; }
+    public void setReferralPoints(Integer referralPoints) { this.referralPoints = referralPoints; }
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

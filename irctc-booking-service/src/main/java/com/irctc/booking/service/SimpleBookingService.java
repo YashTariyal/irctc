@@ -62,6 +62,9 @@ public class SimpleBookingService {
     
     @Autowired(required = false)
     private com.irctc.booking.service.CheckInService checkInService;
+    
+    @Autowired(required = false)
+    private ReferralRewardService referralRewardService;
 
     public List<SimpleBooking> getAllBookings() {
         List<SimpleBooking> bookings = bookingRepository.findAll();
@@ -201,6 +204,10 @@ public class SimpleBookingService {
                     logger.error("Failed to schedule auto check-in for booking: {}", saved.getId(), e);
                     // Don't fail the booking creation if check-in scheduling fails
                 }
+            }
+            
+            if (referralRewardService != null) {
+                referralRewardService.recordReferralForBooking(saved);
             }
             
             // Metrics

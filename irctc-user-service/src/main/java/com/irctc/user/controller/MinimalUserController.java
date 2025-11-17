@@ -28,6 +28,9 @@ public class MinimalUserController {
     @Autowired
     private EventPublisherService eventPublisherService;
     
+    @Autowired
+    private com.irctc.user.service.ReferralService referralService;
+    
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping
@@ -70,7 +73,8 @@ public class MinimalUserController {
     // ===== AUTHENTICATION APIs =====
     
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody Map<String, String> userData) {
+    public ResponseEntity<?> registerUser(@RequestBody Map<String, String> userData,
+                                          @RequestParam(value = "referralCode", required = false) String referralCode) {
         try {
             // Validate required fields
             if (!userData.containsKey("username") || !userData.containsKey("password") || 
@@ -100,6 +104,7 @@ public class MinimalUserController {
             user.setRoles("USER");
             
             SimpleUser savedUser = userRepository.save(user);
+            referralService.handlePostRegistration(savedUser, referralCode);
             
             // Publish user registered event
             eventPublisherService.publishUserRegistered(
