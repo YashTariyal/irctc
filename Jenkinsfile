@@ -1,3 +1,77 @@
+pipeline {
+  agent any
+
+  options {
+    timeout(time: 45, unit: 'MINUTES')
+    parallelsAlwaysFailFast()
+  }
+
+  environment {
+    MAVEN_OPTS = '-Dmaven.test.failure.ignore=false'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Build & Test') {
+      parallel {
+        stage('User Service') {
+          steps {
+            dir('irctc-user-service') {
+              sh './mvnw clean verify'
+            }
+          }
+        }
+        stage('Payment Service') {
+          steps {
+            dir('irctc-payment-service') {
+              sh './mvnw clean verify'
+            }
+          }
+        }
+        stage('Booking Service') {
+          steps {
+            dir('irctc-booking-service') {
+              sh './mvnw clean verify'
+            }
+          }
+        }
+      }
+    }
+
+    stage('Package Artifacts') {
+      steps {
+        sh '''
+          mkdir -p artifacts
+          tar -czf artifacts/user-service.tar.gz -C irctc-user-service target
+          tar -czf artifacts/payment-service.tar.gz -C irctc-payment-service target
+          tar -czf artifacts/booking-service.tar.gz -C irctc-booking-service target
+        '''
+      }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: 'artifacts/**', fingerprint: true, allowEmptyArchive: true
+    }
+    failure {
+      script {
+        try {
+          mail to: 'dev-team@example.com',
+               subject: "IRCTC pipeline failed: ${env.BUILD_TAG}",
+               body: "Check build logs at ${env.BUILD_URL}"
+        } catch (err) {
+          echo "Email notification skipped: ${err.message}"
+        }
+      }
+    }
+  }
+}
 // Jenkinsfile for IRCTC Monolith Pipeline
 // This file defines the Jenkins build pipeline
 
