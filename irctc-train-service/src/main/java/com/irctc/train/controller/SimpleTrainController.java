@@ -149,15 +149,6 @@ public class SimpleTrainController {
         return ResponseEntity.ok(trains);
     }
     
-    @GetMapping("/route/state")
-    public ResponseEntity<List<SimpleTrain>> getTrainsBetweenStates(
-            @RequestParam String fromState,
-            @RequestParam String toState) {
-        // For now, treat state as station (in real implementation, map states to stations)
-        List<SimpleTrain> trains = trainService.searchTrains(fromState, toState);
-        return ResponseEntity.ok(trains);
-    }
-    
     @PutMapping("/{id}/status")
     public ResponseEntity<SimpleTrain> updateTrainStatus(@PathVariable Long id, @RequestParam String status) {
         SimpleTrain train = trainService.getTrainById(id)

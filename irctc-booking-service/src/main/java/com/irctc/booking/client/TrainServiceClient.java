@@ -61,6 +61,8 @@ public interface TrainServiceClient {
         private String trainClass;
         private Integer totalSeats;
         private Integer availableSeats;
+        private Integer distance;
+        private Integer duration;
         
         // Getters and setters
         public Long getId() { return id; }
@@ -83,6 +85,10 @@ public interface TrainServiceClient {
         public void setTotalSeats(Integer totalSeats) { this.totalSeats = totalSeats; }
         public Integer getAvailableSeats() { return availableSeats; }
         public void setAvailableSeats(Integer availableSeats) { this.availableSeats = availableSeats; }
+        public Integer getDistance() { return distance; }
+        public void setDistance(Integer distance) { this.distance = distance; }
+        public Integer getDuration() { return duration; }
+        public void setDuration(Integer duration) { this.duration = duration; }
     }
     
     /**
