@@ -3,6 +3,7 @@ package com.irctc.train;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * IRCTC Train Service - Microservice for Train Management
@@ -19,6 +20,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication(scanBasePackages = {"com.irctc.train", "com.irctc.external.railways", "com.irctc.external.weather", "com.irctc.external.maps"})
 @EnableFeignClients
+@EnableScheduling
 public class TrainServiceApplication {
 
     public static void main(String[] args) {
