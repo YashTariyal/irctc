@@ -13,6 +13,8 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
+  main:
+    allow-bean-definition-overriding: true
 
   datasource:
     url: jdbc:h2:mem:testdb
@@ -114,6 +116,7 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+    url: /api-docs
     operationsSorter: method
     tagsSorter: alpha
     tryItOutEnabled: true

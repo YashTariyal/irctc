@@ -26,7 +26,11 @@ import java.util.List;
  * @author IRCTC Development Team
  * @version 1.0.0
  */
-@Component
+/**
+ * Registered as "ApiVersion" filter via Spring's component name, so that
+ * the `ApiVersion` entry in `application.yml` routes is recognized.
+ */
+@Component("ApiVersion")
 public class ApiVersionGatewayFilter extends AbstractGatewayFilterFactory<ApiVersionGatewayFilter.Config> {
 
     private static final Logger logger = LoggerFactory.getLogger(ApiVersionGatewayFilter.class);
@@ -39,6 +43,14 @@ public class ApiVersionGatewayFilter extends AbstractGatewayFilterFactory<ApiVer
     
     public ApiVersionGatewayFilter() {
         super(Config.class);
+    }
+    
+    /**
+     * Explicitly register the factory name used in application.yml filters.
+     */
+    @Override
+    public String name() {
+        return "ApiVersion";
     }
     
     @Override

@@ -10,8 +10,11 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+
 @RestController
 @RequestMapping("/api/notifications")
+@ConditionalOnProperty(name = "notification.simple.controller.enabled", havingValue = "true", matchIfMissing = false)
 public class SimpleNotificationController {
 
     @Autowired

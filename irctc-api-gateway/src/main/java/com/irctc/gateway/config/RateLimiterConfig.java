@@ -5,9 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
 import reactor.core.publisher.Mono;
 
 /**
@@ -26,10 +23,7 @@ public class RateLimiterConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(RateLimiterConfig.class);
     
-    private final JwtDecoder jwtDecoder;
-
-    public RateLimiterConfig(JwtDecoder jwtDecoder) {
-        this.jwtDecoder = jwtDecoder;
+    public RateLimiterConfig() {
     }
 
     /**
@@ -59,6 +53,7 @@ public class RateLimiterConfig {
      * This ensures proper user-based rate limiting per authenticated user.
      */
     @Bean(name = "userKeyResolver")
+    @org.springframework.context.annotation.Primary
     public KeyResolver userKeyResolver() {
         return exchange -> {
             // First, try to get user ID from X-User-Id header
@@ -69,51 +64,9 @@ public class RateLimiterConfig {
                 return Mono.just("user-" + userId);
             }
             
-            // Try to extract user ID from JWT token in Authorization header
-            String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.substring(7);
-                
-                try {
-                    // Decode JWT token to extract user information
-                    Jwt jwt = jwtDecoder.decode(token);
-                    
-                    // Try to get user ID from 'sub' claim (subject)
-                    String subject = jwt.getClaimAsString("sub");
-                    if (subject != null && !subject.isEmpty()) {
-                        logger.debug("Extracted user ID from JWT sub claim: {}", subject);
-                        return Mono.just("user-" + subject);
-                    }
-                    
-                    // Try to get from 'username' claim
-                    String username = jwt.getClaimAsString("username");
-                    if (username != null && !username.isEmpty()) {
-                        logger.debug("Extracted username from JWT: {}", username);
-                        return Mono.just("user-" + username);
-                    }
-                    
-                    // Try to get from 'user_id' claim
-                    String userIdClaim = jwt.getClaimAsString("user_id");
-                    if (userIdClaim != null && !userIdClaim.isEmpty()) {
-                        logger.debug("Extracted user ID from JWT user_id claim: {}", userIdClaim);
-                        return Mono.just("user-" + userIdClaim);
-                    }
-                    
-                    // Fallback: use JWT ID as identifier
-                    String jti = jwt.getId();
-                    if (jti != null && !jti.isEmpty()) {
-                        logger.debug("Using JWT ID as user identifier: {}", jti);
-                        return Mono.just("user-jwt-" + jti);
-                    }
-                    
-                } catch (JwtException e) {
-                    logger.debug("JWT decode failed for rate limiting, falling back to IP: {}", e.getMessage());
-                    // Fall through to IP-based fallback
-                } catch (Exception e) {
-                    logger.warn("Error extracting user ID from JWT for rate limiting: {}", e.getMessage());
-                    // Fall through to IP-based fallback
-                }
-            }
+            // In this local/dev setup we don't introspect JWTs for rate limiting
+            // to avoid hard dependency on JwtDecoder; instead rely on X-User-Id
+            // when present, otherwise fall back to IP-based keys.
             
             // Fallback to IP-based rate limiting if user not authenticated
             logger.debug("No user authentication found, using IP-based rate limiting");

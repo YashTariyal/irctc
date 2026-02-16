@@ -13,35 +13,8 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
-  
-  # OAuth2 Resource Server Configuration
-  # Supports both JWK Set URI and Issuer URI
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # Option 1: Use JWK Set URI (for external OAuth2 server)
-          # jwk-set-uri: https://auth-server/.well-known/jwks.json
-          
-          # Option 2: Use Issuer URI (auto-discovers JWK Set URI)
-          issuer-uri: http://localhost:8091
-          
-          # Token validation settings
-          time-to-live: 3600 # 1 hour
-          
-      # OAuth2 Client Configuration (for SSO)
-      client:
-        registration:
-          irctc:
-            provider: irctc
-            client-id: irctc-client
-            client-secret: irctc-secret
-            authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8090/login/oauth2/code/irctc
-            scope: openid, profile, read, write
-        provider:
-          irctc:
-            issuer-uri: http://localhost:8091
+  main:
+    allow-bean-definition-overriding: true
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -123,6 +96,9 @@ security:
     otp-length: 6
     otp-validity-minutes: 5
     max-attempts: 3
+
+  simple:
+    enabled: true
 
 # Logging Configuration
 logging:

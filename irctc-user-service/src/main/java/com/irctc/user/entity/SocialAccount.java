@@ -13,10 +13,6 @@ import java.time.LocalDateTime;
     @Index(name = "idx_social_accounts_provider_id", columnList = "provider,providerUserId"),
     @Index(name = "idx_social_accounts_tenant_id", columnList = "tenantId")
 })
-@org.hibernate.annotations.FilterDef(
-    name = "tenantFilter",
-    parameters = @org.hibernate.annotations.ParamDef(name = "tenantId", type = String.class)
-)
 @org.hibernate.annotations.Filter(
     name = "tenantFilter",
     condition = "tenant_id = :tenantId"

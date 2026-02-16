@@ -13,9 +13,11 @@ CREATE TABLE IF NOT EXISTS data_export_requests (
     data_categories VARCHAR(500),
     tenant_id VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_export_requests_user_id (user_id),
-    INDEX idx_export_requests_status (status),
-    INDEX idx_export_requests_tenant_id (tenant_id)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Indexes for efficient querying
+CREATE INDEX IF NOT EXISTS idx_export_requests_user_id ON data_export_requests (user_id);
+CREATE INDEX IF NOT EXISTS idx_export_requests_status ON data_export_requests (status);
+CREATE INDEX IF NOT EXISTS idx_export_requests_tenant_id ON data_export_requests (tenant_id);
 

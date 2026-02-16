@@ -21,10 +21,12 @@ CREATE TABLE IF NOT EXISTS hotels (
     partner_hotel_id VARCHAR(100),
     tenant_id VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_hotels_location (location),
-    INDEX idx_hotels_station_code (nearest_station_code),
-    INDEX idx_hotels_rating (rating),
-    INDEX idx_hotels_tenant_id (tenant_id)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Indexes for hotel lookups
+CREATE INDEX IF NOT EXISTS idx_hotels_location ON hotels (location);
+CREATE INDEX IF NOT EXISTS idx_hotels_station_code ON hotels (nearest_station_code);
+CREATE INDEX IF NOT EXISTS idx_hotels_rating ON hotels (rating);
+CREATE INDEX IF NOT EXISTS idx_hotels_tenant_id ON hotels (tenant_id);
 

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS trains (
   arrival_time TIMESTAMP NOT NULL,
   train_type VARCHAR(50) NOT NULL,
   train_class VARCHAR(50) NOT NULL,
-  base_fare DECIMAL(10, 2) NOT NULL,
+  base_fare DOUBLE PRECISION NOT NULL,
   total_seats INT NOT NULL,
   available_seats INT NOT NULL,
   status VARCHAR(50) NOT NULL,

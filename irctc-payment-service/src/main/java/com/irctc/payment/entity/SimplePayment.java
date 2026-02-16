@@ -9,10 +9,6 @@ import java.time.LocalDateTime;
 @Table(name = "payments", indexes = {
     @Index(name = "idx_payments_tenant_id", columnList = "tenantId")
 })
-@org.hibernate.annotations.FilterDef(
-    name = "tenantFilter",
-    parameters = @org.hibernate.annotations.ParamDef(name = "tenantId", type = String.class)
-)
 @org.hibernate.annotations.Filter(
     name = "tenantFilter",
     condition = "tenant_id = :tenantId"
@@ -48,7 +44,7 @@ public class SimplePayment implements TenantAware {
     @Column(name = "gateway_transaction_id")
     private String gatewayTransactionId; // Gateway's transaction ID
     
-    @Column(name = "gateway_fee", precision = 10, scale = 2)
+    @Column(name = "gateway_fee")
     private Double gatewayFee; // Fee charged by gateway
     
     private LocalDateTime paymentTime;

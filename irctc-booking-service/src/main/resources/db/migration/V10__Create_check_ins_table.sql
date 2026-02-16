@@ -14,10 +14,12 @@ CREATE TABLE IF NOT EXISTS check_ins (
     failure_reason VARCHAR(500),
     tenant_id VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_check_ins_booking_id (booking_id),
-    INDEX idx_check_ins_user_id (user_id),
-    INDEX idx_check_ins_status (status),
-    INDEX idx_check_ins_tenant_id (tenant_id)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Indexes for efficient querying
+CREATE INDEX IF NOT EXISTS idx_check_ins_booking_id ON check_ins (booking_id);
+CREATE INDEX IF NOT EXISTS idx_check_ins_user_id ON check_ins (user_id);
+CREATE INDEX IF NOT EXISTS idx_check_ins_status ON check_ins (status);
+CREATE INDEX IF NOT EXISTS idx_check_ins_tenant_id ON check_ins (tenant_id);
 

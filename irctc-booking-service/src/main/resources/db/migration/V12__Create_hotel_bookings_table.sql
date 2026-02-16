@@ -26,11 +26,13 @@ CREATE TABLE IF NOT EXISTS hotel_bookings (
     tenant_id VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_hotel_bookings_user_id (user_id),
-    INDEX idx_hotel_bookings_hotel_id (hotel_id),
-    INDEX idx_hotel_bookings_booking_id (train_booking_id),
-    INDEX idx_hotel_bookings_status (status),
-    INDEX idx_hotel_bookings_tenant_id (tenant_id),
     FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE RESTRICT
 );
+
+-- Indexes for hotel bookings
+CREATE INDEX IF NOT EXISTS idx_hotel_bookings_user_id ON hotel_bookings (user_id);
+CREATE INDEX IF NOT EXISTS idx_hotel_bookings_hotel_id ON hotel_bookings (hotel_id);
+CREATE INDEX IF NOT EXISTS idx_hotel_bookings_booking_id ON hotel_bookings (train_booking_id);
+CREATE INDEX IF NOT EXISTS idx_hotel_bookings_status ON hotel_bookings (status);
+CREATE INDEX IF NOT EXISTS idx_hotel_bookings_tenant_id ON hotel_bookings (tenant_id);
 

@@ -13,6 +13,9 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -111,6 +114,7 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+    url: /api-docs
     operationsSorter: method
     tagsSorter: alpha
     tryItOutEnabled: true

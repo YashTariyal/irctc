@@ -21,10 +21,6 @@ import java.time.LocalDateTime;
     @Index(name = "idx_wallet_txn_tenant_id", columnList = "tenantId"),
     @Index(name = "idx_wallet_txn_created", columnList = "createdAt")
 })
-@org.hibernate.annotations.FilterDef(
-    name = "tenantFilter",
-    parameters = @org.hibernate.annotations.ParamDef(name = "tenantId", type = String.class)
-)
 @org.hibernate.annotations.Filter(
     name = "tenantFilter",
     condition = "tenant_id = :tenantId"

@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +42,6 @@ import java.util.concurrent.CompletableFuture;
  * Push Notification Service using Firebase Cloud Messaging
  */
 @Service
-@ConditionalOnProperty(name = "notification.push.enabled", havingValue = "true", matchIfMissing = false)
 public class PushNotificationService {
     
     private static final Logger logger = LoggerFactory.getLogger(PushNotificationService.class);

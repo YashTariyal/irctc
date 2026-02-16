@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS wallets (
   updated_at TIMESTAMP,
   last_transaction_at TIMESTAMP,
   version BIGINT NOT NULL DEFAULT 0,
-  UNIQUE KEY uk_wallets_user_id (user_id)
+  CONSTRAINT uk_wallets_user_id UNIQUE (user_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_wallets_user_id ON wallets(user_id);

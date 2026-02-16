@@ -1,8 +1,12 @@
 -- Add gateway-related fields to payments table
 ALTER TABLE payments 
-ADD COLUMN IF NOT EXISTS gateway_name VARCHAR(50),
-ADD COLUMN IF NOT EXISTS gateway_transaction_id VARCHAR(255),
-ADD COLUMN IF NOT EXISTS gateway_fee DECIMAL(10, 2);
+    ADD COLUMN IF NOT EXISTS gateway_name VARCHAR(50);
+
+ALTER TABLE payments
+    ADD COLUMN IF NOT EXISTS gateway_transaction_id VARCHAR(255);
+
+ALTER TABLE payments
+    ADD COLUMN IF NOT EXISTS gateway_fee DOUBLE PRECISION;
 
 -- Create index on gateway_name for faster queries
 CREATE INDEX IF NOT EXISTS idx_payments_gateway_name ON payments(gateway_name);

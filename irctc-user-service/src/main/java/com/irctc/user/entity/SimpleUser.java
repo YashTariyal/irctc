@@ -8,10 +8,6 @@ import java.time.LocalDateTime;
 @Table(name = "simple_users", indexes = {
     @Index(name = "idx_users_tenant_id", columnList = "tenantId")
 })
-@org.hibernate.annotations.FilterDef(
-    name = "tenantFilter",
-    parameters = @org.hibernate.annotations.ParamDef(name = "tenantId", type = String.class)
-)
 @org.hibernate.annotations.Filter(
     name = "tenantFilter",
     condition = "tenant_id = :tenantId"

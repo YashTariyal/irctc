@@ -1,4 +1,4 @@
--- Create Tenants Table for Multi-Tenancy Support
+-- Create Tenants Table for Multi-Tenancy Support (payment service)
 
 CREATE TABLE IF NOT EXISTS tenants (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

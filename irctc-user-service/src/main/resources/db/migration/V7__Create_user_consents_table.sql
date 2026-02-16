@@ -13,9 +13,11 @@ CREATE TABLE IF NOT EXISTS user_consents (
     tenant_id VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_consents_user_id (user_id),
-    INDEX idx_consents_consent_type (consent_type),
-    INDEX idx_consents_tenant_id (tenant_id),
-    UNIQUE KEY uk_user_consent (user_id, consent_type)
+    CONSTRAINT uk_user_consent UNIQUE (user_id, consent_type)
 );
+
+-- Indexes for consent queries
+CREATE INDEX IF NOT EXISTS idx_consents_user_id ON user_consents (user_id);
+CREATE INDEX IF NOT EXISTS idx_consents_consent_type ON user_consents (consent_type);
+CREATE INDEX IF NOT EXISTS idx_consents_tenant_id ON user_consents (tenant_id);
 

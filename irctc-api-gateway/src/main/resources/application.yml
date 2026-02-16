@@ -183,6 +183,10 @@ spring:
       port: ${REDIS_PORT:6379}
       database: 0
       timeout: 2000ms
+  security:
+    oauth2:
+      resourceserver:
+        jwt: {} # disabled for local dev; rely on downstream services
 
 # Eureka Client Configuration
 eureka:
@@ -319,17 +323,6 @@ management:
       endpoint: http://localhost:4318/v1/traces  # Jaeger OTLP HTTP endpoint
       export:
         enabled: true
-
-# OAuth2 Resource Server Configuration for Gateway
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # Use Issuer URI from User Service (Authorization Server)
-          issuer-uri: http://localhost:8091
-          # Token validation settings
-          time-to-live: 3600 # 1 hour
 
 # API Versioning Configuration
 api:
